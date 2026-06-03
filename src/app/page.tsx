@@ -5,16 +5,17 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AppSmoothScroll } from "@/components/smooth-scroll";
 import { Separator } from "@/components/ui/separator";
-import { LandingBeforeAfterStrip } from "@/features/home/components/landing-before-after-strip";
-import { LandingFeaturePanels } from "@/features/home/components/landing-feature-panels";
-import LandingFooter from "@/features/home/components/landing-footer";
-import { LandingGridBackground } from "@/features/home/components/landing-grid-background";
-import { LandingReveal } from "@/features/home/components/landing-reveal";
-import { LandingStagger } from "@/features/home/components/landing-stagger";
-import { LandingStickyNavbar } from "@/features/home/components/landing-sticky-navbar";
-import { LandingTrustRow } from "@/features/home/components/landing-trust-row";
-import { LandingWorkflowLine } from "@/features/home/components/landing-workflow-line";
+import { LandingBeforeAfterStrip } from "@/features/landing-before-after-strip";
+import { LandingFeaturePanels } from "@/features/landing-feature-panels";
+import LandingFooter from "@/features/landing-footer";
+import { LandingGridBackground } from "@/features/landing-grid-background";
+import { LandingReveal } from "@/features/landing-reveal";
+import { LandingStagger } from "@/features/landing-stagger";
+import { LandingStickyNavbar } from "@/features/landing-sticky-navbar";
+import { LandingTrustRow } from "@/features/landing-trust-row";
+import { LandingWorkflowLine } from "@/features/landing-workflow-line";
 import { seoConfig } from "@/lib/seo";
+import { DashboardInputRedirect } from "@/features/dashboard-input";
 
 export const metadata: Metadata = {
     title: "Tubmind | Idea workspace",
@@ -48,12 +49,6 @@ const whyBuiltPoints = [
     "Tubmind keeps ideas private at first, then gives you a clean path to refine, publish, and discuss the strongest ones.",
 ];
 
-const workflowPoints = [
-    "Sign in with Google and save rough ideas fast.",
-    "Organize notes, screenshots, features, and structure in the dashboard.",
-    "Publish the strongest ideas as public listings when they are ready.",
-];
-
 export default function Home() {
     return (
         <main className="relative min-h-screen overflow-hidden bg-background">
@@ -76,8 +71,18 @@ export default function Home() {
                     id="home"
                     className="relative mx-auto mt-40 flex w-full max-w-6xl flex-1 flex-col items-center justify-center pb-8 text-center md:pb-40"
                 >
-                    <LandingStagger className="contents" delay={0.1} stagger={0.09}>
-                        <LandingReveal inherit delay={0} y={16} blur={10} duration={0.55}>
+                    <LandingStagger
+                        className="contents"
+                        delay={0.1}
+                        stagger={0.09}
+                    >
+                        <LandingReveal
+                            inherit
+                            delay={0}
+                            y={16}
+                            blur={10}
+                            duration={0.55}
+                        >
                             <Badge
                                 variant="outline"
                                 className="mb-6 px-4 py-1 font-mono"
@@ -86,7 +91,13 @@ export default function Home() {
                             </Badge>
                         </LandingReveal>
 
-                        <LandingReveal inherit delay={0.2} y={20} blur={12} duration={0.7}>
+                        <LandingReveal
+                            inherit
+                            delay={0.2}
+                            y={20}
+                            blur={12}
+                            duration={0.7}
+                        >
                             <h1 className="max-w-4xl text-4xl font-semibold leading-[0.95] tracking-normal text-balance text-foreground md:mt-6 md:text-6xl">
                                 Capture thoughts from anywhere and turn them{" "}
                                 <span className="text-primary">
@@ -112,61 +123,9 @@ export default function Home() {
                             y={18}
                             blur={10}
                             duration={0.58}
-                            className="w-full"
+                            className="w-full py-12 px-48"
                         >
-                            <section
-                                id="workflow"
-                                className="mt-12 scroll-mt-28 grid w-full gap-6 border border-border bg-card p-5 text-left shadow-2xl backdrop-blur md:scroll-mt-32 md:p-6 lg:grid-cols-[1.1fr_0.9fr]"
-                            >
-                                <div className="space-y-4">
-                                    <Badge
-                                        variant="outline"
-                                        className="px-3 py-1 font-mono"
-                                    >
-                                        Product snapshot
-                                    </Badge>
-                                    <h2 className="max-w-xl text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
-                                        Capture ideas quickly, then refine them
-                                        into something you can actually use.
-                                    </h2>
-                                    <p className="max-w-lg text-sm leading-7 text-muted-foreground md:text-base">
-                                        The app side stays focused on the
-                                        workflow: save ideas with Google sign
-                                        in, shape them in a dashboard, review
-                                        the details, and organize the strongest
-                                        concepts in one place.
-                                    </p>
-                                    <div className="flex flex-wrap gap-3 pt-2">
-                                        <Button asChild>
-                                            <Link href="/dashboard">
-                                                Open dashboard
-                                            </Link>
-                                        </Button>
-                                        <Button asChild variant="outline">
-                                            <Link href="/login">Sign in</Link>
-                                        </Button>
-                                    </div>
-                                </div>
-
-                                <div className="grid gap-3">
-                                    {workflowPoints.map((point, index) => (
-                                        <div
-                                            key={point}
-                                            className="flex gap-3 bg-background/60 px-4 py-3 shadow-sm ring-1 ring-border/35"
-                                        >
-                                            <span className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                                                {String(index + 1).padStart(
-                                                    2,
-                                                    "0",
-                                                )}
-                                            </span>
-                                            <p className="text-sm leading-7 text-muted-foreground">
-                                                {point}
-                                            </p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </section>
+                            <DashboardInputRedirect />
                         </LandingReveal>
 
                         <LandingReveal
@@ -226,12 +185,11 @@ export default function Home() {
                                         notes app.
                                     </h2>
                                     <p className="max-w-lg text-sm leading-7 text-muted-foreground md:text-base">
-                                        This project exists to make idea
-                                        capture feel instant, then give it
-                                        structure. It keeps early fragments,
-                                        richer notes, and final planning in one
-                                        place so the ideas become usable instead
-                                        of lost.
+                                        This project exists to make idea capture
+                                        feel instant, then give it structure. It
+                                        keeps early fragments, richer notes, and
+                                        final planning in one place so the ideas
+                                        become usable instead of lost.
                                     </p>
                                 </div>
 
@@ -280,14 +238,11 @@ export default function Home() {
                                             one place.
                                         </p>
                                     </div>
-                                    <div className="flex flex-wrap gap-3">
+                                    <div className="flex flex-wrap">
                                         <Button asChild>
-                                            <Link href="/dashboard">
-                                                Go to dashboard
+                                            <Link href="https://app.tubmind.com">
+                                                Go to beta dashboard
                                             </Link>
-                                        </Button>
-                                        <Button asChild variant="outline">
-                                            <Link href="/login">Sign in</Link>
                                         </Button>
                                     </div>
                                 </div>
@@ -300,4 +255,3 @@ export default function Home() {
         </main>
     );
 }
- 

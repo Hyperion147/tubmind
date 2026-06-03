@@ -6,24 +6,25 @@ const blueprintBlocks = [
   {
     className: "left-6 top-28 hidden xl:block",
     lines: [
-      "+----+    +--+      |      :",
-      "|    |    |  |      |      :",
-      "+----+    +--+      |      :",
+      "+----------------+   +----------------+",
+      "| private capture |   | google sign in |",
+      "+----------------+   +----------------+",
       "",
-      "+-----------+    +------+  :",
-      "| vanity    |    | tile |  :",
-      "+-----------+    +------+  :",
+      "+----------------+   +----------------+",
+      "| notes + tags    |   | structure      |",
+      "+----------------+   +----------------+",
     ],
   },
   {
     className: "right-10 top-40 hidden 2xl:block",
     lines: [
-      "+------+    +-----------+",
-      "| tub  |    | storage   |",
-      "+------+    +-----------+",
+      "+----------------+   +----------------+",
+      "| public listing  |   | reactions      |",
+      "+----------------+   +----------------+",
       "",
-      "|   :   |   |   :   |   |",
-      "+---+---+   +---+---+---+",
+      "+----------------+   +----------------+",
+      "| discussion      |   | moderation     |",
+      "+----------------+   +----------------+",
     ],
   },
   {
@@ -33,7 +34,7 @@ const blueprintBlocks = [
       "| 01 |    | 02 |    | 03 |",
       "+----+    +----+    +----+",
       "",
-      "|  wall  |  niche  |  light  |",
+      "| save | refine | publish |",
     ],
   },
 ] as const;
@@ -43,31 +44,30 @@ const noteBlocks = [
     className: "right-24 top-96 hidden lg:block",
     lines: [
       "[ capture ]",
-      "title: warm spa bathroom",
-      "summary: calm, hidden storage",
-      ">> capture fragments",
-      ">> refine layout",
-      ">> shape into plan",
+      "idea: warm spa bathroom",
+      "source: bathroom thought",
+      ">> save with google sign in",
+      ">> add notes and features",
+      ">> keep private for now",
     ],
   },
   {
     className: "left-20 top-[28rem] hidden lg:block",
     lines: [
       "[ organize ]",
-      "voice memo:",
-      "  softer light near mirror",
-      "screens:",
-      "  terrazzo sink / ribbed glass",
-      "status: refining",
+      "summary: softer light near mirror",
+      "notes: terrazzo sink / ribbed glass",
+      "status: refining structure",
+      "dashboard: main hub",
     ],
   },
   {
     className: "right-20 bottom-40 hidden xl:block",
     lines: [
-      "[ review ]",
+      "[ publish ]",
       "slug: /oak-spa-concept",
-      "notes: ready to revisit",
-      ">> ready for refinement",
+      "comments: public listing",
+      "admin: moderation ready",
     ],
   },
 ] as const;
@@ -104,11 +104,11 @@ export function LandingGridBackground() {
           animate={
             prefersReducedMotion
               ? undefined
-            : {
-                opacity: 1,
-                y: 0,
-                filter: "blur(0px)",
-              }
+              : {
+                  opacity: 1,
+                  y: 0,
+                  filter: "blur(0px)",
+                }
           }
           transition={{
             duration: 0.85,

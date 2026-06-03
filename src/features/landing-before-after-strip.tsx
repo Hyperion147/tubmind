@@ -109,7 +109,7 @@ export function LandingBeforeAfterStrip() {
       <div className="flex gap-3 md:items-end justify-between">
         <div className="space-y-3">
           <Badge variant="outline" className="px-3 py-1 font-mono">
-            Before / After
+            Workflow Comparison
           </Badge>
         </div>
 

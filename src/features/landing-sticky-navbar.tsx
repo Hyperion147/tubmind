@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { DashboardIcon } from "@/components/ui/dashboard-icon";
 
 export function LandingStickyNavbar() {
     return (
@@ -29,9 +30,13 @@ export function LandingStickyNavbar() {
 
                     <div className="justify-self-end">
                         <Button asChild className="min-w-0">
-                            <Link href="/dashboard" className="gap-2 md:px-3">
-                                <span>Open app</span>
-                                <ArrowRight className="size-4" />
+                            <Link href="https://app.tubmind.com" className="gap-2 md:px-3">
+                                <span>Try Beta Dashboard</span>
+                                <DashboardIcon
+                                    size={64}
+                                    duration={1}
+                                    color="#ffffff"
+                                />
                             </Link>
                         </Button>
                     </div>

@@ -17,9 +17,9 @@ import { LandingWorkflowLine } from "@/features/home/components/landing-workflow
 import { seoConfig } from "@/lib/seo";
 
 export const metadata: Metadata = {
-    title: "Capture bathroom design ideas from anywhere",
+    title: "Tubmind | Idea workspace",
     description:
-        "Capture bathroom design ideas from anywhere, turn scattered inspiration into a useful plan, and refine every detail in one calm workspace.",
+        "Tubmind is a private idea-capture workspace for thoughts that strike anywhere, including in the bathroom. Sign in with Google, save rough ideas fast, refine them with notes, features, and structure, and publish the strongest ideas as public listings for reactions and discussion.",
     alternates: {
         canonical: "/",
     },
@@ -43,15 +43,15 @@ export const metadata: Metadata = {
 };
 
 const whyBuiltPoints = [
-    "Bathroom inspiration shows up everywhere: a photo, a voice memo, a half-remembered tile pattern, or a note scribbled in the moment.",
-    "I wanted one calm workspace where those fragments could become a useful bathroom design plan without losing context.",
-    "Bathideas turns rough inspiration into something organized, searchable, and ready to refine later.",
+    "Ideas can strike anywhere, from a bathroom note to a quick thought on the go, and they are easy to lose if you do not capture them fast.",
+    "I wanted one calm workspace where those fragments could become a useful plan without losing context.",
+    "Tubmind keeps ideas private at first, then gives you a clean path to refine, publish, and discuss the strongest ones.",
 ];
 
 const workflowPoints = [
-    "Capture bathroom ideas quickly from notes, screenshots, photos, and voice memos.",
-    "Organize the rough inspiration into one focused dashboard.",
-    "Refine the details until the concept becomes a useful plan.",
+    "Sign in with Google and save rough ideas fast.",
+    "Organize notes, screenshots, features, and structure in the dashboard.",
+    "Publish the strongest ideas as public listings when they are ready.",
 ];
 
 export default function Home() {
@@ -82,15 +82,15 @@ export default function Home() {
                                 variant="outline"
                                 className="mb-6 px-4 py-1 font-mono"
                             >
-                                Bathroom idea capture and organization
+                                Private idea capture for bathroom thoughts
                             </Badge>
                         </LandingReveal>
 
                         <LandingReveal inherit delay={0.2} y={20} blur={12} duration={0.7}>
                             <h1 className="max-w-4xl text-4xl font-semibold leading-[0.95] tracking-normal text-balance text-foreground md:mt-6 md:text-6xl">
-                                Turn bathroom inspiration from anywhere into{" "}
+                                Capture thoughts from anywhere and turn them{" "}
                                 <span className="text-primary">
-                                    useful design plans
+                                    into useful ideas
                                 </span>
                             </h1>
                         </LandingReveal>
@@ -126,15 +126,14 @@ export default function Home() {
                                         Product snapshot
                                     </Badge>
                                     <h2 className="max-w-xl text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
-                                        Capture messy bathroom inspiration and
-                                        turn it into something you can actually
-                                        use.
+                                        Capture ideas quickly, then refine them
+                                        into something you can actually use.
                                     </h2>
                                     <p className="max-w-lg text-sm leading-7 text-muted-foreground md:text-base">
                                         The app side stays focused on the
-                                        workflow: save ideas from anywhere,
-                                        shape them in a dashboard, review the
-                                        details, and organize the strongest
+                                        workflow: save ideas with Google sign
+                                        in, shape them in a dashboard, review
+                                        the details, and organize the strongest
                                         concepts in one place.
                                     </p>
                                     <div className="flex flex-wrap gap-3 pt-2">
@@ -223,14 +222,14 @@ export default function Home() {
                                         Why I built this
                                     </Badge>
                                     <h2 className="max-w-xl text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
-                                        Good bathroom ideas deserve more than
-                                        a messy notes app.
+                                        Good ideas deserve more than a messy
+                                        notes app.
                                     </h2>
                                     <p className="max-w-lg text-sm leading-7 text-muted-foreground md:text-base">
-                                        This project exists to make bathroom
-                                        inspiration easy to capture, then give
-                                        it structure. It keeps early fragments,
-                                        richer detail, and final planning in one
+                                        This project exists to make idea
+                                        capture feel instant, then give it
+                                        structure. It keeps early fragments,
+                                        richer notes, and final planning in one
                                         place so the ideas become usable instead
                                         of lost.
                                     </p>
@@ -276,9 +275,9 @@ export default function Home() {
                                             App access
                                         </p>
                                         <p className="mt-2 text-sm text-muted-foreground">
-                                            Open the product, sign in, and keep
-                                            organizing bathroom ideas in one
-                                            place.
+                                            Open the product, sign in with
+                                            Google, and keep organizing ideas in
+                                            one place.
                                         </p>
                                     </div>
                                     <div className="flex flex-wrap gap-3">

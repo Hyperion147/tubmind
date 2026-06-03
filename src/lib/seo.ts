@@ -1,4 +1,4 @@
-const defaultSiteUrl = "http://localhost:3000";
+const defaultSiteUrl = "https://tubmind.space";
 
 function normalizeSiteUrl(value: string) {
   if (value.startsWith("http://") || value.startsWith("https://")) {
@@ -19,23 +19,25 @@ export function getSiteUrl() {
 }
 
 export const seoConfig = {
-  siteName: "Bathideas",
-  title: "Bathideas | Bathroom design ideas captured and organized",
+  siteName: "Tubmind",
+  title: "Tubmind | Private idea capture workspace",
   description:
-    "Bathideas helps you capture bathroom design ideas from anywhere, organize messy inspiration into useful plans, and refine the details in one focused workspace.",
+    "Tubmind is a private idea-capture workspace for thoughts that strike anywhere, including in the bathroom. Sign in with Google, save rough ideas fast, refine them with notes, features, and structure, and publish the strongest ideas as public listings for reactions and discussion.",
   ogImage: "/og-image.png",
   ogImageAlt:
-    "Bathideas preview showing bathroom inspiration captured from anywhere and organized into a useful plan.",
+    "Tubmind preview showing private idea capture, Google sign-in, and published listings for discussion.",
   keywords: [
     "bathroom ideas",
     "bathroom inspiration",
     "bathroom design inspiration",
-    "bathroom planning",
-    "bathroom design ideas",
-    "bathroom renovation ideas",
-    "bathroom mood board",
-    "bathroom idea organizer",
-    "save bathroom ideas",
-    "interior planning",
+    "private idea capture workspace",
+    "idea capture app",
+    "google sign in app",
+    "save ideas privately",
+    "public listings",
+    "idea dashboard",
+    "idea organizer",
+    "notes and features",
+    "moderation dashboard",
   ],
 } as const;

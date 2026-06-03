@@ -12,7 +12,7 @@ const workflowSteps = [
   { icon: "draft", index: "01", label: "Capture", x: 110 },
   { icon: "page", index: "02", label: "Organize", x: 340 },
   { icon: "listing", index: "03", label: "Refine", x: 570 },
-  { icon: "comments", index: "04", label: "Review", x: 800 },
+  { icon: "comments", index: "04", label: "Publish", x: 800 },
 ] as const;
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -102,7 +102,7 @@ export function LandingWorkflowLine() {
 
   return (
     <figure
-      aria-label="Workflow: Capture, Organize, Refine, Review"
+      aria-label="Workflow: Capture, Organize, Refine, Publish"
       className="relative mt-8 w-full max-w-5xl overflow-hidden md:mt-10"
     >
       <svg
@@ -314,7 +314,7 @@ export function LandingWorkflowLine() {
         viewBox="0 0 340 288"
         role="img"
       >
-        <title>Capture bathroom inspiration, organize it, refine it, and review it</title>
+        <title>Capture bathroom inspiration, organize it, refine it, and publish it</title>
         <path
           d="M42 24V264"
           fill="none"

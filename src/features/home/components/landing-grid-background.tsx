@@ -42,32 +42,32 @@ const noteBlocks = [
   {
     className: "right-24 top-96 hidden lg:block",
     lines: [
-      "[ draft ]",
+      "[ capture ]",
       "title: warm spa bathroom",
       "summary: calm, hidden storage",
       ">> capture fragments",
       ">> refine layout",
-      ">> publish later",
+      ">> shape into plan",
     ],
   },
   {
     className: "left-20 top-[28rem] hidden lg:block",
     lines: [
-      "[ private ]",
+      "[ organize ]",
       "voice memo:",
       "  softer light near mirror",
       "screens:",
       "  terrazzo sink / ribbed glass",
-      "status: drafting",
+      "status: refining",
     ],
   },
   {
     className: "right-20 bottom-40 hidden xl:block",
     lines: [
-      "[ listing ]",
+      "[ review ]",
       "slug: /oak-spa-concept",
-      "comments: authenticated",
-      ">> ready for outside eyes",
+      "notes: ready to revisit",
+      ">> ready for refinement",
     ],
   },
 ] as const;

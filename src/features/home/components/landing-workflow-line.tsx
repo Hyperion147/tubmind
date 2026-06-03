@@ -9,10 +9,10 @@ import {
 import { motion, useReducedMotion } from "motion/react";
 
 const workflowSteps = [
-  { icon: "draft", index: "01", label: "Private draft", x: 110 },
-  { icon: "page", index: "02", label: "Detailed page", x: 340 },
-  { icon: "listing", index: "03", label: "Public listing", x: 570 },
-  { icon: "comments", index: "04", label: "Comments", x: 800 },
+  { icon: "draft", index: "01", label: "Capture", x: 110 },
+  { icon: "page", index: "02", label: "Organize", x: 340 },
+  { icon: "listing", index: "03", label: "Refine", x: 570 },
+  { icon: "comments", index: "04", label: "Review", x: 800 },
 ] as const;
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -102,7 +102,7 @@ export function LandingWorkflowLine() {
 
   return (
     <figure
-      aria-label="Workflow: Private draft, Detailed page, Public listing, Comments"
+      aria-label="Workflow: Capture, Organize, Refine, Review"
       className="relative mt-8 w-full max-w-5xl overflow-hidden md:mt-10"
     >
       <svg
@@ -314,7 +314,7 @@ export function LandingWorkflowLine() {
         viewBox="0 0 340 288"
         role="img"
       >
-        <title>Private draft to detailed page to public listing to comments</title>
+        <title>Capture bathroom inspiration, organize it, refine it, and review it</title>
         <path
           d="M42 24V264"
           fill="none"

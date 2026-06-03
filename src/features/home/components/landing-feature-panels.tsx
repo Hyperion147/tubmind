@@ -4,21 +4,21 @@ import { motion, useReducedMotion } from "motion/react";
 
 const featurePanels = [
   {
-    title: "Private draft to public listing",
+    title: "Capture inspiration from anywhere",
     description:
-      "Start quietly, then move the strongest concepts into public listings when they are ready for outside eyes.",
+      "Save bathroom ideas from photos, notes, and quick thoughts before they disappear.",
     visual: "publish",
   },
   {
     title: "Rich idea pages",
     description:
-      "Track properties, progress, features, and stack decisions in one focused place instead of scattered notes.",
+      "Track layout notes, material ideas, fixtures, and progress in one focused place instead of scattered notes.",
     visual: "blueprint",
   },
   {
-    title: "Logged-in discussions",
+    title: "Organized follow-up",
     description:
-      "Comments stay useful because feedback comes from authenticated users with a real dashboard identity.",
+      "Keep the strongest bathroom concepts easy to review, compare, and refine when you come back later.",
     visual: "discussion",
   },
 ] as const;

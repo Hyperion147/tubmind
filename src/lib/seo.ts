@@ -20,19 +20,22 @@ export function getSiteUrl() {
 
 export const seoConfig = {
   siteName: "Bathideas",
-  title: "Bathideas",
+  title: "Bathideas | Bathroom design ideas captured and organized",
   description:
-    "Bathideas is a focused workspace for drafting bathroom concepts privately, refining the details, and publishing the strongest ideas for discussion.",
+    "Bathideas helps you capture bathroom design ideas from anywhere, organize messy inspiration into useful plans, and refine the details in one focused workspace.",
   ogImage: "/og-image.png",
   ogImageAlt:
-    "Bathideas preview showing a private-to-public workflow for bathroom ideas.",
+    "Bathideas preview showing bathroom inspiration captured from anywhere and organized into a useful plan.",
   keywords: [
     "bathroom ideas",
+    "bathroom inspiration",
+    "bathroom design inspiration",
     "bathroom planning",
     "bathroom design ideas",
+    "bathroom renovation ideas",
+    "bathroom mood board",
+    "bathroom idea organizer",
+    "save bathroom ideas",
     "interior planning",
-    "idea dashboard",
-    "private drafting",
-    "public listings",
   ],
 } as const;

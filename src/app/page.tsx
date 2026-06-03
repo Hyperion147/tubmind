@@ -17,9 +17,9 @@ import { LandingWorkflowLine } from "@/features/home/components/landing-workflow
 import { seoConfig } from "@/lib/seo";
 
 export const metadata: Metadata = {
-    title: "Private bathroom ideas, clean public listings",
+    title: "Capture bathroom design ideas from anywhere",
     description:
-        "Draft bathroom concepts privately, shape the details in one calm workspace, and publish only the ideas that are ready for outside feedback.",
+        "Capture bathroom design ideas from anywhere, turn scattered inspiration into a useful plan, and refine every detail in one calm workspace.",
     alternates: {
         canonical: "/",
     },
@@ -43,15 +43,15 @@ export const metadata: Metadata = {
 };
 
 const whyBuiltPoints = [
-    "Bathroom ideas usually start as scattered notes, screenshots, and half-finished voice memos.",
-    "I wanted one calm workspace where a rough thought could become a real plan without losing context.",
-    "Bathideas keeps drafting private at first, then makes publishing and discussion feel intentional instead of noisy.",
+    "Bathroom inspiration shows up everywhere: a photo, a voice memo, a half-remembered tile pattern, or a note scribbled in the moment.",
+    "I wanted one calm workspace where those fragments could become a useful bathroom design plan without losing context.",
+    "Bathideas turns rough inspiration into something organized, searchable, and ready to refine later.",
 ];
 
 const workflowPoints = [
-    "Capture quickly without losing the messy first thought.",
-    "Refine the details in a dashboard instead of a notes app.",
-    "Publish only when the concept is ready for outside feedback.",
+    "Capture bathroom ideas quickly from notes, screenshots, photos, and voice memos.",
+    "Organize the rough inspiration into one focused dashboard.",
+    "Refine the details until the concept becomes a useful plan.",
 ];
 
 export default function Home() {
@@ -82,15 +82,15 @@ export default function Home() {
                                 variant="outline"
                                 className="mb-6 px-4 py-1 font-mono"
                             >
-                                Structured drafting for bathroom ideas
+                                Bathroom idea capture and organization
                             </Badge>
                         </LandingReveal>
 
                         <LandingReveal inherit delay={0.2} y={20} blur={12} duration={0.7}>
                             <h1 className="max-w-4xl text-4xl font-semibold leading-[0.95] tracking-normal text-balance text-foreground md:mt-6 md:text-6xl">
-                                Turn scattered bathroom ideas into{" "}
+                                Turn bathroom inspiration from anywhere into{" "}
                                 <span className="text-primary">
-                                    clean, publishable plans
+                                    useful design plans
                                 </span>
                             </h1>
                         </LandingReveal>
@@ -126,14 +126,16 @@ export default function Home() {
                                         Product snapshot
                                     </Badge>
                                     <h2 className="max-w-xl text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
-                                        Draft privately, refine in detail, then
-                                        publish only when the idea is ready.
+                                        Capture messy bathroom inspiration and
+                                        turn it into something you can actually
+                                        use.
                                     </h2>
                                     <p className="max-w-lg text-sm leading-7 text-muted-foreground md:text-base">
                                         The app side stays focused on the
-                                        workflow: capture a thought, shape it in
-                                        a dashboard, review the details, and
-                                        share it when you want feedback.
+                                        workflow: save ideas from anywhere,
+                                        shape them in a dashboard, review the
+                                        details, and organize the strongest
+                                        concepts in one place.
                                     </p>
                                     <div className="flex flex-wrap gap-3 pt-2">
                                         <Button asChild>
@@ -221,16 +223,16 @@ export default function Home() {
                                         Why I built this
                                     </Badge>
                                     <h2 className="max-w-xl text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
-                                        Good bathroom concepts deserve more than
+                                        Good bathroom ideas deserve more than
                                         a messy notes app.
                                     </h2>
                                     <p className="max-w-lg text-sm leading-7 text-muted-foreground md:text-base">
-                                        This project exists to make idea capture
-                                        feel quick, but refinement feel serious.
-                                        It gives one place for early drafts,
-                                        richer detail, public sharing, and
-                                        comments when the work is actually ready
-                                        for outside eyes.
+                                        This project exists to make bathroom
+                                        inspiration easy to capture, then give
+                                        it structure. It keeps early fragments,
+                                        richer detail, and final planning in one
+                                        place so the ideas become usable instead
+                                        of lost.
                                     </p>
                                 </div>
 
@@ -274,9 +276,9 @@ export default function Home() {
                                             App access
                                         </p>
                                         <p className="mt-2 text-sm text-muted-foreground">
-                                            Open the product, sign in, and pick
-                                            up where the landing page leaves
-                                            off.
+                                            Open the product, sign in, and keep
+                                            organizing bathroom ideas in one
+                                            place.
                                         </p>
                                     </div>
                                     <div className="flex flex-wrap gap-3">

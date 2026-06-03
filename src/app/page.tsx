@@ -51,13 +51,13 @@ const whyBuiltPoints = [
 
 export default function Home() {
     return (
-        <main className="relative min-h-screen overflow-hidden bg-background">
+        <main className="relative flex min-h-screen flex-col overflow-hidden bg-background">
             <AppSmoothScroll />
             <LandingGridBackground />
 
             <div className="pointer-events-none absolute inset-x-0 top-0 h-96 bg-[radial-gradient(circle_at_top,color-mix(in_oklch,var(--accent)_30%,white)_0%,transparent_72%)]" />
 
-            <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-400 flex-col px-4 py-4 md:px-6 md:py-6">
+            <div className="relative z-10 mx-auto flex w-full max-w-400 flex-1 flex-col px-4 py-4 md:px-6 md:py-6">
                 <LandingReveal
                     delay={0.02}
                     blur={12}
@@ -240,7 +240,7 @@ export default function Home() {
                                     </div>
                                     <div className="flex flex-wrap">
                                         <Button asChild>
-                                            <Link href="https://app.tubmind.com">
+                                            <Link href="https://app.tubmind.space">
                                                 Go to beta dashboard
                                             </Link>
                                         </Button>
@@ -251,7 +251,9 @@ export default function Home() {
                     </LandingStagger>
                 </section>
             </div>
-            <LandingFooter />
+            <div className="relative z-10 w-full">
+                <LandingFooter />
+            </div>
         </main>
     );
 }

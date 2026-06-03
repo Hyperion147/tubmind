@@ -41,7 +41,7 @@ const LandingFooter = () => {
             ease: [0.22, 1, 0.36, 1],
           }}
         >
-          capture. organize. refine.
+          draft. update. review.
         </motion.p>
       </div>
   )

@@ -41,7 +41,7 @@ export function DashboardInputRedirect() {
                         className="h-12 w-full transition-colors duration-300 hover:bg-primary/90 gap-2 md:w-auto md:px-3"
                     >
                         <Link
-                            href="https://app.tubmind.com"
+                            href="https://app.tubmind.space"
                             className="flex items-center gap-2"
                         >
                             <span>Capture your idea</span>

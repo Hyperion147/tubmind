@@ -30,7 +30,7 @@ export function LandingStickyNavbar() {
 
                     <div className="justify-self-end">
                         <Button asChild className="min-w-0">
-                            <Link href="https://app.tubmind.com" className="gap-2 md:px-3">
+                            <Link href="https://app.tubmind.space" className="gap-2 md:px-3">
                                 <span>Try Beta Dashboard</span>
                                 <DashboardIcon
                                     size={64}

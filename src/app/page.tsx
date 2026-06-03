@@ -54,13 +54,6 @@ const workflowPoints = [
     "Publish only when the concept is ready for outside feedback.",
 ];
 
-const navItems = [
-    { label: "Home", href: "/" },
-    { label: "Workflow", href: "#workflow" },
-    { label: "Why", href: "#why" },
-    { label: "App", href: "/dashboard" },
-];
-
 export default function Home() {
     return (
         <main className="relative min-h-screen overflow-hidden bg-background">
@@ -76,20 +69,7 @@ export default function Home() {
                     duration={0.55}
                     className="pointer-events-none fixed inset-x-0 top-3 z-40 px-4 md:px-6"
                 >
-                    <LandingStickyNavbar
-                        title="Bathideas"
-                        eyebrow="Preview"
-                        iconName="sparkles"
-                        iconClassName="bg-accent/40"
-                        navItems={navItems}
-                        actions={[
-                            {
-                                label: "Open app",
-                                href: "/dashboard",
-                                iconName: "arrow-right",
-                            },
-                        ]}
-                    />
+                    <LandingStickyNavbar />
                 </LandingReveal>
 
                 <section

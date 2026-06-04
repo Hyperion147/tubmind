@@ -6,6 +6,7 @@ import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { DashboardIcon } from "@/components/ui/dashboard-icon";
+import Image from "next/image";
 
 export function LandingStickyNavbar() {
     return (
@@ -21,10 +22,10 @@ export function LandingStickyNavbar() {
                         className="flex items-center gap-2.5 justify-self-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
                     >
                         <div className="flex size-9 items-center justify-center overflow-hidden border border-border bg-accent/40 text-accent-foreground">
-                            <Sparkles className="size-4.5" aria-hidden="true" />
+                            <Image src="/logo.png" alt="TUBMIND Logo" width={36} height={36} />
                         </div>
                         <span className="text-base font-semibold text-foreground md:text-lg">
-                            BATHIDEAS
+                            TUBMIND
                         </span>
                     </Link>
 

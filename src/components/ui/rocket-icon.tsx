@@ -18,12 +18,12 @@ import {
  type HTMLAttributes,
  type MouseEvent,
 } from "react";
-export interface DashboardIconHandle {
+export interface RocketIconHandle {
  startAnimation: () => void;
  stopAnimation: () => void;
 }
 
-interface DashboardIconProps extends Omit<
+interface RocketIconProps extends Omit<
  HTMLAttributes<HTMLDivElement>,
  | "color"
  | "onDrag"
@@ -39,14 +39,14 @@ interface DashboardIconProps extends Omit<
  color?: string;
 }
 
-const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
+const RocketIcon = forwardRef<RocketIconHandle, RocketIconProps>(
  (
   {
    onMouseEnter,
    onMouseLeave,
    className,
    size = 24,
-   duration = 0.6,
+   duration = 1,
    isAnimated = true,
    color,
    ...props
@@ -126,27 +126,28 @@ const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
    };
   }, [controls, isAnimated, reduced]);
 
-  const iconVariants: Variants = {
-   normal: { scale: 1, rotate: 0 },
+  const rocketVariants: Variants = {
+   normal: { y: 0, x: 0 },
    animate: {
-    scale: [1, 1.06, 0.98, 1],
-    rotate: [0, -1.5, 1.5, 0],
-    transition: { duration: 1.1 * duration, ease: "easeInOut" },
+    y: [0, -3, 0],
+    x: [0, 3, 0],
+    transition: {
+     duration: 0.7 * duration,
+     ease: "easeInOut",
+    },
    },
   };
 
-  const tileVariants: Variants = {
-   normal: { opacity: 1, scale: 1, y: 0 },
-   animate: (i: number) => ({
-    opacity: [0.6, 1],
-    scale: [0.95, 1.04, 1],
-    y: [3, -2, 0],
+  const thrustVariants: Variants = {
+   normal: { opacity: 1, scale: 1 },
+   animate: {
+    opacity: [1, 0.3, 1],
+    scale: [1, 1.4, 1],
     transition: {
-     duration: 0.9 * duration,
+     duration: 0.4 * duration,
      ease: "easeInOut",
-     delay: i * 0.08,
     },
-   }),
+   },
   };
 
   return (
@@ -169,51 +170,32 @@ const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      animate={controls}
-      initial="normal"
-      variants={iconVariants}
      >
-      <m.rect
-       width="7"
-       height="9"
-       x="3"
-       y="3"
-       rx="1"
-       variants={tileVariants}
-       custom={0}
+      <m.path
+       d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+       variants={rocketVariants}
+       initial="normal"
+       animate={controls}
+       style={{
+        transformBox: "fill-box",
+        transformOrigin: "center",
+       }}
+      />
+      <m.path
+       d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"
+       variants={rocketVariants}
        initial="normal"
        animate={controls}
       />
-      <m.rect
-       width="7"
-       height="5"
-       x="14"
-       y="3"
-       rx="1"
-       variants={tileVariants}
-       custom={1}
+      <m.path
+       d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"
+       variants={rocketVariants}
        initial="normal"
        animate={controls}
       />
-      <m.rect
-       width="7"
-       height="9"
-       x="14"
-       y="12"
-       rx="1"
-       variants={tileVariants}
-       custom={2}
-       initial="normal"
-       animate={controls}
-      />
-      <m.rect
-       width="7"
-       height="5"
-       x="3"
-       y="16"
-       rx="1"
-       variants={tileVariants}
-       custom={3}
+      <m.path
+       d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+       variants={thrustVariants}
        initial="normal"
        animate={controls}
       />
@@ -224,5 +206,5 @@ const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
  },
 );
 
-DashboardIcon.displayName = "DashboardIcon";
-export { DashboardIcon };
+RocketIcon.displayName = "RocketIcon";
+export { RocketIcon };

@@ -124,11 +124,6 @@ export function LandingGridBackground() {
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 overflow-hidden"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,transparent_28%,color-mix(in_oklch,var(--background)_86%,transparent)_58%,color-mix(in_oklch,var(--background)_98%,white)_100%)]" />
-
-        <div className="absolute inset-y-0 left-0 w-56 bg-linear-to-r from-background/88 via-background/46 to-transparent" />
-        <div className="absolute inset-y-0 right-0 w-56 bg-linear-to-l from-background/88 via-background/46 to-transparent" />
-
         {blueprintBlocks.map((block, index) => (
           <motion.pre
             key={`blueprint-${index}`}

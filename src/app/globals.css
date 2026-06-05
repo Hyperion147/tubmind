@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: oklch(0.9710 0.0150 150.000);
+  --background: oklch(0.9880 0.0080 150.000);
   --foreground: oklch(0.2200 0.0320 155.000);
   --card: oklch(0.9860 0.0080 148.000);
   --card-foreground: oklch(0.2200 0.0320 155.000);
@@ -117,9 +117,7 @@ html {
 
 body {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top, color-mix(in oklch, var(--accent) 14%, white) 0%, transparent 42%),
-    linear-gradient(180deg, var(--background) 0%, color-mix(in oklch, var(--background) 86%, white) 100%);
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   letter-spacing: var(--letter-spacing);

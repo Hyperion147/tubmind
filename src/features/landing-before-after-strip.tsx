@@ -170,7 +170,7 @@ export function LandingBeforeAfterStrip() {
             formChargeLevel: number;
           }) => (
             <div
-              className="space-y-3 border bg-linear-to-b from-background/92 via-background/84 to-secondary/38 p-3 shadow-sm transition-[background-color,border-color,box-shadow] duration-300 hover:border-primary/30 hover:shadow-md"
+              className="space-y-3 border bg-card/88 p-3 shadow-sm transition-[background-color,border-color,box-shadow] duration-300 hover:border-primary/30 hover:shadow-md"
               style={{
                 borderColor: getChargedBorderColor(formChargeLevel, 8, 8),
               }}
@@ -279,7 +279,7 @@ function ComparisonConnector({ isActive }: { isActive: boolean }) {
         <div className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-border/75" />
         <motion.div
           aria-hidden="true"
-          className="absolute left-0 top-1/2 h-3 w-24 -translate-y-1/2 bg-linear-to-r from-primary/0 via-primary/28 to-primary/0 blur-md"
+          className="absolute left-0 top-1/2 h-3 w-24 -translate-y-1/2 bg-primary/18 blur-md"
           animate={isActive ? { x: ["-10%", "95%"] } : { x: "-10%" }}
           transition={
             isActive
@@ -562,10 +562,6 @@ function ListingPreviewCard({ draft }: { draft: ComparisonDraft }) {
 
   return (
     <article className="group relative overflow-hidden border border-border bg-card/92 shadow-md backdrop-blur transition-[background-color,border-color,box-shadow] duration-300 hover:border-primary/35 hover:bg-card">
-      <div className="pointer-events-none absolute right-3 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground/55">
-        Preview
-      </div>
-
       <div className="space-y-5 p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -573,7 +569,7 @@ function ListingPreviewCard({ draft }: { draft: ComparisonDraft }) {
               <AvatarFallback>BI</AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-sm font-medium text-foreground">Bathideas demo</p>
+              <p className="text-sm font-medium text-foreground">Tubmind Card Demo</p>
               <p className="font-mono text-xs text-muted-foreground">Live card preview</p>
             </div>
           </div>

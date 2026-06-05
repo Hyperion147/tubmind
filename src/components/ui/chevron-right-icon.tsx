@@ -11,10 +11,12 @@ import {
 } from "motion/react";
 import {
  forwardRef,
+ useEffect,
  useCallback,
  useImperativeHandle,
  useRef,
  type HTMLAttributes,
+ type MouseEvent,
 } from "react";
 export interface ChevronRightIconHandle {
  startAnimation: () => void;
@@ -57,6 +59,7 @@ const ChevronRightIcon = forwardRef<
   const controls = useAnimation();
   const reduced = useReducedMotion();
   const isControlled = useRef(false);
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
   useImperativeHandle(ref, () => {
    isControlled.current = true;
@@ -68,21 +71,63 @@ const ChevronRightIcon = forwardRef<
   });
 
   const handleEnter = useCallback(
-   (e?: React.MouseEvent<HTMLDivElement>) => {
+   (e: MouseEvent<HTMLDivElement>) => {
     if (!isAnimated || reduced) return;
-    if (!isControlled.current) controls.start("animate");
-    else onMouseEnter?.(e as any);
+    if (!isControlled.current) {
+     controls.start("animate");
+     return;
+    }
+
+    onMouseEnter?.(e);
    },
    [controls, reduced, isAnimated, onMouseEnter],
   );
 
   const handleLeave = useCallback(
-   (e?: React.MouseEvent<HTMLDivElement>) => {
-    if (!isControlled.current) controls.start("normal");
-    else onMouseLeave?.(e as any);
+   (e: MouseEvent<HTMLDivElement>) => {
+    if (!isControlled.current) {
+     controls.start("normal");
+     return;
+    }
+
+    onMouseLeave?.(e);
    },
    [controls, onMouseLeave],
   );
+
+  useEffect(() => {
+   const node = rootRef.current;
+
+   if (!node || !isAnimated || reduced || isControlled.current) {
+    return;
+   }
+
+   const parentButton = node.closest('[data-slot="button"]');
+
+   if (!parentButton) {
+    return;
+   }
+
+   const startAnimation = () => {
+    controls.start("animate");
+   };
+
+   const stopAnimation = () => {
+    controls.start("normal");
+   };
+
+   parentButton.addEventListener("mouseenter", startAnimation);
+   parentButton.addEventListener("mouseleave", stopAnimation);
+   parentButton.addEventListener("focusin", startAnimation);
+   parentButton.addEventListener("focusout", stopAnimation);
+
+   return () => {
+    parentButton.removeEventListener("mouseenter", startAnimation);
+    parentButton.removeEventListener("mouseleave", stopAnimation);
+    parentButton.removeEventListener("focusin", startAnimation);
+    parentButton.removeEventListener("focusout", stopAnimation);
+   };
+  }, [controls, isAnimated, reduced]);
 
   const arrowVariants: Variants = {
    normal: { x: 0, opacity: 1 },
@@ -109,6 +154,7 @@ const ChevronRightIcon = forwardRef<
   return (
    <LazyMotion features={domMin} strict>
     <m.div
+     ref={rootRef}
      className={cn("inline-flex items-center justify-center", className)}
      onMouseEnter={handleEnter}
      onMouseLeave={handleLeave}

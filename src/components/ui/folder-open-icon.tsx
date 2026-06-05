@@ -18,12 +18,12 @@ import {
  type HTMLAttributes,
  type MouseEvent,
 } from "react";
-export interface DashboardIconHandle {
+export interface FolderOpenIconHandle {
  startAnimation: () => void;
  stopAnimation: () => void;
 }
 
-interface DashboardIconProps extends Omit<
+interface FolderOpenIconProps extends Omit<
  HTMLAttributes<HTMLDivElement>,
  | "color"
  | "onDrag"
@@ -39,21 +39,22 @@ interface DashboardIconProps extends Omit<
  color?: string;
 }
 
-const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
+const FolderOpenIcon = forwardRef<FolderOpenIconHandle, FolderOpenIconProps>(
  (
   {
    onMouseEnter,
    onMouseLeave,
    className,
    size = 24,
-   duration = 0.6,
+   duration = 1,
    isAnimated = true,
    color,
    ...props
   },
   ref,
  ) => {
-  const controls = useAnimation();
+  const folderControls = useAnimation();
+  const paperControls = useAnimation();
   const reduced = useReducedMotion();
   const isControlled = useRef(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -61,9 +62,19 @@ const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
   useImperativeHandle(ref, () => {
    isControlled.current = true;
    return {
-    startAnimation: () =>
-     reduced ? controls.start("normal") : controls.start("animate"),
-    stopAnimation: () => controls.start("normal"),
+    startAnimation: () => {
+     if (reduced) {
+      folderControls.start("normal");
+      paperControls.start("normal");
+     } else {
+      folderControls.start("animate");
+      paperControls.start("animate");
+     }
+    },
+    stopAnimation: () => {
+     folderControls.start("normal");
+     paperControls.start("normal");
+    },
    };
   });
 
@@ -71,25 +82,27 @@ const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
    (e: MouseEvent<HTMLDivElement>) => {
     if (!isAnimated || reduced) return;
     if (!isControlled.current) {
-     controls.start("animate");
+     folderControls.start("animate");
+     paperControls.start("animate");
      return;
     }
 
     onMouseEnter?.(e);
    },
-   [controls, reduced, isAnimated, onMouseEnter],
+   [folderControls, paperControls, reduced, onMouseEnter, isAnimated],
   );
 
   const handleLeave = useCallback(
    (e: MouseEvent<HTMLDivElement>) => {
     if (!isControlled.current) {
-     controls.start("normal");
+     folderControls.start("normal");
+     paperControls.start("normal");
      return;
     }
 
     onMouseLeave?.(e);
    },
-   [controls, onMouseLeave],
+   [folderControls, paperControls, onMouseLeave],
   );
 
   useEffect(() => {
@@ -106,11 +119,13 @@ const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
    }
 
    const startAnimation = () => {
-    controls.start("animate");
+    folderControls.start("animate");
+    paperControls.start("animate");
    };
 
    const stopAnimation = () => {
-    controls.start("normal");
+    folderControls.start("normal");
+    paperControls.start("normal");
    };
 
    parentButton.addEventListener("mouseenter", startAnimation);
@@ -124,29 +139,25 @@ const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
     parentButton.removeEventListener("focusin", startAnimation);
     parentButton.removeEventListener("focusout", stopAnimation);
    };
-  }, [controls, isAnimated, reduced]);
+  }, [folderControls, paperControls, isAnimated, reduced]);
 
-  const iconVariants: Variants = {
-   normal: { scale: 1, rotate: 0 },
+  const folderVariants: Variants = {
+   normal: { scale: 1, rotate: 0, y: 0 },
    animate: {
-    scale: [1, 1.06, 0.98, 1],
-    rotate: [0, -1.5, 1.5, 0],
-    transition: { duration: 1.1 * duration, ease: "easeInOut" },
+    scale: [1, 1.05, 0.97, 1],
+    rotate: [0, -2, 2, 0],
+    y: [0, -1.5, 0.5, 0],
+    transition: { duration: 0.9 * duration, ease: "easeInOut" },
    },
   };
 
-  const tileVariants: Variants = {
-   normal: { opacity: 1, scale: 1, y: 0 },
-   animate: (i: number) => ({
-    opacity: [0.6, 1],
-    scale: [0.95, 1.04, 1],
-    y: [3, -2, 0],
-    transition: {
-     duration: 0.9 * duration,
-     ease: "easeInOut",
-     delay: i * 0.08,
-    },
-   }),
+  const paperVariants: Variants = {
+   normal: { y: 0, opacity: 0 },
+   animate: {
+    y: [-6, 0],
+    opacity: [0, 1, 0],
+    transition: { duration: 1 * duration, ease: "easeInOut", delay: 0.2 },
+   },
   };
 
   return (
@@ -169,53 +180,22 @@ const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      animate={controls}
-      initial="normal"
-      variants={iconVariants}
      >
-      <m.rect
-       width="7"
-       height="9"
-       x="3"
-       y="3"
-       rx="1"
-       variants={tileVariants}
-       custom={0}
+      <m.path
+       d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"
+       animate={folderControls}
        initial="normal"
-       animate={controls}
+       variants={folderVariants}
       />
       <m.rect
-       width="7"
-       height="5"
-       x="14"
-       y="3"
+       x="7"
+       y="11"
+       width="10"
+       height="6"
        rx="1"
-       variants={tileVariants}
-       custom={1}
+       animate={paperControls}
        initial="normal"
-       animate={controls}
-      />
-      <m.rect
-       width="7"
-       height="9"
-       x="14"
-       y="12"
-       rx="1"
-       variants={tileVariants}
-       custom={2}
-       initial="normal"
-       animate={controls}
-      />
-      <m.rect
-       width="7"
-       height="5"
-       x="3"
-       y="16"
-       rx="1"
-       variants={tileVariants}
-       custom={3}
-       initial="normal"
-       animate={controls}
+       variants={paperVariants}
       />
      </m.svg>
     </m.div>
@@ -224,5 +204,5 @@ const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
  },
 );
 
-DashboardIcon.displayName = "DashboardIcon";
-export { DashboardIcon };
+FolderOpenIcon.displayName = "FolderOpenIcon";
+export { FolderOpenIcon };

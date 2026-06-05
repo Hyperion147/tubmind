@@ -7,7 +7,7 @@ const LandingFooter = () => {
 
   return (
     <div
-        className="absolute inset-x-0 bottom-0 overflow-hidden"
+        className="absolute inset-x-0 bottom-0 overflow-hidden pointer-events-none"
         style={{
           WebkitMaskImage:
             "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 28%, rgba(0,0,0,0.72) 52%, rgba(0,0,0,0) 100%)",

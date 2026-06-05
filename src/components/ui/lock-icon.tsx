@@ -18,12 +18,12 @@ import {
  type HTMLAttributes,
  type MouseEvent,
 } from "react";
-export interface DashboardIconHandle {
+export interface LockIconHandle {
  startAnimation: () => void;
  stopAnimation: () => void;
 }
 
-interface DashboardIconProps extends Omit<
+interface LockIconProps extends Omit<
  HTMLAttributes<HTMLDivElement>,
  | "color"
  | "onDrag"
@@ -39,14 +39,14 @@ interface DashboardIconProps extends Omit<
  color?: string;
 }
 
-const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
+const LockIcon = forwardRef<LockIconHandle, LockIconProps>(
  (
   {
    onMouseEnter,
    onMouseLeave,
    className,
    size = 24,
-   duration = 0.6,
+   duration = 1,
    isAnimated = true,
    color,
    ...props
@@ -126,27 +126,13 @@ const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
    };
   }, [controls, isAnimated, reduced]);
 
-  const iconVariants: Variants = {
-   normal: { scale: 1, rotate: 0 },
+  const lockVariants: Variants = {
+   normal: { x: 0, rotate: 0 },
    animate: {
-    scale: [1, 1.06, 0.98, 1],
-    rotate: [0, -1.5, 1.5, 0],
-    transition: { duration: 1.1 * duration, ease: "easeInOut" },
+    x: [0, -3, 3, -3, 3, 0],
+    rotate: [0, -2, 2, -2, 2, 0],
+    transition: { duration: 0.4 * duration },
    },
-  };
-
-  const tileVariants: Variants = {
-   normal: { opacity: 1, scale: 1, y: 0 },
-   animate: (i: number) => ({
-    opacity: [0.6, 1],
-    scale: [0.95, 1.04, 1],
-    y: [3, -2, 0],
-    transition: {
-     duration: 0.9 * duration,
-     ease: "easeInOut",
-     delay: i * 0.08,
-    },
-   }),
   };
 
   return (
@@ -169,51 +155,22 @@ const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      variants={lockVariants}
       animate={controls}
       initial="normal"
-      variants={iconVariants}
      >
       <m.rect
-       width="7"
-       height="9"
+       width="18"
+       height="11"
        x="3"
-       y="3"
-       rx="1"
-       variants={tileVariants}
-       custom={0}
+       y="11"
+       rx="2"
+       ry="2"
        initial="normal"
        animate={controls}
       />
-      <m.rect
-       width="7"
-       height="5"
-       x="14"
-       y="3"
-       rx="1"
-       variants={tileVariants}
-       custom={1}
-       initial="normal"
-       animate={controls}
-      />
-      <m.rect
-       width="7"
-       height="9"
-       x="14"
-       y="12"
-       rx="1"
-       variants={tileVariants}
-       custom={2}
-       initial="normal"
-       animate={controls}
-      />
-      <m.rect
-       width="7"
-       height="5"
-       x="3"
-       y="16"
-       rx="1"
-       variants={tileVariants}
-       custom={3}
+      <m.path
+       d="M7 11V7a5 5 0 0 1 10 0v4"
        initial="normal"
        animate={controls}
       />
@@ -224,5 +181,5 @@ const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
  },
 );
 
-DashboardIcon.displayName = "DashboardIcon";
-export { DashboardIcon };
+LockIcon.displayName = "LockIcon";
+export { LockIcon };

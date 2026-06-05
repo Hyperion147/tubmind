@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,7 @@ import { LandingStickyNavbar } from "@/features/landing-sticky-navbar";
 import { LandingTrustRow } from "@/features/landing-trust-row";
 import { LandingWorkflowLine } from "@/features/landing-workflow-line";
 import { seoConfig } from "@/lib/seo";
+import { ChevronRightIcon } from "@/components/ui/chevron-right-icon";
 
 export const metadata: Metadata = {
     title: "Tubmind | Idea workspace",
@@ -53,8 +53,6 @@ export default function Home() {
         <main className="relative flex min-h-screen flex-col overflow-hidden bg-background">
             <AppSmoothScroll />
             <LandingGridBackground />
-
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-96 bg-[radial-gradient(circle_at_top,color-mix(in_oklch,var(--accent)_30%,white)_0%,transparent_72%)]" />
 
             <div className="relative z-10 mx-auto flex w-full max-w-400 flex-1 flex-col px-4 py-4 md:px-6 md:py-6">
                 <LandingReveal
@@ -226,13 +224,12 @@ export default function Home() {
                                             one place.
                                         </p>
                                     </div>
-                                    <div className="flex flex-wrap">
-                                        <Button asChild>
-                                            <Link href="https://app.tubmind.space">
-                                                Go to beta dashboard
-                                            </Link>
-                                        </Button>
-                                    </div>
+                                    <Button asChild>
+                                        <a href="https://app.tubmind.space">
+                                            <span>Go to beta dashboard</span>
+                                            <ChevronRightIcon />
+                                        </a>
+                                    </Button>
                                 </div>
                             </div>
                         </LandingReveal>

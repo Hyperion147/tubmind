@@ -69,7 +69,7 @@ function FeaturePanel({ item }: { item: FeaturePanelItem }) {
       variants={panelVariants}
       whileHover={prefersReducedMotion ? undefined : "hover"}
     >
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-border opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
       <FeatureStudy prefersReducedMotion={prefersReducedMotion} type={item.visual} />
       <div className="mt-4 max-w-sm">
         <h3 className="text-lg font-semibold leading-6 tracking-tight text-foreground">

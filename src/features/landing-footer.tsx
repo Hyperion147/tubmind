@@ -16,7 +16,7 @@ const LandingFooter = () => {
         }}
       >
         <motion.p
-          className="w-full translate-y-[20%] text-center font-sans text-[clamp(3rem,10vw,14rem)] md:text-[clamp(4.5rem,16vw,14rem)] font-semibold tracking-[-0.08em] text-foreground/8"
+          className="w-full translate-y-[20%] text-center font-sans text-[clamp(3rem,10vw,14rem)] font-semibold tracking-[-0.08em] text-foreground/8"
           initial={
             prefersReducedMotion
               ? false

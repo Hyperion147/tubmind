@@ -15,7 +15,6 @@ import { LandingStickyNavbar } from "@/features/landing-sticky-navbar";
 import { LandingTrustRow } from "@/features/landing-trust-row";
 import { LandingWorkflowLine } from "@/features/landing-workflow-line";
 import { seoConfig } from "@/lib/seo";
-import { DashboardInputRedirect } from "@/features/dashboard-input";
 
 export const metadata: Metadata = {
     title: "Tubmind | Idea workspace",
@@ -115,17 +114,6 @@ export default function Home() {
                             className="hidden md:flex"
                         >
                             <LandingWorkflowLine />
-                        </LandingReveal>
-
-                        <LandingReveal
-                            inherit
-                            delay={0.4}
-                            y={18}
-                            blur={10}
-                            duration={0.58}
-                            className="w-full py-12 px-48"
-                        >
-                            <DashboardInputRedirect />
                         </LandingReveal>
 
                         <LandingReveal

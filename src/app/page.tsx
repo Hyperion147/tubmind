@@ -14,37 +14,58 @@ import {
     LandingStrip,
     LandingWorkflowLine,
 } from "@/features";
-import { seoConfig } from "@/lib/seo";
+import { getSiteUrl, seoConfig } from "@/lib/seo";
 
 export const metadata: Metadata = {
-    title: "Tubmind | Idea workspace",
-    description:
-        "Tubmind is a private idea-capture workspace for thoughts that strike anywhere, including in the bathroom. Sign in with Google, save rough ideas fast, refine them with notes, features, and structure, and publish the strongest ideas as public listings for reactions and discussion.",
+    title: "Private idea workspace",
+    description: seoConfig.description,
     alternates: {
-        canonical: "/",
+        canonical: seoConfig.canonicalPath,
     },
     openGraph: {
-        title: seoConfig.title,
+        type: "website",
+        siteName: seoConfig.siteName,
+        title: `${seoConfig.siteName} | Private idea workspace`,
         description: seoConfig.description,
-        url: "/",
+        url: seoConfig.canonicalPath,
         images: [
             {
                 url: seoConfig.ogImage,
                 alt: seoConfig.ogImageAlt,
+                width: 1901,
+                height: 956,
             },
         ],
     },
     twitter: {
         card: "summary_large_image",
-        title: seoConfig.title,
+        title: `${seoConfig.siteName} | Private idea workspace`,
         description: seoConfig.description,
         images: [seoConfig.ogImage],
     },
 };
 
 export default function Home() {
+    const siteUrl = getSiteUrl().toString().replace(/\/$/, "");
+    const organizationSchema = {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: seoConfig.siteName,
+        applicationCategory: "BusinessApplication",
+        operatingSystem: "Web",
+        description: seoConfig.description,
+        url: siteUrl,
+        image: `${siteUrl}${seoConfig.ogImage}`,
+    };
+
     return (
         <main className="relative flex min-h-screen flex-col overflow-hidden bg-background">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify(organizationSchema),
+                }}
+            />
             <AppSmoothScroll />
 
             <div className="relative z-10 mx-auto flex w-full max-w-400 flex-1 flex-col px-4 py-4 md:px-6 md:py-6">
@@ -73,12 +94,14 @@ export default function Home() {
                             blur={12}
                             duration={0.7}
                         >
-                            <h1 className="max-w-4xl text-4xl font-semibold leading-[0.95] tracking-normal text-balance md:mt-6 md:text-[54px] text-[#111111]">
-                                <p className="text-6xl">Good ideas die in notes apps.</p>
-                                <p className="text-primary">
+                            <h1 className="max-w-4xl text-4xl font-semibold leading-[0.95] tracking-normal text-balance text-[#111111] md:mt-6 md:text-[54px]">
+                                <span className="block text-6xl">
+                                    Good ideas die in notes apps.
+                                </span>
+                                <span className="block text-primary">
                                     Tubmind keeps them private, gives them
                                     structure and publishes the strongest ones.
-                                </p>
+                                </span>
                             </h1>
                             {/* <h1 className="max-w-4xl text-4xl font-semibold leading-[0.95] tracking-normal text-balance md:mt-6 md:text-[54px] text-[#111111]">
                                 <p className="text-[#111111] text-6xl">

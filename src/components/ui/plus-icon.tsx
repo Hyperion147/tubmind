@@ -11,19 +11,19 @@ import {
 } from "motion/react";
 import {
  forwardRef,
- useEffect,
  useCallback,
+ useEffect,
  useImperativeHandle,
  useRef,
  type HTMLAttributes,
  type MouseEvent,
 } from "react";
-export interface ShieldUserIconHandle {
+export interface PlusIconHandle {
  startAnimation: () => void;
  stopAnimation: () => void;
 }
 
-interface ShieldUserIconProps extends Omit<
+interface PlusIconProps extends Omit<
  HTMLAttributes<HTMLDivElement>,
  | "color"
  | "onDrag"
@@ -36,11 +36,10 @@ interface ShieldUserIconProps extends Omit<
  size?: number;
  duration?: number;
  isAnimated?: boolean;
- loop?: boolean;
  color?: string;
 }
 
-const ShieldUserIcon = forwardRef<ShieldUserIconHandle, ShieldUserIconProps>(
+const PlusIcon = forwardRef<PlusIconHandle, PlusIconProps>(
  (
   {
    onMouseEnter,
@@ -49,7 +48,6 @@ const ShieldUserIcon = forwardRef<ShieldUserIconHandle, ShieldUserIconProps>(
    size = 24,
    duration = 1,
    isAnimated = true,
-   loop = false,
    color,
    ...props
   },
@@ -63,7 +61,8 @@ const ShieldUserIcon = forwardRef<ShieldUserIconHandle, ShieldUserIconProps>(
   useImperativeHandle(ref, () => {
    isControlled.current = true;
    return {
-    startAnimation: () => controls.start("animate"),
+    startAnimation: () =>
+     reduced ? controls.start("normal") : controls.start("animate"),
     stopAnimation: () => controls.start("normal"),
    };
   });
@@ -71,12 +70,8 @@ const ShieldUserIcon = forwardRef<ShieldUserIconHandle, ShieldUserIconProps>(
   const handleEnter = useCallback(
    (e: MouseEvent<HTMLDivElement>) => {
     if (!isAnimated || reduced) return;
-    if (!isControlled.current) {
-     controls.start("animate");
-     return;
-    }
-
-    onMouseEnter?.(e);
+    if (!isControlled.current) controls.start("animate");
+    else onMouseEnter?.(e);
    },
    [controls, reduced, isAnimated, onMouseEnter],
   );
@@ -85,10 +80,9 @@ const ShieldUserIcon = forwardRef<ShieldUserIconHandle, ShieldUserIconProps>(
    (e: MouseEvent<HTMLDivElement>) => {
     if (!isControlled.current) {
      controls.start("normal");
-     return;
+    } else {
+     onMouseLeave?.(e);
     }
-
-    onMouseLeave?.(e);
    },
    [controls, onMouseLeave],
   );
@@ -96,7 +90,7 @@ const ShieldUserIcon = forwardRef<ShieldUserIconHandle, ShieldUserIconProps>(
   useEffect(() => {
    const node = rootRef.current;
 
-   if (!node || !isAnimated || reduced || isControlled.current || loop) {
+   if (!node || !isAnimated || reduced || isControlled.current) {
     return;
    }
 
@@ -125,48 +119,27 @@ const ShieldUserIcon = forwardRef<ShieldUserIconHandle, ShieldUserIconProps>(
     parentButton.removeEventListener("focusin", startAnimation);
     parentButton.removeEventListener("focusout", stopAnimation);
    };
-  }, [controls, isAnimated, loop, reduced]);
+  }, [controls, isAnimated, reduced]);
 
-  const shieldVariants: Variants = {
-   normal: { strokeDashoffset: 0, opacity: 1 },
+  const plusVariants: Variants = {
+   normal: { scale: 1, rotate: 0 },
    animate: {
-    strokeDashoffset: [120, 0],
-    opacity: [0.3, 1],
-    transition: {
-     duration: 0.8 * duration,
-     ease: "easeInOut",
-     repeat: loop ? Infinity : 0,
-     repeatDelay: loop ? 1.2 * duration : 0,
-    },
+    scale: [1, 1.2, 0.85, 1],
+    rotate: [0, 10, -10, 0],
+    transition: { duration: 1 * duration, ease: "easeInOut", repeat: 0 },
    },
   };
 
-  const bodyVariants: Variants = {
-   normal: { opacity: 1, y: 0 },
+  const lineVariants: Variants = {
+   normal: { pathLength: 1, opacity: 1 },
    animate: {
-    opacity: [0, 1],
-    y: [6, 0],
-    transition: {
-     duration: 0.5 * duration,
-     delay: 0.5,
-     ease: "easeOut",
-     repeat: loop ? Infinity : 0,
-     repeatDelay: loop ? 1.5 * duration : 0,
-    },
-   },
-  };
-
-  const headVariants: Variants = {
-   normal: { scale: 1, opacity: 1 },
-   animate: {
-    scale: [0.5, 1.2, 1],
-    opacity: [0, 1],
+    pathLength: [0, 1],
+    opacity: 1,
     transition: {
      duration: 0.6 * duration,
-     delay: 0.3,
-     ease: "easeOut",
-     repeat: loop ? Infinity : 0,
-     repeatDelay: loop ? 1.4 * duration : 0,
+     ease: "easeInOut",
+     repeat: 0,
+     repeatDelay: 0.4,
     },
    },
   };
@@ -191,30 +164,12 @@ const ShieldUserIcon = forwardRef<ShieldUserIconHandle, ShieldUserIconProps>(
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="lucide lucide-shield-user-icon lucide-shield-user"
+      animate={controls}
+      initial="normal"
+      variants={plusVariants}
      >
-      <m.path
-       d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
-       strokeDasharray="120"
-       strokeDashoffset="0"
-       variants={shieldVariants}
-       initial="normal"
-       animate={loop && !reduced ? "animate" : controls}
-      />
-      <m.path
-       d="M6.376 18.91a6 6 0 0 1 11.249.003"
-       variants={bodyVariants}
-       initial="normal"
-       animate={loop && !reduced ? "animate" : controls}
-      />
-      <m.circle
-       cx="12"
-       cy="11"
-       r="4"
-       variants={headVariants}
-       initial="normal"
-       animate={loop && !reduced ? "animate" : controls}
-      />
+      <m.path d="M5 12h14" variants={lineVariants} />
+      <m.path d="M12 5v14" variants={lineVariants} />
      </m.svg>
     </m.div>
    </LazyMotion>
@@ -222,5 +177,5 @@ const ShieldUserIcon = forwardRef<ShieldUserIconHandle, ShieldUserIconProps>(
  },
 );
 
-ShieldUserIcon.displayName = "ShieldUserIcon";
-export { ShieldUserIcon };
+PlusIcon.displayName = "PlusIcon";
+export { PlusIcon };

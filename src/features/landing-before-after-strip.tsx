@@ -115,7 +115,7 @@ export function LandingBeforeAfterStrip() {
 
         <Button type="button" variant="outline" size="sm" onClick={resetDraft} className="shrink-0">
           <RefreshCcw className="size-3 md:size-4" />
-          Reset demo
+          <span>Reset demo</span>
         </Button>
       </div>
 

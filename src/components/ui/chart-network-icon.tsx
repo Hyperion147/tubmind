@@ -11,19 +11,18 @@ import {
 } from "motion/react";
 import {
  forwardRef,
- useEffect,
  useCallback,
  useImperativeHandle,
  useRef,
  type HTMLAttributes,
  type MouseEvent,
 } from "react";
-export interface LockIconHandle {
+export interface ChartNetworkIconHandle {
  startAnimation: () => void;
  stopAnimation: () => void;
 }
 
-interface LockIconProps extends Omit<
+interface ChartNetworkIconProps extends Omit<
  HTMLAttributes<HTMLDivElement>,
  | "color"
  | "onDrag"
@@ -40,7 +39,10 @@ interface LockIconProps extends Omit<
  color?: string;
 }
 
-const LockIcon = forwardRef<LockIconHandle, LockIconProps>(
+const ChartNetworkIcon = forwardRef<
+ ChartNetworkIconHandle,
+ ChartNetworkIconProps
+>(
  (
   {
    onMouseEnter,
@@ -58,7 +60,6 @@ const LockIcon = forwardRef<LockIconHandle, LockIconProps>(
   const controls = useAnimation();
   const reduced = useReducedMotion();
   const isControlled = useRef(false);
-  const rootRef = useRef<HTMLDivElement | null>(null);
 
   useImperativeHandle(ref, () => {
    isControlled.current = true;
@@ -72,71 +73,68 @@ const LockIcon = forwardRef<LockIconHandle, LockIconProps>(
   const handleEnter = useCallback(
    (e: MouseEvent<HTMLDivElement>) => {
     if (!isAnimated || reduced) return;
-    if (!isControlled.current) {
-     controls.start("animate");
-     return;
-    }
-
-    onMouseEnter?.(e);
+    if (!isControlled.current) controls.start("animate");
+    else onMouseEnter?.(e);
    },
    [controls, reduced, isAnimated, onMouseEnter],
   );
 
   const handleLeave = useCallback(
    (e: MouseEvent<HTMLDivElement>) => {
-    if (!isControlled.current) {
-     controls.start("normal");
-     return;
-    }
-
-    onMouseLeave?.(e);
+    if (!isControlled.current) controls.start("normal");
+    else onMouseLeave?.(e);
    },
    [controls, onMouseLeave],
   );
 
-  useEffect(() => {
-   const node = rootRef.current;
-
-   if (!node || !isAnimated || reduced || isControlled.current || loop) {
-    return;
-   }
-
-   const parentButton = node.closest('[data-slot="button"]');
-
-   if (!parentButton) {
-    return;
-   }
-
-   const startAnimation = () => {
-    controls.start("animate");
-   };
-
-   const stopAnimation = () => {
-    controls.start("normal");
-   };
-
-   parentButton.addEventListener("mouseenter", startAnimation);
-   parentButton.addEventListener("mouseleave", stopAnimation);
-   parentButton.addEventListener("focusin", startAnimation);
-   parentButton.addEventListener("focusout", stopAnimation);
-
-   return () => {
-    parentButton.removeEventListener("mouseenter", startAnimation);
-    parentButton.removeEventListener("mouseleave", stopAnimation);
-    parentButton.removeEventListener("focusin", startAnimation);
-    parentButton.removeEventListener("focusout", stopAnimation);
-   };
-  }, [controls, isAnimated, loop, reduced]);
-
-  const lockVariants: Variants = {
-   normal: { x: 0, rotate: 0 },
+  const pathVariants: Variants = {
+   normal: {
+    pathLength: 1,
+    opacity: 1,
+    transition: { duration: 0.2 * duration },
+   },
    animate: {
-    x: [0, -3, 3, -3, 3, 0],
-    rotate: [0, -2, 2, -2, 2, 0],
+    pathLength: [0, 1],
+    opacity: [0.7, 1],
+    transition: {
+     duration: 0.6 * duration,
+     ease: "easeInOut",
+     repeat: loop ? Infinity : 0,
+     repeatDelay: loop ? 0.9 * duration : 0,
+    },
+   },
+  };
+
+  const circleVariants: Variants = {
+   normal: {
+    scale: 1,
+    opacity: 0.7,
+    transition: { duration: 0.2 * duration },
+   },
+   animate: {
+    scale: [0, 1],
+    opacity: [0.7, 1, 0.7],
     transition: {
      duration: 0.4 * duration,
+     ease: "easeOut",
      repeat: loop ? Infinity : 0,
-     repeatDelay: loop ? 1.2 * duration : 0,
+     repeatDelay: loop ? 1.1 * duration : 0,
+    },
+   },
+  };
+
+  const chartVariants: Variants = {
+   normal: {
+    scale: 1,
+    transition: { duration: 0.2 * duration },
+   },
+   animate: {
+    scale: [1, 1.05, 1],
+    transition: {
+     duration: 0.4 * duration,
+     ease: "easeInOut",
+     repeat: loop ? Infinity : 0,
+     repeatDelay: loop ? 1.1 * duration : 0,
     },
    },
   };
@@ -144,7 +142,6 @@ const LockIcon = forwardRef<LockIconHandle, LockIconProps>(
   return (
    <LazyMotion features={domMin} strict>
     <m.div
-     ref={rootRef}
      className={cn("inline-flex items-center justify-center", className)}
      onMouseEnter={handleEnter}
      onMouseLeave={handleLeave}
@@ -161,25 +158,17 @@ const LockIcon = forwardRef<LockIconHandle, LockIconProps>(
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      variants={lockVariants}
+      variants={chartVariants}
       animate={loop && !reduced ? "animate" : controls}
       initial="normal"
      >
-      <m.rect
-       width="18"
-       height="11"
-       x="3"
-       y="11"
-       rx="2"
-       ry="2"
-       initial="normal"
-       animate={loop && !reduced ? "animate" : controls}
-      />
-      <m.path
-       d="M7 11V7a5 5 0 0 1 10 0v4"
-       initial="normal"
-       animate={loop && !reduced ? "animate" : controls}
-      />
+      <m.path d="m13.11 7.664 1.78 2.672" variants={pathVariants} />
+      <m.path d="m14.162 12.788-3.324 1.424" variants={pathVariants} />
+      <m.path d="m20 4-6.06 1.515" variants={pathVariants} />
+      <m.path d="M3 3v16a2 2 0 0 0 2 2h16" variants={pathVariants} />
+      <m.circle cx="12" cy="6" r="2" variants={circleVariants} />
+      <m.circle cx="16" cy="12" r="2" variants={circleVariants} />
+      <m.circle cx="9" cy="15" r="2" variants={circleVariants} />
      </m.svg>
     </m.div>
    </LazyMotion>
@@ -187,5 +176,5 @@ const LockIcon = forwardRef<LockIconHandle, LockIconProps>(
  },
 );
 
-LockIcon.displayName = "LockIcon";
-export { LockIcon };
+ChartNetworkIcon.displayName = "ChartNetworkIcon";
+export { ChartNetworkIcon };

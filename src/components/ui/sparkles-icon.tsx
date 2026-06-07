@@ -11,19 +11,18 @@ import {
 } from "motion/react";
 import {
  forwardRef,
- useEffect,
  useCallback,
  useImperativeHandle,
  useRef,
  type HTMLAttributes,
  type MouseEvent,
 } from "react";
-export interface DashboardIconHandle {
+export interface SparklesIconHandle {
  startAnimation: () => void;
  stopAnimation: () => void;
 }
 
-interface DashboardIconProps extends Omit<
+interface SparklesIconProps extends Omit<
  HTMLAttributes<HTMLDivElement>,
  | "color"
  | "onDrag"
@@ -40,14 +39,14 @@ interface DashboardIconProps extends Omit<
  color?: string;
 }
 
-const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
+const SparklesIcon = forwardRef<SparklesIconHandle, SparklesIconProps>(
  (
   {
    onMouseEnter,
    onMouseLeave,
    className,
    size = 24,
-   duration = 0.6,
+   duration = 1,
    isAnimated = true,
    loop = false,
    color,
@@ -58,7 +57,6 @@ const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
   const controls = useAnimation();
   const reduced = useReducedMotion();
   const isControlled = useRef(false);
-  const rootRef = useRef<HTMLDivElement | null>(null);
 
   useImperativeHandle(ref, () => {
    isControlled.current = true;
@@ -72,96 +70,84 @@ const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
   const handleEnter = useCallback(
    (e: MouseEvent<HTMLDivElement>) => {
     if (!isAnimated || reduced) return;
-    if (!isControlled.current) {
-     controls.start("animate");
-     return;
-    }
-
-    onMouseEnter?.(e);
+    if (!isControlled.current) controls.start("animate");
+    else onMouseEnter?.(e);
    },
    [controls, reduced, isAnimated, onMouseEnter],
   );
 
   const handleLeave = useCallback(
    (e: MouseEvent<HTMLDivElement>) => {
-    if (!isControlled.current) {
-     controls.start("normal");
-     return;
-    }
-
-    onMouseLeave?.(e);
+    if (!isControlled.current) controls.start("normal");
+    else onMouseLeave?.(e);
    },
    [controls, onMouseLeave],
   );
-
-  useEffect(() => {
-   const node = rootRef.current;
-
-   if (!node || !isAnimated || reduced || isControlled.current || loop) {
-    return;
-   }
-
-   const parentButton = node.closest('[data-slot="button"]');
-
-   if (!parentButton) {
-    return;
-   }
-
-   const startAnimation = () => {
-    controls.start("animate");
-   };
-
-   const stopAnimation = () => {
-    controls.start("normal");
-   };
-
-   parentButton.addEventListener("mouseenter", startAnimation);
-   parentButton.addEventListener("mouseleave", stopAnimation);
-   parentButton.addEventListener("focusin", startAnimation);
-   parentButton.addEventListener("focusout", stopAnimation);
-
-   return () => {
-    parentButton.removeEventListener("mouseenter", startAnimation);
-    parentButton.removeEventListener("mouseleave", stopAnimation);
-    parentButton.removeEventListener("focusin", startAnimation);
-    parentButton.removeEventListener("focusout", stopAnimation);
-   };
-  }, [controls, isAnimated, loop, reduced]);
 
   const iconVariants: Variants = {
    normal: { scale: 1, rotate: 0 },
    animate: {
     scale: [1, 1.06, 0.98, 1],
-    rotate: [0, -1.5, 1.5, 0],
+    rotate: [0, -2, 1, 0],
     transition: {
-     duration: 1.1 * duration,
-     ease: "easeInOut",
+     duration: 0.85 * duration,
+     ease: [0.22, 1, 0.36, 1],
      repeat: loop ? Infinity : 0,
      repeatDelay: loop ? 1 * duration : 0,
     },
    },
   };
 
-  const tileVariants: Variants = {
-   normal: { opacity: 1, scale: 1, y: 0 },
-   animate: (i: number) => ({
-    opacity: [0.6, 1],
-    scale: [0.95, 1.04, 1],
-    y: [3, -2, 0],
+  const starVariants: Variants = {
+   normal: { opacity: 1, scale: 1 },
+   animate: {
+    opacity: [0.6, 1, 1],
+    scale: [0.7, 1.15, 1],
     transition: {
-     duration: 0.9 * duration,
-     ease: "easeInOut",
-     delay: i * 0.08,
+     duration: 0.7 * duration,
+     ease: "easeOut",
+     delay: 0.05,
      repeat: loop ? Infinity : 0,
-     repeatDelay: loop ? 1.1 * duration : 0,
+     repeatDelay: loop ? 1.15 * duration : 0,
     },
-   }),
+   },
+  };
+
+  const crossVariants: Variants = {
+   normal: { opacity: 0.9, scale: 1, rotate: 0 },
+   animate: {
+    opacity: [0, 1],
+    scale: [0.4, 1],
+    rotate: [-45, 0],
+    transition: {
+     duration: 0.55 * duration,
+     ease: "easeOut",
+     delay: 0.16,
+     repeat: loop ? Infinity : 0,
+     repeatDelay: loop ? 1.3 * duration : 0,
+    },
+   },
+  };
+
+  const dotVariants: Variants = {
+   normal: { opacity: 1, scale: 1, y: 0 },
+   animate: {
+    opacity: [0, 1],
+    scale: [0.4, 1],
+    y: [4, 0],
+    transition: {
+     duration: 0.5 * duration,
+     ease: "easeOut",
+     delay: 0.28,
+     repeat: loop ? Infinity : 0,
+     repeatDelay: loop ? 1.35 * duration : 0,
+    },
+   },
   };
 
   return (
    <LazyMotion features={domMin} strict>
     <m.div
-     ref={rootRef}
      className={cn("inline-flex items-center justify-center", className)}
      onMouseEnter={handleEnter}
      onMouseLeave={handleLeave}
@@ -182,47 +168,29 @@ const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
       initial="normal"
       variants={iconVariants}
      >
-      <m.rect
-       width="7"
-       height="9"
-       x="3"
-       y="3"
-       rx="1"
-       variants={tileVariants}
-       custom={0}
+      <m.path
+       d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"
+       variants={starVariants}
        initial="normal"
        animate={loop && !reduced ? "animate" : controls}
       />
-      <m.rect
-       width="7"
-       height="5"
-       x="14"
-       y="3"
-       rx="1"
-       variants={tileVariants}
-       custom={1}
+      <m.path
+       d="M20 2v4"
+       variants={crossVariants}
        initial="normal"
        animate={loop && !reduced ? "animate" : controls}
       />
-      <m.rect
-       width="7"
-       height="9"
-       x="14"
-       y="12"
-       rx="1"
-       variants={tileVariants}
-       custom={2}
+      <m.path
+       d="M22 4h-4"
+       variants={crossVariants}
        initial="normal"
        animate={loop && !reduced ? "animate" : controls}
       />
-      <m.rect
-       width="7"
-       height="5"
-       x="3"
-       y="16"
-       rx="1"
-       variants={tileVariants}
-       custom={3}
+      <m.circle
+       cx="4"
+       cy="20"
+       r="2"
+       variants={dotVariants}
        initial="normal"
        animate={loop && !reduced ? "animate" : controls}
       />
@@ -233,5 +201,5 @@ const DashboardIcon = forwardRef<DashboardIconHandle, DashboardIconProps>(
  },
 );
 
-DashboardIcon.displayName = "DashboardIcon";
-export { DashboardIcon };
+SparklesIcon.displayName = "SparklesIcon";
+export { SparklesIcon };

@@ -50,7 +50,7 @@ const accentVariants = {
 
 export function LandingFeaturePanels() {
   return (
-    <div className="mt-20 grid w-full border-y border-border bg-card/58 text-left shadow-sm backdrop-blur lg:grid-cols-3">
+    <div className="mt-20 grid w-full border border-border bg-card/58 text-left shadow-sm backdrop-blur lg:grid-cols-3">
       {featurePanels.map((item) => (
         <FeaturePanel key={item.title} item={item} />
       ))}

@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/button";
 import { AppSmoothScroll } from "@/components/smooth-scroll";
 import { Separator } from "@/components/ui/separator";
 import { LandingBeforeAfterStrip } from "@/features/landing-before-after-strip";
+import { LandingDashboardCta } from "@/features/landing-dashboard-cta";
 import { LandingFeaturePanels } from "@/features/landing-feature-panels";
 import LandingFooter from "@/features/landing-footer";
-import { LandingGridBackground } from "@/features/landing-grid-background";
 import { LandingReveal } from "@/features/landing-reveal";
 import { LandingStagger } from "@/features/landing-stagger";
 import { LandingStickyNavbar } from "@/features/landing-sticky-navbar";
-import { LandingTrustRow } from "@/features/landing-trust-row";
 import { LandingWorkflowLine } from "@/features/landing-workflow-line";
+import { LandingStrip } from "@/features/landing-strip";
 import { seoConfig } from "@/lib/seo";
 import { ChevronRightIcon } from "@/components/ui/chevron-right-icon";
 
@@ -42,17 +42,10 @@ export const metadata: Metadata = {
     },
 };
 
-const whyBuiltPoints = [
-    "Ideas can strike anywhere, from a bathroom note to a quick thought on the go, and they are easy to lose if you do not capture them fast.",
-    "I wanted one calm workspace where those fragments could become a useful plan without losing context.",
-    "Tubmind keeps ideas private at first, then gives you a clean path to refine, publish, and discuss the strongest ones.",
-];
-
 export default function Home() {
     return (
         <main className="relative flex min-h-screen flex-col overflow-hidden bg-background">
             <AppSmoothScroll />
-            <LandingGridBackground />
 
             <div className="relative z-10 mx-auto flex w-full max-w-400 flex-1 flex-col px-4 py-4 md:px-6 md:py-6">
                 <LandingReveal
@@ -75,30 +68,24 @@ export default function Home() {
                     >
                         <LandingReveal
                             inherit
-                            delay={0}
-                            y={16}
-                            blur={10}
-                            duration={0.55}
-                        >
-                            <Badge
-                                variant="outline"
-                                className="mb-6 px-4 py-1 font-mono"
-                            >
-                                Private idea capture for bathroom thoughts
-                            </Badge>
-                        </LandingReveal>
-
-                        <LandingReveal
-                            inherit
                             delay={0.2}
                             y={20}
                             blur={12}
                             duration={0.7}
                         >
-                            <h1 className="max-w-4xl text-4xl font-semibold leading-[0.95] tracking-normal text-balance text-foreground md:mt-6 md:text-6xl">
-                                Capture thoughts from anywhere and turn them{" "}
+                            <h1 className="max-w-4xl text-4xl font-semibold leading-[0.95] tracking-normal text-balance md:mt-6 md:text-6xl text-primary/50">
+                                <p className="text-black">
+                                    Good ideas die in notes apps.
+                                </p>
+                                Tubmind keeps them{" "}
+                                <span className="text-primary">private, </span>
+                                gives them{" "}
                                 <span className="text-primary">
-                                    into useful ideas
+                                    structure
+                                </span>{" "}
+                                and publishes{" "}
+                                <span className="text-primary">
+                                    the strongest ones.
                                 </span>
                             </h1>
                         </LandingReveal>
@@ -122,29 +109,18 @@ export default function Home() {
                             duration={0.62}
                             className="w-full"
                         >
-                            <LandingBeforeAfterStrip />
+                            <LandingDashboardCta />
                         </LandingReveal>
 
                         <LandingReveal
                             inherit
-                            delay={0.52}
-                            y={16}
-                            blur={8}
-                            duration={0.54}
-                            className="w-full"
-                        >
-                            <LandingTrustRow />
-                        </LandingReveal>
-
-                        <LandingReveal
-                            inherit
-                            delay={0.8}
+                            delay={0.46}
                             y={18}
                             blur={10}
-                            duration={0.55}
+                            duration={0.62}
                             className="w-full"
                         >
-                            <LandingFeaturePanels />
+                            <LandingStrip />
                         </LandingReveal>
 
                         <LandingReveal
@@ -157,7 +133,7 @@ export default function Home() {
                         >
                             <section
                                 id="why"
-                                className="mt-10 scroll-mt-28 grid w-full gap-4 border border-border bg-card/84 p-5 text-left shadow-sm backdrop-blur md:scroll-mt-32 md:p-6 lg:grid-cols-[0.9fr_1.1fr]"
+                                className="mt-24 scroll-mt-28 w-full gap-4 border border-border bg-card/84 p-5 text-left shadow-sm backdrop-blur md:scroll-mt-32 md:p-6 flex items-end"
                             >
                                 <div className="space-y-3">
                                     <Badge
@@ -170,34 +146,40 @@ export default function Home() {
                                         Good ideas deserve more than a messy
                                         notes app.
                                     </h2>
+                                </div>
+                                <div>
                                     <p className="max-w-lg text-sm leading-7 text-muted-foreground md:text-base">
                                         This project exists to make idea capture
                                         feel instant, then give it structure. It
-                                        keeps early fragments, richer notes, and
-                                        final planning in one place so the ideas
+                                        keeps early fragments, richer notes,
+                                        management tub, boards and final
+                                        planning in one place so the ideas
                                         become usable instead of lost.
                                     </p>
                                 </div>
-
-                                <div className="grid gap-3">
-                                    {whyBuiltPoints.map((point, index) => (
-                                        <div
-                                            key={point}
-                                            className="flex gap-3 bg-background/60 px-4 py-3 shadow-sm ring-1 ring-border/35"
-                                        >
-                                            <span className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                                                {String(index + 1).padStart(
-                                                    2,
-                                                    "0",
-                                                )}
-                                            </span>
-                                            <p className="text-sm leading-7 text-muted-foreground">
-                                                {point}
-                                            </p>
-                                        </div>
-                                    ))}
-                                </div>
                             </section>
+                        </LandingReveal>
+
+                        <LandingReveal
+                            inherit
+                            delay={0.52}
+                            y={18}
+                            blur={10}
+                            duration={0.62}
+                            className="w-full mt-4"
+                        >
+                            <LandingBeforeAfterStrip />
+                        </LandingReveal>
+
+                        <LandingReveal
+                            inherit
+                            delay={0.8}
+                            y={18}
+                            blur={10}
+                            duration={0.55}
+                            className="w-full"
+                        >
+                            <LandingFeaturePanels />
                         </LandingReveal>
 
                         <LandingReveal

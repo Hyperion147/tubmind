@@ -36,6 +36,7 @@ interface RocketIconProps extends Omit<
  size?: number;
  duration?: number;
  isAnimated?: boolean;
+ loop?: boolean;
  color?: string;
 }
 
@@ -48,6 +49,7 @@ const RocketIcon = forwardRef<RocketIconHandle, RocketIconProps>(
    size = 24,
    duration = 1,
    isAnimated = true,
+   loop = false,
    color,
    ...props
   },
@@ -95,7 +97,7 @@ const RocketIcon = forwardRef<RocketIconHandle, RocketIconProps>(
   useEffect(() => {
    const node = rootRef.current;
 
-   if (!node || !isAnimated || reduced || isControlled.current) {
+   if (!node || !isAnimated || reduced || isControlled.current || loop) {
     return;
    }
 
@@ -124,7 +126,7 @@ const RocketIcon = forwardRef<RocketIconHandle, RocketIconProps>(
     parentButton.removeEventListener("focusin", startAnimation);
     parentButton.removeEventListener("focusout", stopAnimation);
    };
-  }, [controls, isAnimated, reduced]);
+  }, [controls, isAnimated, loop, reduced]);
 
   const rocketVariants: Variants = {
    normal: { y: 0, x: 0 },
@@ -134,6 +136,8 @@ const RocketIcon = forwardRef<RocketIconHandle, RocketIconProps>(
     transition: {
      duration: 0.7 * duration,
      ease: "easeInOut",
+     repeat: loop ? Infinity : 0,
+     repeatDelay: loop ? 1 * duration : 0,
     },
    },
   };
@@ -146,6 +150,8 @@ const RocketIcon = forwardRef<RocketIconHandle, RocketIconProps>(
     transition: {
      duration: 0.4 * duration,
      ease: "easeInOut",
+     repeat: loop ? Infinity : 0,
+     repeatDelay: loop ? 1.3 * duration : 0,
     },
    },
   };
@@ -175,7 +181,7 @@ const RocketIcon = forwardRef<RocketIconHandle, RocketIconProps>(
        d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
        variants={rocketVariants}
        initial="normal"
-       animate={controls}
+       animate={loop && !reduced ? "animate" : controls}
        style={{
         transformBox: "fill-box",
         transformOrigin: "center",
@@ -185,19 +191,19 @@ const RocketIcon = forwardRef<RocketIconHandle, RocketIconProps>(
        d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"
        variants={rocketVariants}
        initial="normal"
-       animate={controls}
+       animate={loop && !reduced ? "animate" : controls}
       />
       <m.path
        d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"
        variants={rocketVariants}
        initial="normal"
-       animate={controls}
+       animate={loop && !reduced ? "animate" : controls}
       />
       <m.path
        d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
        variants={thrustVariants}
        initial="normal"
-       animate={controls}
+       animate={loop && !reduced ? "animate" : controls}
       />
      </m.svg>
     </m.div>

@@ -251,7 +251,7 @@ export function LandingDashboardCta() {
                                 </h2>
 
                                 <div className="flex flex-wrap items-center gap-3">
-                                    <div className="inline-flex h-10 items-center gap-2 px-3 text-sm text-foreground shadow-sm">
+                                    <div className="inline-flex h-10 items-center gap-2 px-3 text-sm text-foreground">
                                         <CalendarRange className="size-4 text-muted-foreground" />
                                         <span>Jun 1 - Jun 7, 2026</span>
                                     </div>
@@ -1208,7 +1208,7 @@ function DonutChart({ total }: { total: number }) {
             />
             <div className="absolute inset-8 rounded-full bg-card" />
             <p className="relative text-4xl font-semibold text-foreground">
-                {total}
+                5
             </p>
         </div>
     );

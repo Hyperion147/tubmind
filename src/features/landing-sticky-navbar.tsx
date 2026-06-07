@@ -7,8 +7,8 @@ import Image from "next/image";
 
 export function LandingStickyNavbar() {
     return (
-        <div className="pointer-events-none fixed inset-x-0 top-3 z-40 px-4 md:px-6">
-            <div className="mx-auto w-full max-w-6xl flex items-center justify-between rounded-lg bg-background/80 px-3 py-2 backdrop-blur-sm border border-border">
+        <div className="pointer-events-none fixed inset-x-0 top-3 z-40 px-4">
+            <div className="mx-auto w-full max-w-6xl flex items-center justify-between rounded-lg bg-background/80 p-2 backdrop-blur-sm border border-border">
                 <Link
                     href="/"
                     className="flex gap-2 items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
@@ -30,7 +30,7 @@ export function LandingStickyNavbar() {
                     <Button asChild>
                         <a
                             href="https://app.tubmind.space"
-                            className="gap-2 md:px-3"
+                            className="gap-2"
                         >
                             <span>Dashboard</span>
                             <DashboardIcon

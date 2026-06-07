@@ -474,7 +474,7 @@ function MessyField({
   return (
     <label
       className={cn(
-        "grid gap-2 border border-border bg-background/88 p-3 shadow-[0_10px_24px_rgba(0,0,0,0.04)]",
+        "grid gap-3 border border-border bg-background/88 p-2 shadow-[0_10px_24px_rgba(0,0,0,0.04)]",
         variant === "tilted-left" ? "rotate-[-1deg]" : "rotate-[1deg]"
       )}
     >
@@ -488,7 +488,7 @@ function MessyField({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="min-h-24 resize-none border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+        className="min-h-20 resize-none border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
       />
     </label>
   );

@@ -73,21 +73,25 @@ export default function Home() {
                             blur={12}
                             duration={0.7}
                         >
-                            <h1 className="max-w-4xl text-4xl font-semibold leading-[0.95] tracking-normal text-balance md:mt-6 md:text-6xl text-primary/50">
-                                <p className="text-black">
+                            <h1 className="max-w-4xl text-4xl font-semibold leading-[0.95] tracking-normal text-balance md:mt-6 md:text-[54px] text-[#111111]">
+                                <p className="text-6xl">Good ideas die in notes apps.</p>
+                                <p className="text-primary">
+                                    Tubmind keeps them private, gives them
+                                    structure and publishes the strongest ones.
+                                </p>
+                            </h1>
+                            {/* <h1 className="max-w-4xl text-4xl font-semibold leading-[0.95] tracking-normal text-balance md:mt-6 md:text-[54px] text-[#111111]">
+                                <p className="text-[#111111] text-6xl">
                                     Good ideas die in notes apps.
                                 </p>
-                                Tubmind keeps them{" "}
-                                <span className="text-primary">private, </span>
-                                gives them{" "}
-                                <span className="text-primary">
-                                    structure
-                                </span>{" "}
-                                and publishes{" "}
-                                <span className="text-primary">
-                                    the strongest ones.
-                                </span>
-                            </h1>
+                                <p>
+                                    <span className="text-primary">
+                                        Tubmind
+                                    </span>{" "}
+                                    keeps them private, gives them structure and
+                                    publishes the strongest ones.
+                                </p>
+                            </h1> */}
                         </LandingReveal>
 
                         <LandingReveal

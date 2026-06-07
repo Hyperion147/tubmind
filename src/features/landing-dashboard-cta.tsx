@@ -1208,7 +1208,7 @@ function DonutChart({ total }: { total: number }) {
             />
             <div className="absolute inset-8 rounded-full bg-card" />
             <p className="relative text-4xl font-semibold text-foreground">
-                5
+                {total}
             </p>
         </div>
     );

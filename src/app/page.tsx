@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { AppSmoothScroll } from "@/components/smooth-scroll";
-import { Separator } from "@/components/ui/separator";
-import { LandingBeforeAfterStrip } from "@/features/landing-before-after-strip";
-import { LandingDashboardCta } from "@/features/landing-dashboard-cta";
-import { LandingFeaturePanels } from "@/features/landing-feature-panels";
-import LandingFooter from "@/features/landing-footer";
-import { LandingReveal } from "@/features/landing-reveal";
-import { LandingStagger } from "@/features/landing-stagger";
-import { LandingStickyNavbar } from "@/features/landing-sticky-navbar";
-import { LandingWorkflowLine } from "@/features/landing-workflow-line";
-import { LandingStrip } from "@/features/landing-strip";
+import {
+    LandingAppAccessCta,
+    LandingBeforeAfterStrip,
+    LandingDashboardCta,
+    LandingFeaturePanels,
+    LandingFooter,
+    LandingReveal,
+    LandingStagger,
+    LandingStickyNavbar,
+    LandingStrip,
+    LandingWorkflowLine,
+} from "@/features";
 import { seoConfig } from "@/lib/seo";
-import { ChevronRightIcon } from "@/components/ui/chevron-right-icon";
 
 export const metadata: Metadata = {
     title: "Tubmind | Idea workspace",
@@ -190,35 +190,12 @@ export default function Home() {
                             duration={0.5}
                             className="w-full"
                         >
-                            <div
-                                id="app"
-                                className="mt-10 scroll-mt-28 w-full max-w-6xl md:scroll-mt-32"
-                            >
-                                <Separator />
-                                <div className="mt-6 flex flex-wrap items-center justify-between gap-4 text-left">
-                                    <div>
-                                        <p className="font-mono text-xs uppercase tracking-[0.22em] text-muted-foreground">
-                                            App access
-                                        </p>
-                                        <p className="mt-2 text-sm text-muted-foreground">
-                                            Open the product, sign in with
-                                            Google, and keep organizing ideas in
-                                            one place.
-                                        </p>
-                                    </div>
-                                    <Button asChild>
-                                        <a href="https://app.tubmind.space">
-                                            <span>Go to beta dashboard</span>
-                                            <ChevronRightIcon />
-                                        </a>
-                                    </Button>
-                                </div>
-                            </div>
+                            <LandingAppAccessCta />
                         </LandingReveal>
                     </LandingStagger>
                 </section>
             </div>
-            <div className="relative z-10 w-full">
+            <div className="relative z-10 mt-12 w-full">
                 <LandingFooter />
             </div>
         </main>

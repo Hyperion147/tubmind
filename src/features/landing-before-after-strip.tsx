@@ -157,7 +157,7 @@ export function LandingBeforeAfterStrip() {
         </div>
 
         <ComparisonPanel
-          title="Short Bathideas draft"
+          title="Tubmind draft"
           description="A compact version of the edit flow, ready to refine later in the app."
           chargeLevel={completedLoops}
           formChargeLevel={Math.max(completedLoops - 1, 0)}

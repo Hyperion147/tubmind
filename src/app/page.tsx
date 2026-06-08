@@ -95,7 +95,7 @@ export default function Home() {
                             duration={0.7}
                         >
                             <h1 className="max-w-4xl text-4xl font-semibold leading-[0.95] tracking-normal text-balance text-[#111111] md:mt-6 md:text-[54px]">
-                                <span className="block text-6xl">
+                                <span className="block md:text-6xl">
                                     Good ideas die in notes apps.
                                 </span>
                                 <span className="block text-primary">
@@ -160,7 +160,7 @@ export default function Home() {
                         >
                             <section
                                 id="why"
-                                className="mt-24 scroll-mt-28 w-full gap-4 border border-border bg-card/84 p-5 text-left shadow-sm backdrop-blur md:scroll-mt-32 md:p-6 flex items-end"
+                                className="mt-24 scroll-mt-28 w-full gap-4 border border-border bg-card/84 p-5 text-left shadow-sm backdrop-blur md:scroll-mt-32 md:p-6 flex items-end flex-col md:flex-row"
                             >
                                 <div className="space-y-3">
                                     <Badge

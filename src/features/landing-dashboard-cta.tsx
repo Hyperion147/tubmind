@@ -184,14 +184,14 @@ export function LandingDashboardCta() {
     return (
         <section
             id="dashboard-preview"
-            className="relative left-1/2 isolate mt-10 w-screen -translate-x-1/2 overflow-hidden px-4 pb-16 pt-8 text-left md:px-6 md:pb-24 md:pt-12"
+            className="relative isolate mt-10 w-full overflow-hidden px-3 pb-14 pt-6 text-left sm:px-4 md:px-6 md:pb-24 md:pt-12"
         >
             <div
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[50%] bg-[linear-gradient(180deg,transparent_0%,color-mix(in_oklch,var(--accent)_12%,var(--background))_20%,color-mix(in_oklch,var(--accent)_100%,var(--background))_100%)]"
             />
 
-            <div className="relative mx-auto flex h-[680px] max-w-6xl overflow-hidden border border-primary/16 bg-card/95 shadow-[0_30px_76px_-44px_color-mix(in_oklch,var(--foreground)_30%,transparent),0_16px_32px_-30px_color-mix(in_oklch,var(--primary)_22%,transparent),0_0_0_1px_color-mix(in_oklch,var(--background)_72%,transparent)_inset] lg:h-[740px]">
+            <div className="relative mx-auto flex h-[70vh] w-[360px] max-w-full overflow-hidden border border-primary/16 bg-card/95 shadow-[0_30px_76px_-44px_color-mix(in_oklch,var(--foreground)_30%,transparent),0_16px_32px_-30px_color-mix(in_oklch,var(--primary)_22%,transparent),0_0_0_1px_color-mix(in_oklch,var(--background)_72%,transparent)_inset] md:h-[680px] md:w-full md:max-w-6xl lg:h-[740px]">
                 <aside className="hidden w-20 shrink-0 border-r border-border bg-card/95 md:flex md:flex-col md:items-center md:gap-3 md:px-2 md:py-4">
                     <div className="flex size-11 items-center justify-center border border-border bg-secondary shadow-[3px_3px_0_0_var(--color-border)]">
                         <Lightbulb className="size-5 text-primary" />
@@ -223,41 +223,29 @@ export function LandingDashboardCta() {
 
                 <div
                     data-lenis-prevent
-                    className="min-w-0 flex-1 overflow-y-auto bg-background/45 p-3 [scroll-behavior:auto] [scrollbar-width:none] md:p-4 [&::-webkit-scrollbar]:hidden"
+                    className="min-w-0 flex-1 overflow-hidden bg-background/45 p-2.5 [scroll-behavior:auto] sm:p-3 md:overflow-y-auto md:p-4 md:[scrollbar-width:none] md:[&::-webkit-scrollbar]:hidden"
                 >
                     <div className="grid gap-4">
-                        <nav className="grid grid-cols-5 gap-1 md:hidden">
-                            {navItems.map((item) => (
-                                <button
-                                    key={item.label}
-                                    type="button"
-                                    onClick={() => setActivePage(item.label)}
-                                    aria-pressed={activePage === item.label}
-                                    className={cn(
-                                        "flex h-10 items-center justify-center border border-border bg-background/60 text-muted-foreground",
-                                        activePage === item.label &&
-                                            "border-primary/45 bg-secondary text-foreground",
-                                    )}
-                                >
-                                    <item.icon className="size-4" />
-                                </button>
-                            ))}
-                        </nav>
+                        <div className="border border-dashed border-border/70 bg-background/55 px-3 py-2 text-xs leading-5 text-muted-foreground md:hidden">
+                            Dashboard preview is interactive on desktop. On
+                            mobile, it stays on the overview page for a cleaner
+                            read.
+                        </div>
 
-                        <section className="grid gap-5 border border-border bg-card/90 p-2 shadow-sm">
+                        <section className="grid gap-5 border border-border bg-card/90 p-3 shadow-sm sm:p-4">
                             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                                <h2 className="text-3xl font-semibold tracking-tight text-foreground">
+                                <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
                                     {pageTitle}
                                 </h2>
 
-                                <div className="flex flex-wrap items-center gap-3">
-                                    <div className="inline-flex h-10 items-center gap-2 px-3 text-sm text-foreground">
+                                <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+                                    <div className="inline-flex min-h-10 items-center gap-2 px-1 text-sm text-foreground sm:px-3">
                                         <CalendarRange className="size-4 text-muted-foreground" />
                                         <span>Jun 1 - Jun 7, 2026</span>
                                     </div>
                                     <Button
                                         type="button"
-                                        className="rounded-none px-4 shadow-xs"
+                                        className="hidden rounded-none px-4 shadow-xs md:inline-flex"
                                         onClick={captureIdea}
                                     >
                                         <PlusIcon
@@ -539,9 +527,9 @@ function OverviewPage({
                 </PanelCard>
 
                 <PanelCard title="Tub Health" action="Manage tubs">
-                    <div className="gap-4 flex">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                         <DonutChart total={ideas.length} />
-                        <div className="grid gap-3">
+                        <div className="grid min-w-0 flex-1 gap-3">
                             <HealthRow
                                 color="bg-[var(--color-chart-1)]"
                                 label="active"
@@ -1031,7 +1019,7 @@ function TopTubsPanel({ ideas }: { ideas: Idea[] }) {
 function StatusBreakdownPanel() {
     return (
         <PanelCard title="Ideas by Status" action="View full breakdown">
-            <div className="grid gap-4 grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {statusBars.map(([label, value, width, color]) => (
                     <div key={label} className="grid gap-2">
                         <div className="flex items-center justify-between gap-3 text-sm">
@@ -1085,10 +1073,10 @@ function PanelCard({
 }) {
     return (
         <article className="border border-border bg-card/92 shadow-sm">
-            <header className="border-b border-border px-5 py-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
+            <header className="border-b border-border px-4 py-4 sm:px-5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                     <div className="space-y-1">
-                        <h3 className="text-xl font-semibold text-foreground">
+                        <h3 className="text-lg font-semibold text-foreground sm:text-xl">
                             {title}
                         </h3>
                         {copy ? (
@@ -1100,7 +1088,7 @@ function PanelCard({
                     {action ? (
                         <button
                             type="button"
-                            className="inline-flex items-center gap-2 border border-border bg-background px-3 py-2 text-sm text-foreground transition-colors hover:bg-secondary"
+                            className="inline-flex w-full items-center justify-center gap-2 border border-border bg-background px-3 py-2 text-sm text-foreground transition-colors hover:bg-secondary sm:w-auto"
                         >
                             {action}
                             <ArrowRight className="size-4" />
@@ -1108,7 +1096,7 @@ function PanelCard({
                     ) : null}
                 </div>
             </header>
-            <div className="px-5 pb-4 pt-4">{children}</div>
+            <div className="px-4 pb-4 pt-4 sm:px-5">{children}</div>
         </article>
     );
 }
@@ -1136,9 +1124,9 @@ function OverviewChart() {
         .join(" ");
 
     return (
-        <div className="h-52 w-full overflow-hidden">
+        <div className="h-52 w-full overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <svg
-                className="h-72 w-full text-muted-foreground"
+                className="h-72 min-w-[460px] text-muted-foreground"
                 viewBox="0 0 460 260"
             >
                 {[0, 1, 2, 3].map((line) => (
@@ -1198,7 +1186,7 @@ function OverviewChart() {
 
 function DonutChart({ total }: { total: number }) {
     return (
-        <div className="relative mx-auto flex size-40 items-center justify-center">
+        <div className="relative mx-auto flex size-32 shrink-0 items-center justify-center sm:size-40">
             <div
                 className="absolute inset-0 rounded-full"
                 style={{
@@ -1206,9 +1194,9 @@ function DonutChart({ total }: { total: number }) {
                         "conic-gradient(oklch(0.8 0.15 85) 0 60%, var(--color-chart-1) 60% 100%)",
                 }}
             />
-            <div className="absolute inset-8 rounded-full bg-card" />
-            <p className="relative text-4xl font-semibold text-foreground">
-                5
+            <div className="absolute inset-6 rounded-full bg-card sm:inset-8" />
+            <p className="relative text-3xl font-semibold text-foreground sm:text-4xl">
+                {total}
             </p>
         </div>
     );
@@ -1224,10 +1212,12 @@ function HealthRow({
     value: string;
 }) {
     return (
-        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 border border-border bg-background/70 px-3 py-3">
+        <div className="grid grid-cols-[auto_1fr] gap-3 border border-border bg-background/70 px-3 py-3 sm:grid-cols-[auto_1fr_auto] sm:items-center">
             <span className={cn("size-3 border border-border", color)} />
             <span className="text-sm font-medium text-foreground">{label}</span>
-            <span className="text-sm text-muted-foreground">{value}</span>
+            <span className="text-sm text-muted-foreground sm:text-right">
+                {value}
+            </span>
         </div>
     );
 }

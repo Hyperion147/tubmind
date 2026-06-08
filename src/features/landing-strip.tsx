@@ -70,7 +70,7 @@ const carouselItems = [...trustItems, ...trustItems];
 
 export function LandingStrip() {
     return (
-        <section className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden border-y border-primary/12 bg-[color-mix(in_oklch,var(--accent)_16%,var(--background))] py-3 text-left shadow-[0_-1px_0_color-mix(in_oklch,var(--background)_80%,transparent)_inset,0_1px_0_color-mix(in_oklch,var(--background)_80%,transparent)_inset] md:mt-[-3.5rem]">
+        <section className="relative w-full overflow-hidden border-y border-primary/12 bg-[color-mix(in_oklch,var(--accent)_16%,var(--background))] py-3 text-left shadow-[0_-1px_0_color-mix(in_oklch,var(--background)_80%,transparent)_inset,0_1px_0_color-mix(in_oklch,var(--background)_80%,transparent)_inset] md:mt-[-3.5rem]">
             <div
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-background to-transparent"

@@ -18,6 +18,7 @@ import {
  type HTMLAttributes,
  type MouseEvent,
 } from "react";
+import { useMountedCallback } from "./use-mounted-callback";
 export interface PlusIconHandle {
  startAnimation: () => void;
  stopAnimation: () => void;
@@ -54,6 +55,9 @@ const PlusIcon = forwardRef<PlusIconHandle, PlusIconProps>(
   ref,
  ) => {
   const controls = useAnimation();
+  const startControls = useMountedCallback((variant: "animate" | "normal") => {
+   controls.start(variant);
+  });
   const reduced = useReducedMotion();
   const isControlled = useRef(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -62,29 +66,29 @@ const PlusIcon = forwardRef<PlusIconHandle, PlusIconProps>(
    isControlled.current = true;
    return {
     startAnimation: () =>
-     reduced ? controls.start("normal") : controls.start("animate"),
-    stopAnimation: () => controls.start("normal"),
+     reduced ? startControls("normal") : startControls("animate"),
+    stopAnimation: () => startControls("normal"),
    };
   });
 
   const handleEnter = useCallback(
    (e: MouseEvent<HTMLDivElement>) => {
     if (!isAnimated || reduced) return;
-    if (!isControlled.current) controls.start("animate");
+    if (!isControlled.current) startControls("animate");
     else onMouseEnter?.(e);
    },
-   [controls, reduced, isAnimated, onMouseEnter],
+   [reduced, isAnimated, onMouseEnter, startControls],
   );
 
   const handleLeave = useCallback(
    (e: MouseEvent<HTMLDivElement>) => {
     if (!isControlled.current) {
-     controls.start("normal");
+     startControls("normal");
     } else {
      onMouseLeave?.(e);
     }
    },
-   [controls, onMouseLeave],
+   [onMouseLeave, startControls],
   );
 
   useEffect(() => {
@@ -101,11 +105,11 @@ const PlusIcon = forwardRef<PlusIconHandle, PlusIconProps>(
    }
 
    const startAnimation = () => {
-    controls.start("animate");
+    startControls("animate");
    };
 
    const stopAnimation = () => {
-    controls.start("normal");
+    startControls("normal");
    };
 
    parentButton.addEventListener("mouseenter", startAnimation);
@@ -119,7 +123,7 @@ const PlusIcon = forwardRef<PlusIconHandle, PlusIconProps>(
     parentButton.removeEventListener("focusin", startAnimation);
     parentButton.removeEventListener("focusout", stopAnimation);
    };
-  }, [controls, isAnimated, reduced]);
+  }, [isAnimated, reduced, startControls]);
 
   const plusVariants: Variants = {
    normal: { scale: 1, rotate: 0 },

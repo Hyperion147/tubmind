@@ -13,7 +13,7 @@ import {
     LandingStickyNavbar,
     LandingStrip,
     LandingWorkflowLine,
-} from "@/features";
+} from "@/features/landing";
 import { getSiteUrl, seoConfig } from "@/lib/seo";
 
 export const metadata: Metadata = {

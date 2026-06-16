@@ -18,6 +18,7 @@ import {
  type HTMLAttributes,
  type MouseEvent,
 } from "react";
+import { useMountedCallback } from "./use-mounted-callback";
 export interface ShieldUserIconHandle {
  startAnimation: () => void;
  stopAnimation: () => void;
@@ -56,6 +57,9 @@ const ShieldUserIcon = forwardRef<ShieldUserIconHandle, ShieldUserIconProps>(
   ref,
  ) => {
   const controls = useAnimation();
+  const startControls = useMountedCallback((variant: "animate" | "normal") => {
+   controls.start(variant);
+  });
   const reduced = useReducedMotion();
   const isControlled = useRef(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -63,8 +67,8 @@ const ShieldUserIcon = forwardRef<ShieldUserIconHandle, ShieldUserIconProps>(
   useImperativeHandle(ref, () => {
    isControlled.current = true;
    return {
-    startAnimation: () => controls.start("animate"),
-    stopAnimation: () => controls.start("normal"),
+    startAnimation: () => startControls("animate"),
+    stopAnimation: () => startControls("normal"),
    };
   });
 
@@ -72,25 +76,25 @@ const ShieldUserIcon = forwardRef<ShieldUserIconHandle, ShieldUserIconProps>(
    (e: MouseEvent<HTMLDivElement>) => {
     if (!isAnimated || reduced) return;
     if (!isControlled.current) {
-     controls.start("animate");
+     startControls("animate");
      return;
     }
 
     onMouseEnter?.(e);
    },
-   [controls, reduced, isAnimated, onMouseEnter],
+   [reduced, isAnimated, onMouseEnter, startControls],
   );
 
   const handleLeave = useCallback(
    (e: MouseEvent<HTMLDivElement>) => {
     if (!isControlled.current) {
-     controls.start("normal");
+     startControls("normal");
      return;
     }
 
     onMouseLeave?.(e);
    },
-   [controls, onMouseLeave],
+   [onMouseLeave, startControls],
   );
 
   useEffect(() => {
@@ -107,11 +111,11 @@ const ShieldUserIcon = forwardRef<ShieldUserIconHandle, ShieldUserIconProps>(
    }
 
    const startAnimation = () => {
-    controls.start("animate");
+    startControls("animate");
    };
 
    const stopAnimation = () => {
-    controls.start("normal");
+    startControls("normal");
    };
 
    parentButton.addEventListener("mouseenter", startAnimation);
@@ -125,7 +129,7 @@ const ShieldUserIcon = forwardRef<ShieldUserIconHandle, ShieldUserIconProps>(
     parentButton.removeEventListener("focusin", startAnimation);
     parentButton.removeEventListener("focusout", stopAnimation);
    };
-  }, [controls, isAnimated, loop, reduced]);
+  }, [isAnimated, loop, reduced, startControls]);
 
   const shieldVariants: Variants = {
    normal: { strokeDashoffset: 0, opacity: 1 },

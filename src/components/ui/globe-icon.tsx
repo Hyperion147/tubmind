@@ -17,6 +17,7 @@ import {
  type HTMLAttributes,
  type MouseEvent,
 } from "react";
+import { useMountedCallback } from "./use-mounted-callback";
 export interface GlobeIconHandle {
  startAnimation: () => void;
  stopAnimation: () => void;
@@ -56,6 +57,14 @@ const GlobeIcon = forwardRef<GlobeIconHandle, GlobeIconProps>(
  ) => {
   const controls = useAnimation();
   const pathControls = useAnimation();
+  const startControls = useMountedCallback((variant: "animate" | "normal") => {
+   controls.start(variant);
+  });
+  const startPathControls = useMountedCallback(
+   (variant: "animate" | "normal") => {
+    pathControls.start(variant);
+   },
+  );
   const reduced = useReducedMotion();
   const isControlled = useRef(false);
 
@@ -64,16 +73,16 @@ const GlobeIcon = forwardRef<GlobeIconHandle, GlobeIconProps>(
    return {
     startAnimation: () => {
      if (reduced) {
-      controls.start("normal");
-      pathControls.start("normal");
+      startControls("normal");
+      startPathControls("normal");
      } else {
-      controls.start("animate");
-      pathControls.start("animate");
+      startControls("animate");
+      startPathControls("animate");
      }
     },
     stopAnimation: () => {
-     controls.start("normal");
-     pathControls.start("normal");
+     startControls("normal");
+     startPathControls("normal");
     },
    };
   });
@@ -82,25 +91,25 @@ const GlobeIcon = forwardRef<GlobeIconHandle, GlobeIconProps>(
    (e: MouseEvent<HTMLDivElement>) => {
     if (!isAnimated || reduced) return;
     if (!isControlled.current) {
-     controls.start("animate");
-     pathControls.start("animate");
+     startControls("animate");
+     startPathControls("animate");
     } else {
      onMouseEnter?.(e);
     }
    },
-   [controls, pathControls, reduced, isAnimated, onMouseEnter],
+   [reduced, isAnimated, onMouseEnter, startControls, startPathControls],
   );
 
   const handleLeave = useCallback(
    (e: MouseEvent<HTMLDivElement>) => {
     if (!isControlled.current) {
-     controls.start("normal");
-     pathControls.start("normal");
+     startControls("normal");
+     startPathControls("normal");
     } else {
      onMouseLeave?.(e);
     }
    },
-   [controls, pathControls, onMouseLeave],
+   [onMouseLeave, startControls, startPathControls],
   );
 
   const svgVariants: Variants = {

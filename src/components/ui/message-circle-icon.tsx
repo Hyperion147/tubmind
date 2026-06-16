@@ -17,6 +17,7 @@ import {
  type HTMLAttributes,
  type MouseEvent,
 } from "react";
+import { useMountedCallback } from "./use-mounted-callback";
 export interface MessageCircleIconHandle {
  startAnimation: () => void;
  stopAnimation: () => void;
@@ -58,6 +59,9 @@ const MessageCircleIcon = forwardRef<
   ref,
  ) => {
   const controls = useAnimation();
+  const startControls = useMountedCallback((variant: "animate" | "normal") => {
+   controls.start(variant);
+  });
   const reduced = useReducedMotion();
   const isControlled = useRef(false);
 
@@ -65,26 +69,26 @@ const MessageCircleIcon = forwardRef<
    isControlled.current = true;
    return {
     startAnimation: () =>
-     reduced ? controls.start("normal") : controls.start("animate"),
-    stopAnimation: () => controls.start("normal"),
+     reduced ? startControls("normal") : startControls("animate"),
+    stopAnimation: () => startControls("normal"),
    };
   });
 
   const handleEnter = useCallback(
    (e: MouseEvent<HTMLDivElement>) => {
     if (!isAnimated || reduced) return;
-    if (!isControlled.current) controls.start("animate");
+    if (!isControlled.current) startControls("animate");
     else onMouseEnter?.(e);
    },
-   [controls, reduced, isAnimated, onMouseEnter],
+   [reduced, isAnimated, onMouseEnter, startControls],
   );
 
   const handleLeave = useCallback(
    (e: MouseEvent<HTMLDivElement>) => {
-    if (!isControlled.current) controls.start("normal");
+    if (!isControlled.current) startControls("normal");
     else onMouseLeave?.(e);
    },
-   [controls, onMouseLeave],
+   [onMouseLeave, startControls],
   );
 
   const svgVariants: Variants = {

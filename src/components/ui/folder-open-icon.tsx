@@ -18,6 +18,7 @@ import {
  type HTMLAttributes,
  type MouseEvent,
 } from "react";
+import { useMountedCallback } from "./use-mounted-callback";
 export interface FolderOpenIconHandle {
  startAnimation: () => void;
  stopAnimation: () => void;
@@ -57,6 +58,16 @@ const FolderOpenIcon = forwardRef<FolderOpenIconHandle, FolderOpenIconProps>(
  ) => {
   const folderControls = useAnimation();
   const paperControls = useAnimation();
+  const startFolderControls = useMountedCallback(
+   (variant: "animate" | "normal") => {
+    folderControls.start(variant);
+   },
+  );
+  const startPaperControls = useMountedCallback(
+   (variant: "animate" | "normal") => {
+    paperControls.start(variant);
+   },
+  );
   const reduced = useReducedMotion();
   const isControlled = useRef(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -66,16 +77,16 @@ const FolderOpenIcon = forwardRef<FolderOpenIconHandle, FolderOpenIconProps>(
    return {
     startAnimation: () => {
      if (reduced) {
-      folderControls.start("normal");
-      paperControls.start("normal");
+      startFolderControls("normal");
+      startPaperControls("normal");
      } else {
-      folderControls.start("animate");
-      paperControls.start("animate");
+      startFolderControls("animate");
+      startPaperControls("animate");
      }
     },
     stopAnimation: () => {
-     folderControls.start("normal");
-     paperControls.start("normal");
+     startFolderControls("normal");
+     startPaperControls("normal");
     },
    };
   });
@@ -84,27 +95,27 @@ const FolderOpenIcon = forwardRef<FolderOpenIconHandle, FolderOpenIconProps>(
    (e: MouseEvent<HTMLDivElement>) => {
     if (!isAnimated || reduced) return;
     if (!isControlled.current) {
-     folderControls.start("animate");
-     paperControls.start("animate");
+     startFolderControls("animate");
+     startPaperControls("animate");
      return;
     }
 
     onMouseEnter?.(e);
    },
-   [folderControls, paperControls, reduced, onMouseEnter, isAnimated],
+   [reduced, onMouseEnter, isAnimated, startFolderControls, startPaperControls],
   );
 
   const handleLeave = useCallback(
    (e: MouseEvent<HTMLDivElement>) => {
     if (!isControlled.current) {
-     folderControls.start("normal");
-     paperControls.start("normal");
+     startFolderControls("normal");
+     startPaperControls("normal");
      return;
     }
 
     onMouseLeave?.(e);
    },
-   [folderControls, paperControls, onMouseLeave],
+   [onMouseLeave, startFolderControls, startPaperControls],
   );
 
   useEffect(() => {
@@ -121,13 +132,13 @@ const FolderOpenIcon = forwardRef<FolderOpenIconHandle, FolderOpenIconProps>(
    }
 
    const startAnimation = () => {
-    folderControls.start("animate");
-    paperControls.start("animate");
+    startFolderControls("animate");
+    startPaperControls("animate");
    };
 
    const stopAnimation = () => {
-    folderControls.start("normal");
-    paperControls.start("normal");
+    startFolderControls("normal");
+    startPaperControls("normal");
    };
 
    parentButton.addEventListener("mouseenter", startAnimation);
@@ -141,7 +152,7 @@ const FolderOpenIcon = forwardRef<FolderOpenIconHandle, FolderOpenIconProps>(
     parentButton.removeEventListener("focusin", startAnimation);
     parentButton.removeEventListener("focusout", stopAnimation);
    };
-  }, [folderControls, paperControls, isAnimated, loop, reduced]);
+  }, [isAnimated, loop, reduced, startFolderControls, startPaperControls]);
 
   const folderVariants: Variants = {
    normal: { scale: 1, rotate: 0, y: 0 },

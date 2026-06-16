@@ -18,6 +18,7 @@ import {
  type HTMLAttributes,
  type MouseEvent,
 } from "react";
+import { useMountedCallback } from "./use-mounted-callback";
 export interface ChevronRightIconHandle {
  startAnimation: () => void;
  stopAnimation: () => void;
@@ -57,6 +58,9 @@ const ChevronRightIcon = forwardRef<
   ref,
  ) => {
   const controls = useAnimation();
+  const startControls = useMountedCallback((variant: "animate" | "normal") => {
+   controls.start(variant);
+  });
   const reduced = useReducedMotion();
   const isControlled = useRef(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -65,8 +69,8 @@ const ChevronRightIcon = forwardRef<
    isControlled.current = true;
    return {
     startAnimation: () =>
-     reduced ? controls.start("normal") : controls.start("animate"),
-    stopAnimation: () => controls.start("normal"),
+     reduced ? startControls("normal") : startControls("animate"),
+    stopAnimation: () => startControls("normal"),
    };
   });
 
@@ -74,25 +78,25 @@ const ChevronRightIcon = forwardRef<
    (e: MouseEvent<HTMLDivElement>) => {
     if (!isAnimated || reduced) return;
     if (!isControlled.current) {
-     controls.start("animate");
+     startControls("animate");
      return;
     }
 
     onMouseEnter?.(e);
    },
-   [controls, reduced, isAnimated, onMouseEnter],
+   [reduced, isAnimated, onMouseEnter, startControls],
   );
 
   const handleLeave = useCallback(
    (e: MouseEvent<HTMLDivElement>) => {
     if (!isControlled.current) {
-     controls.start("normal");
+     startControls("normal");
      return;
     }
 
     onMouseLeave?.(e);
    },
-   [controls, onMouseLeave],
+   [onMouseLeave, startControls],
   );
 
   useEffect(() => {
@@ -109,11 +113,11 @@ const ChevronRightIcon = forwardRef<
    }
 
    const startAnimation = () => {
-    controls.start("animate");
+    startControls("animate");
    };
 
    const stopAnimation = () => {
-    controls.start("normal");
+    startControls("normal");
    };
 
    parentButton.addEventListener("mouseenter", startAnimation);
@@ -127,7 +131,7 @@ const ChevronRightIcon = forwardRef<
     parentButton.removeEventListener("focusin", startAnimation);
     parentButton.removeEventListener("focusout", stopAnimation);
    };
-  }, [controls, isAnimated, reduced]);
+  }, [isAnimated, reduced, startControls]);
 
   const arrowVariants: Variants = {
    normal: { x: 0, opacity: 1 },

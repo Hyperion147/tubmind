@@ -18,6 +18,7 @@ import {
  type HTMLAttributes,
  type MouseEvent,
 } from "react";
+import { useMountedCallback } from "./use-mounted-callback";
 export interface RocketIconHandle {
  startAnimation: () => void;
  stopAnimation: () => void;
@@ -56,6 +57,9 @@ const RocketIcon = forwardRef<RocketIconHandle, RocketIconProps>(
   ref,
  ) => {
   const controls = useAnimation();
+  const startControls = useMountedCallback((variant: "animate" | "normal") => {
+   controls.start(variant);
+  });
   const reduced = useReducedMotion();
   const isControlled = useRef(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -64,8 +68,8 @@ const RocketIcon = forwardRef<RocketIconHandle, RocketIconProps>(
    isControlled.current = true;
    return {
     startAnimation: () =>
-     reduced ? controls.start("normal") : controls.start("animate"),
-    stopAnimation: () => controls.start("normal"),
+     reduced ? startControls("normal") : startControls("animate"),
+    stopAnimation: () => startControls("normal"),
    };
   });
 
@@ -73,25 +77,25 @@ const RocketIcon = forwardRef<RocketIconHandle, RocketIconProps>(
    (e: MouseEvent<HTMLDivElement>) => {
     if (!isAnimated || reduced) return;
     if (!isControlled.current) {
-     controls.start("animate");
+     startControls("animate");
      return;
     }
 
     onMouseEnter?.(e);
    },
-   [controls, reduced, isAnimated, onMouseEnter],
+   [reduced, isAnimated, onMouseEnter, startControls],
   );
 
   const handleLeave = useCallback(
    (e: MouseEvent<HTMLDivElement>) => {
     if (!isControlled.current) {
-     controls.start("normal");
+     startControls("normal");
      return;
     }
 
     onMouseLeave?.(e);
    },
-   [controls, onMouseLeave],
+   [onMouseLeave, startControls],
   );
 
   useEffect(() => {
@@ -108,11 +112,11 @@ const RocketIcon = forwardRef<RocketIconHandle, RocketIconProps>(
    }
 
    const startAnimation = () => {
-    controls.start("animate");
+    startControls("animate");
    };
 
    const stopAnimation = () => {
-    controls.start("normal");
+    startControls("normal");
    };
 
    parentButton.addEventListener("mouseenter", startAnimation);
@@ -126,7 +130,7 @@ const RocketIcon = forwardRef<RocketIconHandle, RocketIconProps>(
     parentButton.removeEventListener("focusin", startAnimation);
     parentButton.removeEventListener("focusout", stopAnimation);
    };
-  }, [controls, isAnimated, loop, reduced]);
+  }, [isAnimated, loop, reduced, startControls]);
 
   const rocketVariants: Variants = {
    normal: { y: 0, x: 0 },

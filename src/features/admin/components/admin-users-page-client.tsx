@@ -1,5 +1,6 @@
 import { AlertCircle, Shield, ShieldAlert, UserRound } from "lucide-react";
 
+import { SiteBreadcrumb } from "@/components/layout/site-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -69,6 +70,14 @@ export function AdminUsersPageClient({
 
   return (
     <div className="grid gap-4">
+      <SiteBreadcrumb
+        items={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Admin", href: "/admin" },
+          { label: "Users" },
+        ]}
+      />
+
       <section className="grid gap-4 xl:grid-cols-[1fr_0.34fr]">
         <Card className="border border-border bg-card/90 shadow-sm">
           <CardHeader className="p-5 md:p-6">

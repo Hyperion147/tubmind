@@ -9,6 +9,7 @@ import {
     Sparkles,
 } from "lucide-react";
 
+import { SiteBreadcrumb } from "@/components/layout/site-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,6 +39,13 @@ export default async function DashboardIdeasPage({ searchParams }: PageProps) {
     const filteredIdeas = filterIdeas(workspace.ideas, query);
     return (
         <div className="grid gap-4 xl:gap-5">
+            <SiteBreadcrumb
+                items={[
+                    { label: "Dashboard", href: "/dashboard" },
+                    { label: "Ideas" },
+                ]}
+            />
+
             <section className="grid gap-5 border border-border bg-card/90 p-6 shadow-sm">
                 <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
                     <div className="space-y-2">

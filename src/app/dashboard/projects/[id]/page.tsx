@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { ArrowLeft, FilePenLine, Globe2 } from "lucide-react";
 
+import { SiteBreadcrumb } from "@/components/layout/site-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { db } from "@/db";
@@ -61,6 +62,14 @@ export default async function DashboardProjectDetailPage({ params }: PageProps) 
 
   return (
     <div className="grid gap-4">
+      <SiteBreadcrumb
+        items={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Projects", href: "/dashboard/projects" },
+          { label: idea.title },
+        ]}
+      />
+
       <section className="flex flex-wrap items-start justify-between gap-3 border border-border bg-card/92 p-5 shadow-sm">
         <div className="space-y-2">
           <div className="flex flex-wrap gap-2">

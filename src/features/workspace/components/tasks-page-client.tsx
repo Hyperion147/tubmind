@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
     CalendarDays,
     ChevronDown,
@@ -12,6 +12,7 @@ import {
     Target,
 } from "lucide-react";
 
+import { SiteBreadcrumb } from "@/components/layout/site-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +24,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { useUrlSearchState } from "@/hooks/use-url-search-state";
 import { cn } from "@/lib/utils";
 import { statusMeta } from "@/features/tub/components/idea-tub-types";
 
@@ -35,6 +37,13 @@ import {
 
 type TasksPageClientProps = {
     tasks: WorkspaceTask[];
+    initialFilters: {
+        query: string;
+        view: ViewMode;
+        sort: SortValue;
+        perPage: number;
+        page: number;
+    };
 };
 
 const perPageOptions = ["10", "20", "50"] as const;
@@ -66,12 +75,25 @@ const statAccent = {
     },
 } as const;
 
-export function TasksPageClient({ tasks }: TasksPageClientProps) {
-    const [query, setQuery] = useState("");
-    const [view, setView] = useState<ViewMode>("list");
-    const [sort, setSort] = useState<SortValue>("task-date-desc");
-    const [perPage, setPerPage] = useState<number>(10);
-    const [page, setPage] = useState(1);
+export function TasksPageClient({ tasks, initialFilters }: TasksPageClientProps) {
+    const { isPending, searchParams, setSearchParams } = useUrlSearchState();
+    const query = searchParams.get("q") ?? initialFilters.query;
+    const view = searchParams.get("view") === "board" ? "board" : initialFilters.view;
+    const sortParam = searchParams.get("sort");
+    const sort =
+        sortParam === "task-date-asc" ||
+        sortParam === "deadline-asc" ||
+        sortParam === "updated-desc" ||
+        sortParam === "title-asc" ||
+        sortParam === "task-date-desc"
+            ? sortParam
+            : initialFilters.sort;
+    const perPageParam = searchParams.get("perPage");
+    const perPage =
+        perPageParam && perPageOptions.includes(perPageParam as (typeof perPageOptions)[number])
+            ? Number(perPageParam)
+            : initialFilters.perPage;
+    const page = Math.max(Number(searchParams.get("page") ?? initialFilters.page) || 1, 1);
 
     const filteredTasks = useMemo(() => {
         const normalizedQuery = query.trim().toLowerCase();
@@ -136,6 +158,13 @@ export function TasksPageClient({ tasks }: TasksPageClientProps) {
 
     return (
         <div className="grid gap-4">
+            <SiteBreadcrumb
+                items={[
+                    { label: "Dashboard", href: "/dashboard" },
+                    { label: "Tasks" },
+                ]}
+            />
+
             <section className="grid gap-4 border border-border bg-card/90 shadow-sm p-6">
                 <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
                     <div className="space-y-3">
@@ -156,8 +185,11 @@ export function TasksPageClient({ tasks }: TasksPageClientProps) {
                                 <Input
                                     value={query}
                                     onChange={(event) => {
-                                        setQuery(event.target.value);
-                                        setPage(1);
+                                        const nextQuery = event.target.value;
+                                        setSearchParams({
+                                            q: nextQuery.trim() ? nextQuery : null,
+                                            page: null,
+                                        });
                                     }}
                                     placeholder="Search tasks or ideas"
                                     className="bg-background pl-11"
@@ -181,7 +213,11 @@ export function TasksPageClient({ tasks }: TasksPageClientProps) {
                         <div className="grid gap-3 sm:grid-cols-2">
                             <Button
                                 type="button"
-                                onClick={() => setView("list")}
+                                onClick={() => {
+                                    setSearchParams({
+                                        view: null,
+                                    });
+                                }}
                                 variant={view === "list" ? "fill" : "fill2"}
                             >
                                 <ListIcon className="size-4" />
@@ -189,7 +225,11 @@ export function TasksPageClient({ tasks }: TasksPageClientProps) {
                             </Button>
                             <Button
                                 type="button"
-                                onClick={() => setView("board")}
+                                onClick={() => {
+                                    setSearchParams({
+                                        view: "board",
+                                    });
+                                }}
                                 variant={view === "board" ? "fill" : "fill2"}
                             >
                                 <SquareKanban className="size-4" />
@@ -198,6 +238,9 @@ export function TasksPageClient({ tasks }: TasksPageClientProps) {
                         </div>
                     </div>
                 </div>
+                {isPending ? (
+                    <p className="text-sm text-muted-foreground">Updating view...</p>
+                ) : null}
             </section>
             
             {sortedTasks.length === 0 ? (
@@ -235,9 +278,13 @@ export function TasksPageClient({ tasks }: TasksPageClientProps) {
                             <div className="flex flex-wrap items-center gap-3">
                                 <Select
                                     value={sort}
-                                    onValueChange={(value) =>
-                                        setSort(value as SortValue)
-                                    }
+                                    onValueChange={(value) => {
+                                        const nextValue = value as SortValue;
+                                        setSearchParams({
+                                            sort: nextValue === "task-date-desc" ? null : nextValue,
+                                            page: null,
+                                        });
+                                    }}
                                 >
                                     <SelectTrigger className="h-11 min-w-[15rem] rounded-none bg-background">
                                         <SelectValue placeholder="Sort" />
@@ -286,8 +333,10 @@ export function TasksPageClient({ tasks }: TasksPageClientProps) {
                                 <Select
                                     value={String(perPage)}
                                     onValueChange={(value) => {
-                                        setPerPage(Number(value));
-                                        setPage(1);
+                                        setSearchParams({
+                                            perPage: value === "10" ? null : value,
+                                            page: null,
+                                        });
                                     }}
                                 >
                                     <SelectTrigger className="h-10 min-w-[6.5rem] rounded-none bg-background">
@@ -319,11 +368,12 @@ export function TasksPageClient({ tasks }: TasksPageClientProps) {
                                     size="icon-sm"
                                     className="rounded-none"
                                     disabled={safePage === 1}
-                                    onClick={() =>
-                                        setPage((current) =>
-                                            Math.max(1, current - 1),
-                                        )
-                                    }
+                                    onClick={() => {
+                                        const nextPage = Math.max(1, safePage - 1);
+                                        setSearchParams({
+                                            page: nextPage === 1 ? null : String(nextPage),
+                                        });
+                                    }}
                                 >
                                     <span className="sr-only">
                                         Previous page
@@ -339,11 +389,12 @@ export function TasksPageClient({ tasks }: TasksPageClientProps) {
                                     size="icon-sm"
                                     className="rounded-none"
                                     disabled={safePage === totalPages}
-                                    onClick={() =>
-                                        setPage((current) =>
-                                            Math.min(totalPages, current + 1),
-                                        )
-                                    }
+                                    onClick={() => {
+                                        const nextPage = Math.min(totalPages, safePage + 1);
+                                        setSearchParams({
+                                            page: nextPage === 1 ? null : String(nextPage),
+                                        });
+                                    }}
                                 >
                                     <span className="sr-only">Next page</span>
                                     <ChevronDown className="size-4 -rotate-90" />

@@ -10,6 +10,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
+import { SiteBreadcrumb } from "@/components/layout/site-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -76,6 +77,14 @@ export async function DashboardIdeaDetailPage({ id }: { id: string }) {
 
   return (
     <div className="grid gap-4">
+      <SiteBreadcrumb
+        items={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Ideas", href: "/dashboard/ideas" },
+          { label: idea.title },
+        ]}
+      />
+
       <section className="border border-border bg-card/92 p-4 shadow-sm backdrop-blur md:p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0 space-y-2">

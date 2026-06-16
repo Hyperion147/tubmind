@@ -12,6 +12,7 @@ import { notFound } from "next/navigation";
 
 import { AppReveal } from "@/components/motion/app-reveal";
 import { AppStagger } from "@/components/motion/app-stagger";
+import { SiteBreadcrumb } from "@/components/layout/site-breadcrumb";
 import { AppProviders } from "@/components/providers/app-providers";
 import { SiteNavbar } from "@/components/layout/site-navbar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -179,6 +180,16 @@ export default async function PublicIdeaPage({ params }: PageProps) {
         </AppReveal>
 
         <AppStagger className="contents" delay={0.3} stagger={0.09}>
+          <AppReveal inherit y={12} blur={8} duration={0.8} className="w-full">
+            <SiteBreadcrumb
+              items={[
+                { label: "Home", href: "/" },
+                { label: "Listings", href: "/listings" },
+                { label: idea.title },
+              ]}
+            />
+          </AppReveal>
+
           <AppReveal inherit y={18} blur={10} duration={1.2} className="w-full">
             <section className="grid gap-4 xl:grid-cols-[1fr_0.34fr]">
               <Card className="border-border bg-card/90 shadow-xl backdrop-blur transition-colors duration-300 hover:border-primary/35 hover:bg-card">

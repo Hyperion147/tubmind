@@ -6,13 +6,21 @@ import { getCurrentSession } from "@/lib/auth";
 import { TimeManagerPage } from "@/features/workspace/components/time-manager-page";
 import { getDashboardWorkspace } from "@/features/workspace/lib/get-dashboard-workspace";
 
-export default async function DashboardTimePage() {
+type PageProps = {
+  searchParams: Promise<{
+    tab?: string;
+    task?: string;
+  }>;
+};
+
+export default async function DashboardTimePage({ searchParams }: PageProps) {
   const session = await getCurrentSession();
 
   if (!session) {
     return null;
   }
 
+  const params = await searchParams;
   const [workspace, initialLogs] = await Promise.all([
     getDashboardWorkspace(session.profile.id),
     db
@@ -37,6 +45,14 @@ export default async function DashboardTimePage() {
         durationMs: log.durationSeconds * 1000,
         notes: log.notes ?? "",
       }))}
+      initialFilters={{
+        timeTab:
+          params.tab === "week" || params.tab === "all" ? params.tab : "today",
+        selectedTaskId:
+          params.task && workspace.tasks.some((task) => task.id === params.task)
+            ? params.task
+            : "",
+      }}
     />
   );
 }

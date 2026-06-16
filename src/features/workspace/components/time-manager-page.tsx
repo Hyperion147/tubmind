@@ -18,11 +18,13 @@ import {
   Zap,
 } from "lucide-react";
 
+import { SiteBreadcrumb } from "@/components/layout/site-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useUrlSearchState } from "@/hooks/use-url-search-state";
 import { cn } from "@/lib/utils";
 
 import { formatRelativeBucket, formatShortDate, isTaskOverdue } from "../lib/formatters";
@@ -53,18 +55,26 @@ type TimeManagerPageProps = {
   profileId: string;
   workspace: WorkspaceDashboardData;
   initialLogs: TimeLogEntry[];
+  initialFilters: {
+    timeTab: TimeTab;
+    selectedTaskId: string;
+  };
 };
 
 type TimeTab = "today" | "week" | "all";
 
 const DAY_MS = 86_400_000;
 
-export function TimeManagerPage({ profileId, workspace, initialLogs }: TimeManagerPageProps) {
+export function TimeManagerPage({
+  profileId,
+  workspace,
+  initialLogs,
+  initialFilters,
+}: TimeManagerPageProps) {
+  const { isPending: isRoutePending, searchParams, setSearchParams } = useUrlSearchState();
   const activeStorageKey = `tubmind.time-tracker.${profileId}.active`;
   const initialStorageState = useMemo(() => readStoredActiveTimer(activeStorageKey), [activeStorageKey]);
-  const [selectedTaskId, setSelectedTaskId] = useState(initialStorageState.activeTimer?.taskId ?? "");
   const [notes, setNotes] = useState(initialStorageState.activeTimer?.notes ?? "");
-  const [timeTab, setTimeTab] = useState<TimeTab>("today");
   const [entries, setEntries] = useState<TimeLogEntry[]>(initialLogs);
   const [activeTimer, setActiveTimer] = useState<ActiveTimerState | null>(initialStorageState.activeTimer);
   const [now, setNow] = useState(() => Date.now());
@@ -73,6 +83,11 @@ export function TimeManagerPage({ profileId, workspace, initialLogs }: TimeManag
   const timerRef = useRef<number | null>(null);
 
   const tasks = workspace.tasks;
+  const selectedTaskId = activeTimer?.taskId ?? searchParams.get("task") ?? initialFilters.selectedTaskId;
+  const timeTab =
+    searchParams.get("tab") === "week" || searchParams.get("tab") === "all"
+      ? (searchParams.get("tab") as TimeTab)
+      : initialFilters.timeTab;
   const selectedTask = tasks.find((task) => task.id === selectedTaskId) ?? null;
   const activeTask = tasks.find((task) => task.id === activeTimer?.taskId) ?? null;
 
@@ -254,7 +269,9 @@ export function TimeManagerPage({ profileId, workspace, initialLogs }: TimeManag
 
       setEntries((current) => [nextEntry, ...current]);
       setActiveTimer(null);
-      setSelectedTaskId("");
+      setSearchParams({
+        task: null,
+      });
       setNotes("");
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : "Failed to save time log");
@@ -270,6 +287,13 @@ export function TimeManagerPage({ profileId, workspace, initialLogs }: TimeManag
 
   return (
     <div className="grid gap-4">
+      <SiteBreadcrumb
+        items={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Time" },
+        ]}
+      />
+
       <section className="grid gap-4 xl:grid-cols-[1.28fr_0.72fr]">
         <Card className="border-border bg-card/92 shadow-xl">
           <CardHeader className="gap-2 p-4 md:p-5">
@@ -322,7 +346,11 @@ export function TimeManagerPage({ profileId, workspace, initialLogs }: TimeManag
                   </label>
                   <Select
                     value={selectedTaskId}
-                    onValueChange={setSelectedTaskId}
+                    onValueChange={(value) => {
+                      setSearchParams({
+                        task: value || null,
+                      });
+                    }}
                     disabled={hasActiveTimer}
                   >
                     <SelectTrigger className="h-12 bg-background/70">
@@ -440,6 +468,9 @@ export function TimeManagerPage({ profileId, workspace, initialLogs }: TimeManag
                 />
               </div>
             </div>
+            {isRoutePending ? (
+              <p className="text-sm text-muted-foreground">Updating view...</p>
+            ) : null}
           </CardContent>
         </Card>
 
@@ -492,7 +523,11 @@ export function TimeManagerPage({ profileId, workspace, initialLogs }: TimeManag
                     type="button"
                     size="sm"
                     variant={timeTab === tab ? "default" : "outline"}
-                    onClick={() => setTimeTab(tab)}
+                    onClick={() => {
+                      setSearchParams({
+                        tab: tab === "today" ? null : tab,
+                      });
+                    }}
                     className="capitalize"
                   >
                     {tab === "week" ? "This week" : tab}

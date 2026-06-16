@@ -1,10 +1,9 @@
-import { Suspense } from "react";
 import { and, count, desc, eq, ilike, isNotNull, or } from "drizzle-orm";
 
 import { db } from "@/db";
 import { ideaComments, ideas, moderationLogs, profiles } from "@/db/schema";
-import { AdminPageSkeleton } from "@/features/admin/components/admin-page-skeleton";
 import { AdminCommentsPageClient } from "@/features/admin/components/admin-comments-page-client";
+import { requireAdmin } from "@/lib/auth";
 
 type PageProps = {
   searchParams: Promise<{
@@ -13,15 +12,9 @@ type PageProps = {
   }>;
 };
 
-export default function AdminCommentsPage({ searchParams }: PageProps) {
-  return (
-    <Suspense fallback={<AdminPageSkeleton />}>
-      <AdminCommentsContent searchParams={searchParams} />
-    </Suspense>
-  );
-}
+export default async function AdminCommentsPage({ searchParams }: PageProps) {
+  await requireAdmin();
 
-async function AdminCommentsContent({ searchParams }: PageProps) {
   const params = await searchParams;
   const commentQuery = params.commentQ?.trim() ?? "";
   const commentStatusFilter =

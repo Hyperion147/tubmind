@@ -1,9 +1,7 @@
-import { Suspense } from "react";
 import { and, count, desc, eq, ilike, inArray, isNotNull, or } from "drizzle-orm";
 
 import { db } from "@/db";
 import { ideaComments, ideas, moderationLogs, profiles } from "@/db/schema";
-import { AdminPageSkeleton } from "@/features/admin/components/admin-page-skeleton";
 import { AdminUsersPageClient } from "@/features/admin/components/admin-users-page-client";
 import { requireAdmin } from "@/lib/auth";
 
@@ -15,15 +13,7 @@ type PageProps = {
   }>;
 };
 
-export default function AdminUsersPage({ searchParams }: PageProps) {
-  return (
-    <Suspense fallback={<AdminPageSkeleton />}>
-      <AdminUsersContent searchParams={searchParams} />
-    </Suspense>
-  );
-}
-
-async function AdminUsersContent({ searchParams }: PageProps) {
+export default async function AdminUsersPage({ searchParams }: PageProps) {
   const session = await requireAdmin();
   const params = await searchParams;
   const userQuery = params.userQ?.trim() ?? "";

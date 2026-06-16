@@ -51,7 +51,6 @@ export function IdeaTubPage(props: IdeaTubPageProps) {
 
       <IdeaTubBoard
         draggedTaskId={tub.draggedTaskId}
-        handleDrop={tub.handleDrop}
         hasSelectedDate={tub.hasSelectedDate}
         moveTask={tub.moveTask}
         removeTask={tub.removeTask}

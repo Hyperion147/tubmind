@@ -12,6 +12,7 @@ import { notFound } from "next/navigation";
 
 import { AppReveal } from "@/components/motion/app-reveal";
 import { AppStagger } from "@/components/motion/app-stagger";
+import { AppProviders } from "@/components/providers/app-providers";
 import { SiteNavbar } from "@/components/layout/site-navbar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -145,6 +146,7 @@ export default async function PublicIdeaPage({ params }: PageProps) {
   const hasReacted = viewerReaction.length > 0;
 
   return (
+    <AppProviders>
     <main className="relative min-h-screen overflow-hidden">
       <div
         className={cn(
@@ -471,6 +473,7 @@ export default async function PublicIdeaPage({ params }: PageProps) {
         />
       ) : null}
     </main>
+    </AppProviders>
   );
 }
 

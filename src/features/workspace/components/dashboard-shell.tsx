@@ -6,6 +6,7 @@ type DashboardShellProps = {
   user: {
     displayName: string;
     avatarUrl: string | null;
+    isAdmin?: boolean;
   };
   children: ReactNode;
 };

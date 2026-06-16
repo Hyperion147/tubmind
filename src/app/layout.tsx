@@ -4,8 +4,6 @@ import "./globals.css";
 
 import { getSiteUrl, seoConfig } from "@/lib/seo";
 import { Analytics } from "@vercel/analytics/next";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { AppProviders } from "@/components/providers/app-providers";
 
 const inter = Inter({
     subsets: ["latin"],
@@ -76,10 +74,11 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" className={`${inter.variable} h-full antialiased`}>
-            <body className="min-h-full bg-background text-foreground">
-                <TooltipProvider>
-                    <AppProviders>{children}</AppProviders>
-                </TooltipProvider>
+            <body
+                className="min-h-full bg-background text-foreground"
+                suppressHydrationWarning
+            >
+                {children}
                 <Analytics />
             </body>
         </html>

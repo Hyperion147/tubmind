@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { startTransition, useState } from "react";
 import { ArrowRight, Eye, ListChecks, MessageSquareOff, UserRound } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -59,90 +56,26 @@ function humanize(value: string) {
   return value.replaceAll("_", " ");
 }
 
-function matchesCommentFilters(
-  comment: Pick<CommentRow, "status">,
-  filters: Props["filters"]
-) {
-  return (
-    filters.commentStatusFilter === "all" || comment.status === filters.commentStatusFilter
-  );
-}
-
 export function AdminCommentsPageClient({
   initialComments,
   initialLogs,
   initialStats,
   filters,
 }: Props) {
-  const [comments, setComments] = useState(initialComments);
-  const [logs, setLogs] = useState(initialLogs);
-  const [stats, setStats] = useState(initialStats);
-
-  const handleModerated = (
-    row: CommentRow,
-    result: {
-      comment: { id: string; status: CommentStatus };
-      log: CommentLog | null;
-    }
-  ) => {
-    startTransition(() => {
-      setStats((current) => {
-        let hiddenComments = current.hiddenComments;
-        let deletedComments = current.deletedComments;
-
-        if (row.status !== result.comment.status) {
-          if (row.status === "hidden") {
-            hiddenComments -= 1;
-          }
-          if (row.status === "deleted") {
-            deletedComments -= 1;
-          }
-          if (result.comment.status === "hidden") {
-            hiddenComments += 1;
-          }
-          if (result.comment.status === "deleted") {
-            deletedComments += 1;
-          }
-        }
-
-        return {
-          ...current,
-          hiddenComments,
-          deletedComments,
-        };
-      });
-
-      setComments((current) => {
-        const nextRow: CommentRow = {
-          ...row,
-          status: result.comment.status,
-        };
-
-        if (!matchesCommentFilters(nextRow, filters)) {
-          return current.filter((item) => item.id !== row.id);
-        }
-
-        return current.map((item) => (item.id === row.id ? nextRow : item));
-      });
-
-      const nextLog = result.log;
-
-      if (nextLog) {
-        setLogs((current) => [nextLog, ...current].slice(0, 8));
-      }
-    });
-  };
+  const comments = initialComments;
+  const logs = initialLogs;
+  const stats = initialStats;
 
   return (
     <div className="grid gap-4">
       <section className="grid gap-4 xl:grid-cols-[1fr_0.34fr]">
-        <Card className="border-border bg-card/90 shadow-xl backdrop-blur">
+        <Card className="border border-border bg-card/90 shadow-sm">
           <CardHeader className="p-5 md:p-6">
             <Badge variant="outline" className="w-fit px-2.5 py-0.5 font-mono">
               Comment Moderation
             </Badge>
             <div className="max-w-4xl space-y-2">
-              <CardTitle className="font-semibold leading-[0.98] tracking-tight text-foreground md:text-4xl">
+              <CardTitle className="text-3xl font-semibold tracking-tight text-foreground">
                 Keep public discussion useful without reloading the whole admin area.
               </CardTitle>
               <CardDescription className="max-w-2xl text-sm leading-7 md:text-base">
@@ -157,7 +90,7 @@ export function AdminCommentsPageClient({
           </CardContent>
         </Card>
 
-        <Card className="border-border bg-secondary/80 shadow-xl backdrop-blur">
+        <Card className="border border-border bg-card/92 shadow-sm">
           <CardHeader className="gap-3 p-5 md:p-6">
             <div className="flex size-10 items-center justify-center border border-border bg-background/70 text-foreground">
               <MessageSquareOff className="size-4" />
@@ -201,7 +134,7 @@ export function AdminCommentsPageClient({
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[1fr_0.34fr]">
-        <Card className="border-border bg-card/92 shadow-xl backdrop-blur">
+        <Card className="border border-border bg-card/92 shadow-sm">
           <CardHeader className="flex-row items-start justify-between gap-4 p-5 md:p-6">
             <div>
               <Badge variant="outline" className="mb-3 px-2.5 py-0.5 font-mono">
@@ -225,7 +158,7 @@ export function AdminCommentsPageClient({
               comments.map((comment) => (
                 <div
                   key={comment.id}
-                  className="grid gap-4 bg-background/55 p-4 shadow-sm ring-1 ring-border/35 xl:grid-cols-[1fr_320px]"
+                  className="grid gap-4 border border-border bg-background/72 p-4 xl:grid-cols-[1fr_320px]"
                 >
                   <div className="space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
@@ -276,7 +209,6 @@ export function AdminCommentsPageClient({
                   <AdminCommentModerationPanel
                     commentId={comment.id}
                     currentStatus={comment.status}
-                    onModerated={(result) => handleModerated(comment, result)}
                   />
                 </div>
               ))
@@ -284,7 +216,7 @@ export function AdminCommentsPageClient({
           </CardContent>
         </Card>
 
-        <Card className="border-border bg-card/88 shadow-sm backdrop-blur">
+        <Card className="border border-border bg-card/88 shadow-sm">
           <CardHeader className="gap-3 p-5 md:p-6">
             <CardTitle className="text-xl">Recent comment actions</CardTitle>
             <CardDescription className="text-sm leading-6">
@@ -327,7 +259,7 @@ export function AdminCommentsPageClient({
 
 function AdminStat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="border border-border bg-background/70 p-3 transition-colors duration-300 hover:border-primary/35 hover:bg-background">
+    <div className="border border-border bg-background/70 p-3">
       <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
         {label}
       </p>

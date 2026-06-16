@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { startTransition, useState } from "react";
 import {
   ArrowRight,
   Eye,
@@ -87,18 +84,6 @@ function humanize(value: string) {
   return value.replaceAll("_", " ");
 }
 
-function matchesIdeaFilters(
-  idea: Pick<IdeaRow, "visibility" | "status">,
-  filters: Props["filters"]
-) {
-  const visibilityMatch =
-    filters.visibilityFilter === "all" || idea.visibility === filters.visibilityFilter;
-  const statusMatch =
-    filters.statusFilter === "all" || idea.status === filters.statusFilter;
-
-  return visibilityMatch && statusMatch;
-}
-
 export function AdminIdeasPageClient({
   initialIdeas,
   initialLogs,
@@ -106,9 +91,9 @@ export function AdminIdeasPageClient({
   filters,
   pagination,
 }: Props) {
-  const [ideas, setIdeas] = useState(initialIdeas);
-  const [logs, setLogs] = useState(initialLogs);
-  const [stats, setStats] = useState(initialStats);
+  const ideas = initialIdeas;
+  const logs = initialLogs;
+  const stats = initialStats;
 
   const buildHref = (nextPage: number) => {
     const nextParams = new URLSearchParams();
@@ -129,84 +114,19 @@ export function AdminIdeasPageClient({
     return search ? `/admin/ideas?${search}` : "/admin/ideas";
   };
 
-  const handleModerated = (
-    row: IdeaRow,
-    result: {
-      idea: { id: string; visibility: IdeaVisibility; status: IdeaStatus } | null;
-      deleted: boolean;
-      log: IdeaLog | null;
-    }
-  ) => {
-    startTransition(() => {
-      setStats((current) => {
-        let totalIdeas = current.totalIdeas;
-        let publicIdeas = current.publicIdeas;
-        let revisionIdeas = current.revisionIdeas;
-
-        if (result.deleted) {
-          totalIdeas -= 1;
-          if (row.visibility === "public") {
-            publicIdeas -= 1;
-          }
-          if (row.status === "needs_revision") {
-            revisionIdeas -= 1;
-          }
-        } else if (result.idea) {
-          if (row.visibility !== result.idea.visibility) {
-            publicIdeas += result.idea.visibility === "public" ? 1 : -1;
-          }
-          if (row.status !== result.idea.status) {
-            if (row.status === "needs_revision") {
-              revisionIdeas -= 1;
-            }
-            if (result.idea.status === "needs_revision") {
-              revisionIdeas += 1;
-            }
-          }
-        }
-
-        return { totalIdeas, publicIdeas, revisionIdeas };
-      });
-
-      setIdeas((current) => {
-        if (result.deleted || !result.idea) {
-          return current.filter((item) => item.id !== row.id);
-        }
-
-        const nextRow: IdeaRow = {
-          ...row,
-          visibility: result.idea.visibility,
-          status: result.idea.status,
-        };
-
-        if (!matchesIdeaFilters(nextRow, filters)) {
-          return current.filter((item) => item.id !== row.id);
-        }
-
-        return current.map((item) => (item.id === row.id ? nextRow : item));
-      });
-
-      const nextLog = result.log;
-
-      if (nextLog) {
-        setLogs((current) => [nextLog, ...current].slice(0, 6));
-      }
-    });
-  };
-
   const hasPrevious = pagination.page > 1;
   const hasNext = pagination.page < pagination.totalPages;
 
   return (
     <div className="grid gap-4">
       <section className="grid gap-4 xl:grid-cols-[1fr_0.36fr]">
-        <Card className="border-border bg-card/90 shadow-xl backdrop-blur">
+        <Card className="border border-border bg-card/90 shadow-sm">
           <CardHeader className="p-5 md:p-6">
             <Badge variant="outline" className="w-fit px-2.5 py-0.5 font-mono">
               Listings Moderation
             </Badge>
             <div className="max-w-4xl space-y-2">
-              <CardTitle className="font-semibold leading-[0.98] tracking-tight text-foreground md:text-4xl">
+              <CardTitle className="text-3xl font-semibold tracking-tight text-foreground">
                 Review public access, revisions, and removals.
               </CardTitle>
               <CardDescription className="max-w-2xl text-sm leading-7 md:text-base">
@@ -221,7 +141,7 @@ export function AdminIdeasPageClient({
           </CardContent>
         </Card>
 
-        <Card className="border-border bg-secondary/80 shadow-xl backdrop-blur">
+        <Card className="border border-border bg-card/92 shadow-sm">
           <CardHeader className="gap-3 p-5 md:p-6">
             <div className="flex size-10 items-center justify-center border border-border bg-background/70 text-foreground">
               <Shield className="size-4" />
@@ -291,7 +211,7 @@ export function AdminIdeasPageClient({
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[1fr_0.32fr]">
-        <Card className="border-border bg-card/92 shadow-xl backdrop-blur">
+        <Card className="border border-border bg-card/92 shadow-sm">
           <CardHeader className="flex-row items-start justify-between gap-4 p-5 md:p-6">
             <div>
               <Badge variant="outline" className="mb-3 px-2.5 py-0.5 font-mono">
@@ -315,7 +235,7 @@ export function AdminIdeasPageClient({
               ideas.map((idea) => (
                 <div
                   key={idea.id}
-                  className="grid gap-4 bg-background/55 p-4 shadow-sm ring-1 ring-border/35 xl:grid-cols-[1fr_320px]"
+                  className="grid gap-4 border border-border bg-background/72 p-4 xl:grid-cols-[1fr_320px]"
                 >
                   <div className="space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
@@ -372,7 +292,6 @@ export function AdminIdeasPageClient({
                     ideaId={idea.id}
                     currentVisibility={idea.visibility}
                     currentStatus={idea.status}
-                    onModerated={(result) => handleModerated(idea, result)}
                   />
                 </div>
               ))
@@ -414,7 +333,7 @@ export function AdminIdeasPageClient({
           ) : null}
         </Card>
 
-        <Card className="border-border bg-card/88 shadow-sm backdrop-blur">
+        <Card className="border border-border bg-card/88 shadow-sm">
           <CardHeader className="gap-3 p-5 md:p-6">
             <CardTitle className="text-xl">Recent admin actions</CardTitle>
             <CardDescription className="text-sm leading-6">
@@ -457,7 +376,7 @@ export function AdminIdeasPageClient({
 
 function AdminStat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="border border-border bg-background/70 p-3 transition-colors duration-300 hover:border-primary/35 hover:bg-background">
+    <div className="border border-border bg-background/70 p-3">
       <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
         {label}
       </p>

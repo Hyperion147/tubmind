@@ -1,7 +1,7 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
 import { Loader2, Shield, UserRoundCog } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -56,8 +56,11 @@ export function AdminUserModerationPanel({
   isSelf = false,
   onModerated,
 }: AdminUserModerationPanelProps) {
+  const router = useRouter();
   const [action, setAction] = useState<UserAdminAction>("set_under_review");
   const [note, setNote] = useState(blockedReason ?? "");
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const availableActions = useMemo(() => {
     const actions: Array<{ value: UserAdminAction; label: string }> = [];
@@ -93,20 +96,22 @@ export function AdminUserModerationPanel({
     ? action
     : availableActions[0]?.value;
 
-  const mutation = useMutation({
-    mutationFn: async () => {
-      const confirmationCopy: Partial<Record<UserAdminAction, string>> = {
-        block: "Block this user from normal access?",
-        make_admin: "Promote this user to admin access?",
-        make_user: "Demote this account back to a normal user?",
-      };
+  async function applyAction() {
+    const confirmationCopy: Partial<Record<UserAdminAction, string>> = {
+      block: "Block this user from normal access?",
+      make_admin: "Promote this user to admin access?",
+      make_user: "Demote this account back to a normal user?",
+    };
+    const confirmation = selectedAction ? confirmationCopy[selectedAction] : null;
 
-      const confirmation = selectedAction ? confirmationCopy[selectedAction] : null;
+    if (confirmation && !window.confirm(confirmation)) {
+      return;
+    }
 
-      if (confirmation && !window.confirm(confirmation)) {
-        return null;
-      }
+    setIsPending(true);
+    setError(null);
 
+    try {
       const response = await fetch(`/api/admin/users/${userId}/moderate`, {
         method: "POST",
         headers: {
@@ -117,14 +122,13 @@ export function AdminUserModerationPanel({
           note,
         }),
       });
-
       const payload = await response.json();
 
       if (!response.ok) {
         throw new Error(payload?.error?.message ?? "Failed to moderate user");
       }
 
-      return payload.data as {
+      const result = payload.data as {
         profile: {
           id: string;
           role: UserRole;
@@ -139,15 +143,15 @@ export function AdminUserModerationPanel({
           label: string;
         } | null;
       };
-    },
-    onSuccess: (result) => {
-      if (!result) {
-        return;
-      }
 
       onModerated?.(result);
-    },
-  });
+      router.refresh();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Failed to moderate user");
+    } finally {
+      setIsPending(false);
+    }
+  }
 
   if (isSelf) {
     return (
@@ -198,18 +202,18 @@ export function AdminUserModerationPanel({
         className="min-h-24 bg-card/80"
       />
 
-      {mutation.error ? (
-        <p className="text-sm text-destructive">{mutation.error.message}</p>
+      {error ? (
+        <p className="text-sm text-destructive">{error}</p>
       ) : null}
 
       <Button
         type="button"
-        onClick={() => mutation.mutate()}
-        disabled={mutation.isPending || availableActions.length === 0}
+        onClick={applyAction}
+        disabled={isPending || availableActions.length === 0}
         className="justify-between"
       >
-        {mutation.isPending ? "Applying action..." : "Apply action"}
-        {mutation.isPending ? (
+        {isPending ? "Applying action..." : "Apply action"}
+        {isPending ? (
           <Loader2 className="size-4 animate-spin" />
         ) : (
           <UserRoundCog className="size-4" />

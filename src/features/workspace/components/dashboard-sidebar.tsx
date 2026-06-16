@@ -11,11 +11,12 @@ import {
   FolderKanban,
   LayoutDashboard,
   ListTodo,
+  LogOut,
   PanelLeft,
+  ShieldCheck,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,7 @@ type DashboardSidebarProps = {
   user: {
     displayName: string;
     avatarUrl: string | null;
+    isAdmin?: boolean;
   };
 };
 
@@ -56,6 +58,13 @@ const navItems = [
     label: "Time",
     icon: Clock3,
     matchers: ["/dashboard/time"],
+  },
+  {
+    href: "/admin",
+    label: "Admin",
+    icon: ShieldCheck,
+    matchers: ["/admin"],
+    adminOnly: true,
   },
 ];
 
@@ -164,7 +173,7 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
           <div className="flex-1 px-3 py-4">
             <div className="grid gap-2">
               <nav className="grid gap-2">
-                {navItems.map((item) => {
+                {navItems.filter((item) => !item.adminOnly || user.isAdmin).map((item) => {
                   const isActive =
                     item.href === "/dashboard"
                       ? pathname === "/dashboard"
@@ -245,9 +254,13 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
                 <p className="truncate text-sm font-semibold text-foreground whitespace-nowrap">
                   {user.displayName}
                 </p>
-                <Badge variant="outline" className="mt-1 font-mono">
-                  private beta
-                </Badge>
+                <Link
+                  href="/auth/logout"
+                  className="mt-1 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <LogOut className="size-3" />
+                  Log out
+                </Link>
               </motion.div>
             </div>
           </div>

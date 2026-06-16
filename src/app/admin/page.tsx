@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Suspense } from "react";
 import { count, eq } from "drizzle-orm";
 import {
   AlertCircle,
@@ -17,107 +16,95 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { db } from "@/db";
 import { ideaComments, ideas, profiles } from "@/db/schema";
+import { requireAdmin } from "@/lib/auth";
 
-export default function AdminHomePage() {
-  return (
-    <div className="grid gap-4">
-      <Card className="border-border bg-card/90 shadow-xl backdrop-blur">
-        <CardHeader className="gap-3 p-5 md:p-6">
-          <Badge variant="outline" className="w-fit px-2.5 py-0.5 font-mono">
-            Admin Workspace
-          </Badge>
-          <div className="max-w-4xl space-y-2">
-            <CardTitle className="font-semibold leading-[0.98] tracking-tight text-foreground md:text-4xl">
-              One moderation home, then focused panels underneath it.
-            </CardTitle>
-            <CardDescription className="max-w-2xl text-sm leading-7 md:text-base">
-              Start from the hub, choose the queue you need, and let heavier admin data stream in only on the page that needs it.
-            </CardDescription>
-          </div>
-        </CardHeader>
-      </Card>
+export default async function AdminHomePage() {
+  await requireAdmin();
 
-      <section className="grid gap-4 xl:grid-cols-3">
-        <Suspense fallback={<OverviewCardSkeleton />}>
-          <IdeasOverviewCard />
-        </Suspense>
-        <Suspense fallback={<OverviewCardSkeleton />}>
-          <UsersOverviewCard />
-        </Suspense>
-        <Suspense fallback={<OverviewCardSkeleton />}>
-          <CommentsOverviewCard />
-        </Suspense>
-      </section>
-    </div>
-  );
-}
-
-async function IdeasOverviewCard() {
-  const [totalIdeasResult, publicIdeasResult, revisionIdeasResult] = await Promise.all([
+  const [
+    totalIdeasResult,
+    publicIdeasResult,
+    revisionIdeasResult,
+    totalUsersResult,
+    blockedUsersResult,
+    reviewUsersResult,
+    totalCommentsResult,
+    hiddenCommentsResult,
+    deletedCommentsResult,
+  ] = await Promise.all([
     db.select({ value: count() }).from(ideas),
     db.select({ value: count() }).from(ideas).where(eq(ideas.visibility, "public")),
     db.select({ value: count() }).from(ideas).where(eq(ideas.status, "needs_revision")),
-  ]);
-
-  return (
-    <OverviewCard
-      title="Ideas"
-      href="/admin/ideas"
-      icon={<ListChecks className="size-4" />}
-      stats={[
-        `${totalIdeasResult[0]?.value ?? 0} total`,
-        `${publicIdeasResult[0]?.value ?? 0} public`,
-        `${revisionIdeasResult[0]?.value ?? 0} revision`,
-      ]}
-      description="The listings queue stays separate, so visibility and publishing decisions do not slow down account moderation."
-    />
-  );
-}
-
-async function UsersOverviewCard() {
-  const [totalUsersResult, blockedUsersResult, reviewUsersResult] = await Promise.all([
     db.select({ value: count() }).from(profiles),
     db.select({ value: count() }).from(profiles).where(eq(profiles.status, "blocked")),
     db.select({ value: count() }).from(profiles).where(eq(profiles.status, "under_review")),
-  ]);
-
-  return (
-    <OverviewCard
-      title="Users"
-      href="/admin/users"
-      icon={<UserRoundCog className="size-4" />}
-      stats={[
-        `${totalUsersResult[0]?.value ?? 0} total`,
-        `${blockedUsersResult[0]?.value ?? 0} blocked`,
-        `${reviewUsersResult[0]?.value ?? 0} review`,
-      ]}
-      description="Account actions now live on their own page, which keeps role and status checks lighter and easier to scan."
-    />
-  );
-}
-
-async function CommentsOverviewCard() {
-  const [totalCommentsResult, hiddenCommentsResult, deletedCommentsResult] = await Promise.all([
     db.select({ value: count() }).from(ideaComments),
     db.select({ value: count() }).from(ideaComments).where(eq(ideaComments.status, "hidden")),
     db.select({ value: count() }).from(ideaComments).where(eq(ideaComments.status, "deleted")),
   ]);
 
   return (
-    <OverviewCard
-      title="Comments"
-      href="/admin/comments"
-      icon={<AlertCircle className="size-4" />}
-      stats={[
-        `${totalCommentsResult[0]?.value ?? 0} total`,
-        `${hiddenCommentsResult[0]?.value ?? 0} hidden`,
-        `${deletedCommentsResult[0]?.value ?? 0} deleted`,
-      ]}
-      description="Discussion moderation gets its own pass now, so comment cleanup can stay quick without dragging user rows along."
-    />
+    <div className="grid gap-4">
+      <section className="grid gap-4 border border-border bg-card p-6">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+          <div className="space-y-2">
+            <Badge variant="outline" className="w-fit font-mono">
+              Admin
+            </Badge>
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+              Moderation dashboard
+            </h1>
+            <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
+              Review ideas, accounts, and comments from the same workspace navigation.
+            </p>
+          </div>
+          <Button asChild variant="fill" className="rounded-none">
+            <Link href="/dashboard" className="gap-2">
+              <span>Workspace</span>
+              <ArrowRight className="size-4" />
+            </Link>
+          </Button>
+        </div>
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-3">
+        <OverviewCard
+          title="Ideas"
+          href="/admin/ideas"
+          icon={<ListChecks className="size-4" />}
+          stats={[
+            `${totalIdeasResult[0]?.value ?? 0} total`,
+            `${publicIdeasResult[0]?.value ?? 0} public`,
+            `${revisionIdeasResult[0]?.value ?? 0} revision`,
+          ]}
+          description="Review visibility, revision requests, and removal decisions for idea pages."
+        />
+        <OverviewCard
+          title="Users"
+          href="/admin/users"
+          icon={<UserRoundCog className="size-4" />}
+          stats={[
+            `${totalUsersResult[0]?.value ?? 0} total`,
+            `${blockedUsersResult[0]?.value ?? 0} blocked`,
+            `${reviewUsersResult[0]?.value ?? 0} review`,
+          ]}
+          description="Moderate roles, account states, and workspace access."
+        />
+        <OverviewCard
+          title="Comments"
+          href="/admin/comments"
+          icon={<AlertCircle className="size-4" />}
+          stats={[
+            `${totalCommentsResult[0]?.value ?? 0} total`,
+            `${hiddenCommentsResult[0]?.value ?? 0} hidden`,
+            `${deletedCommentsResult[0]?.value ?? 0} deleted`,
+          ]}
+          description="Clean up public discussion without leaving the dashboard."
+        />
+      </section>
+    </div>
   );
 }
 
@@ -135,8 +122,8 @@ function OverviewCard({
   description: string;
 }) {
   return (
-    <Card className="border-border bg-card/92 shadow-md backdrop-blur">
-      <CardHeader className="gap-4 p-5 md:p-6">
+    <Card className="border border-border bg-card/92 shadow-sm">
+      <CardHeader className="gap-4 border-b border-border p-5 md:p-6">
         <div className="flex size-11 items-center justify-center border border-border bg-background/75 text-foreground">
           {icon}
         </div>
@@ -153,33 +140,12 @@ function OverviewCard({
         </div>
       </CardHeader>
       <CardContent className="px-5 pb-5 pt-0 md:px-6 md:pb-6">
-        <Button asChild variant="outline" className="w-full justify-between">
+        <Button asChild variant="fill2" className="w-full justify-between rounded-none">
           <Link href={href}>
-            Open {title.toLowerCase()}
+            <span>Open {title.toLowerCase()}</span>
             <ArrowRight className="size-4" />
           </Link>
         </Button>
-      </CardContent>
-    </Card>
-  );
-}
-
-function OverviewCardSkeleton() {
-  return (
-    <Card className="border-border bg-card/92 shadow-md backdrop-blur">
-      <CardHeader className="gap-4 p-5 md:p-6">
-        <Skeleton className="h-11 w-11" />
-        <Skeleton className="h-8 w-32" />
-        <Skeleton className="h-5 w-full max-w-xs" />
-        <Skeleton className="h-5 w-full max-w-xs" />
-        <div className="grid gap-2">
-          <Skeleton className="h-8 w-full" />
-          <Skeleton className="h-8 w-full" />
-          <Skeleton className="h-8 w-full" />
-        </div>
-      </CardHeader>
-      <CardContent className="px-5 pb-5 pt-0 md:px-6 md:pb-6">
-        <Skeleton className="h-10 w-full" />
       </CardContent>
     </Card>
   );

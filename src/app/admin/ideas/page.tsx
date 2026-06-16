@@ -1,10 +1,9 @@
-import { Suspense } from "react";
 import { and, count, desc, eq, ilike, isNotNull, or } from "drizzle-orm";
 
 import { db } from "@/db";
 import { ideas, moderationLogs, profiles } from "@/db/schema";
-import { AdminPageSkeleton } from "@/features/admin/components/admin-page-skeleton";
 import { AdminIdeasPageClient } from "@/features/admin/components/admin-ideas-page-client";
+import { requireAdmin } from "@/lib/auth";
 
 const PAGE_SIZE = 8;
 
@@ -25,15 +24,9 @@ type PageProps = {
   }>;
 };
 
-export default function AdminIdeasPage({ searchParams }: PageProps) {
-  return (
-    <Suspense fallback={<AdminPageSkeleton />}>
-      <AdminIdeasContent searchParams={searchParams} />
-    </Suspense>
-  );
-}
+export default async function AdminIdeasPage({ searchParams }: PageProps) {
+  await requireAdmin();
 
-async function AdminIdeasContent({ searchParams }: PageProps) {
   const params = await searchParams;
   const query = params.q?.trim() ?? "";
   const visibilityFilter =

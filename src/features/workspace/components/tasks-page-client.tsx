@@ -4,15 +4,10 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
     CalendarDays,
-    CheckCircle2,
     ChevronDown,
-    Clock3,
-    FolderOpen,
     List as ListIcon,
-    MoreHorizontal,
     Plus,
     Search,
-    Share2,
     SquareKanban,
     Target,
 } from "lucide-react";
@@ -42,16 +37,8 @@ type TasksPageClientProps = {
     tasks: WorkspaceTask[];
 };
 
-const statusOptions = [
-    "all",
-    "planned",
-    "ongoing",
-    "shared",
-    "completed",
-] as const;
 const perPageOptions = ["10", "20", "50"] as const;
 
-type StatusFilter = (typeof statusOptions)[number];
 type SortValue =
     | "task-date-desc"
     | "task-date-asc"
@@ -62,22 +49,18 @@ type ViewMode = "list" | "board";
 
 const statAccent = {
     planned: {
-        icon: Target,
         tone: "text-primary",
         soft: "bg-[color-mix(in_oklch,var(--primary)_12%,white)]",
     },
     ongoing: {
-        icon: Clock3,
         tone: "text-[oklch(0.58_0.17_260)]",
         soft: "bg-[oklch(0.95_0.03_260)]",
     },
     shared: {
-        icon: Share2,
         tone: "text-[oklch(0.72_0.16_65)]",
         soft: "bg-[oklch(0.97_0.03_65)]",
     },
     completed: {
-        icon: CheckCircle2,
         tone: "text-[oklch(0.52_0.1_152)]",
         soft: "bg-[color-mix(in_oklch,var(--primary)_12%,white)]",
     },
@@ -85,7 +68,6 @@ const statAccent = {
 
 export function TasksPageClient({ tasks }: TasksPageClientProps) {
     const [query, setQuery] = useState("");
-    const [status, setStatus] = useState<StatusFilter>("all");
     const [view, setView] = useState<ViewMode>("list");
     const [sort, setSort] = useState<SortValue>("task-date-desc");
     const [perPage, setPerPage] = useState<number>(10);
@@ -95,7 +77,6 @@ export function TasksPageClient({ tasks }: TasksPageClientProps) {
         const normalizedQuery = query.trim().toLowerCase();
 
         return tasks.filter((task) => {
-            const matchesStatus = status === "all" || task.status === status;
             const matchesQuery =
                 normalizedQuery.length === 0 ||
                 [task.title, task.description, task.ideaTitle]
@@ -103,9 +84,9 @@ export function TasksPageClient({ tasks }: TasksPageClientProps) {
                     .toLowerCase()
                     .includes(normalizedQuery);
 
-            return matchesStatus && matchesQuery;
+            return matchesQuery;
         });
-    }, [query, status, tasks]);
+    }, [query, tasks]);
 
     const sortedTasks = useMemo(() => {
         const items = [...filteredTasks];
@@ -135,10 +116,6 @@ export function TasksPageClient({ tasks }: TasksPageClientProps) {
         return items;
     }, [filteredTasks, sort]);
 
-    const groupedAll = useMemo(
-        () => groupTasksByStatus(filteredTasks),
-        [filteredTasks],
-    );
     const boardGrouped = useMemo(
         () => groupTasksByStatus(sortedTasks),
         [sortedTasks],
@@ -235,7 +212,7 @@ export function TasksPageClient({ tasks }: TasksPageClientProps) {
                                     No tasks match right now
                                 </h2>
                                 <p className="max-w-xl text-sm leading-7 text-muted-foreground">
-                                    Adjust the search or status filter, or
+                                    Adjust the search, or
                                     create new work from one of your idea tubs.
                                 </p>
                             </div>
@@ -472,49 +449,6 @@ export function TasksPageClient({ tasks }: TasksPageClientProps) {
                 </section>
             )}
         </div>
-    );
-}
-
-function TaskStatCard({
-    status,
-    count,
-    total,
-}: {
-    status: keyof typeof statAccent;
-    count: number;
-    total: number;
-}) {
-    const { icon: Icon, tone, soft } = statAccent[status];
-    const percentage = total === 0 ? 0 : Math.round((count / total) * 100);
-
-    return (
-        <Card className="border border-border bg-card shadow-sm">
-            <CardContent className="flex items-center gap-4">
-                <div
-                    className={cn(
-                        "flex size-14 aspect-square items-center justify-center",
-                        soft,
-                        tone,
-                    )}
-                >
-                    <Icon className="size-7" />
-                </div>
-                <div className="w-full">
-                    <div className="flex w-full justify-between items-center">
-                        <p className="text-xl font-semibold tracking-tight text-foreground">
-                            {count}
-                        </p>
-
-                        <p className={cn("text-sm", tone)}>
-                            {percentage}% of tasks
-                        </p>
-                    </div>
-                    <p className="text-lg text-foreground">
-                        {statusMeta[status].label}
-                    </p>
-                </div>
-            </CardContent>
-        </Card>
     );
 }
 

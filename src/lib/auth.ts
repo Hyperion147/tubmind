@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { eq } from "drizzle-orm";
@@ -51,7 +52,7 @@ export async function syncProfileForUser(user: User) {
   return profile;
 }
 
-export async function getCurrentSession() {
+export const getCurrentSession = cache(async () => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -86,7 +87,7 @@ export async function getCurrentSession() {
     user,
     profile,
   };
-}
+});
 
 export async function getCurrentSessionAccess() {
   const session = await getCurrentSession();

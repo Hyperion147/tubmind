@@ -9,7 +9,7 @@ export function useMountedCallback<T extends unknown[]>(
  const isMountedRef = useRef(false);
  const isReadyRef = useRef(false);
  const queuedArgsRef = useRef<T | null>(null);
- const frameRef = useRef<number | null>(null);
+ const timeoutRef = useRef<number | null>(null);
 
  useEffect(() => {
   callbackRef.current = callback;
@@ -18,7 +18,7 @@ export function useMountedCallback<T extends unknown[]>(
  useEffect(() => {
   isMountedRef.current = true;
   isReadyRef.current = false;
-  frameRef.current = window.requestAnimationFrame(() => {
+  timeoutRef.current = window.setTimeout(() => {
    isReadyRef.current = true;
 
    if (queuedArgsRef.current) {
@@ -29,8 +29,8 @@ export function useMountedCallback<T extends unknown[]>(
   });
 
   return () => {
-   if (frameRef.current !== null) {
-    window.cancelAnimationFrame(frameRef.current);
+   if (timeoutRef.current !== null) {
+    window.clearTimeout(timeoutRef.current);
    }
 
    isMountedRef.current = false;

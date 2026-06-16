@@ -2,18 +2,16 @@ import type { Metadata } from "next";
 
 import { Badge } from "@/components/ui/badge";
 import { AppSmoothScroll } from "@/components/smooth-scroll";
-import {
-    LandingAppAccessCta,
-    LandingBeforeAfterStrip,
-    LandingDashboardCta,
-    LandingFeaturePanels,
-    LandingFooter,
-    LandingReveal,
-    LandingStagger,
-    LandingStickyNavbar,
-    LandingStrip,
-    LandingWorkflowLine,
-} from "@/features/landing";
+import { LandingAppAccessCta } from "@/features/landing/landing-app-access-cta";
+import { LandingBeforeAfterStrip } from "@/features/landing/landing-before-after-strip";
+import { LandingDashboardCta } from "@/features/landing/landing-dashboard-cta";
+import { LandingFeaturePanels } from "@/features/landing/landing-feature-panels";
+import LandingFooter from "@/features/landing/landing-footer";
+import { LandingReveal } from "@/features/landing/landing-reveal";
+import { LandingStagger } from "@/features/landing/landing-stagger";
+import { LandingStickyNavbar } from "@/features/landing/landing-sticky-navbar";
+import { LandingStrip } from "@/features/landing/landing-strip";
+import { LandingWorkflowLine } from "@/features/landing/landing-workflow-line";
 import { getSiteUrl, seoConfig } from "@/lib/seo";
 
 export const metadata: Metadata = {

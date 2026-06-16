@@ -4,7 +4,6 @@ import {
     CheckCircle2,
     Clock3,
     FolderOpen,
-    GalleryHorizontal,
     Heart,
     ImageIcon,
     LockKeyhole,

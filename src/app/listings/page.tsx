@@ -2,6 +2,7 @@ import { and, count, desc, eq, ilike, inArray, or } from "drizzle-orm";
 import { ArrowRight, Bath } from "lucide-react";
 
 import { AppReveal } from "@/components/motion/app-reveal";
+import { AppProviders } from "@/components/providers/app-providers";
 import { SiteNavbar } from "@/components/layout/site-navbar";
 import { db } from "@/db";
 import { ideaReactions, ideas, profiles } from "@/db/schema";
@@ -153,6 +154,7 @@ export default async function ListingsPage({
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   return (
+    <AppProviders>
     <main className="relative min-h-screen">
       <div
         className={cn(
@@ -276,5 +278,6 @@ export default async function ListingsPage({
         />
       ) : null}
     </main>
+    </AppProviders>
   );
 }

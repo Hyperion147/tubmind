@@ -89,7 +89,11 @@ export const profiles = pgTable(
       .notNull()
       .defaultNow(),
   },
-  (table) => [index("profiles_role_idx").on(table.role)]
+  (table) => [
+    index("profiles_role_idx").on(table.role),
+    index("profiles_status_idx").on(table.status),
+    index("profiles_created_at_idx").on(table.createdAt),
+  ]
 );
 
 export const ideas = pgTable(
@@ -123,6 +127,9 @@ export const ideas = pgTable(
     index("ideas_owner_idx").on(table.ownerId),
     index("ideas_status_idx").on(table.status),
     index("ideas_visibility_idx").on(table.visibility),
+    index("ideas_updated_at_idx").on(table.updatedAt),
+    index("ideas_visibility_updated_at_idx").on(table.visibility, table.updatedAt),
+    index("ideas_status_updated_at_idx").on(table.status, table.updatedAt),
     index("ideas_published_at_idx").on(table.publishedAt),
   ]
 );
@@ -226,6 +233,9 @@ export const ideaComments = pgTable(
   (table) => [
     index("idea_comments_idea_idx").on(table.ideaId),
     index("idea_comments_author_idx").on(table.authorId),
+    index("idea_comments_status_idx").on(table.status),
+    index("idea_comments_updated_at_idx").on(table.updatedAt),
+    index("idea_comments_status_updated_at_idx").on(table.status, table.updatedAt),
   ]
 );
 
@@ -327,6 +337,10 @@ export const moderationLogs = pgTable(
   (table) => [
     index("moderation_logs_admin_idx").on(table.adminId),
     index("moderation_logs_action_idx").on(table.action),
+    index("moderation_logs_target_idea_idx").on(table.targetIdeaId),
+    index("moderation_logs_target_comment_idx").on(table.targetCommentId),
+    index("moderation_logs_target_user_idx").on(table.targetUserId),
+    index("moderation_logs_created_at_idx").on(table.createdAt),
   ]
 );
 

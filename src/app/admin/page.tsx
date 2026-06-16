@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { count, eq } from "drizzle-orm";
 import {
   AlertCircle,
   ArrowRight,
@@ -16,33 +15,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { db } from "@/db";
-import { ideaComments, ideas, profiles } from "@/db/schema";
+import {
+  getAdminCommentStats,
+  getAdminIdeaStats,
+  getAdminUserStats,
+} from "@/features/admin/lib/admin-queries";
 import { requireAdmin } from "@/lib/auth";
 
 export default async function AdminHomePage() {
   await requireAdmin();
 
-  const [
-    totalIdeasResult,
-    publicIdeasResult,
-    revisionIdeasResult,
-    totalUsersResult,
-    blockedUsersResult,
-    reviewUsersResult,
-    totalCommentsResult,
-    hiddenCommentsResult,
-    deletedCommentsResult,
-  ] = await Promise.all([
-    db.select({ value: count() }).from(ideas),
-    db.select({ value: count() }).from(ideas).where(eq(ideas.visibility, "public")),
-    db.select({ value: count() }).from(ideas).where(eq(ideas.status, "needs_revision")),
-    db.select({ value: count() }).from(profiles),
-    db.select({ value: count() }).from(profiles).where(eq(profiles.status, "blocked")),
-    db.select({ value: count() }).from(profiles).where(eq(profiles.status, "under_review")),
-    db.select({ value: count() }).from(ideaComments),
-    db.select({ value: count() }).from(ideaComments).where(eq(ideaComments.status, "hidden")),
-    db.select({ value: count() }).from(ideaComments).where(eq(ideaComments.status, "deleted")),
+  const [ideaStats, userStats, commentStats] = await Promise.all([
+    getAdminIdeaStats(),
+    getAdminUserStats(),
+    getAdminCommentStats(),
   ]);
 
   return (
@@ -75,9 +61,9 @@ export default async function AdminHomePage() {
           href="/admin/ideas"
           icon={<ListChecks className="size-4" />}
           stats={[
-            `${totalIdeasResult[0]?.value ?? 0} total`,
-            `${publicIdeasResult[0]?.value ?? 0} public`,
-            `${revisionIdeasResult[0]?.value ?? 0} revision`,
+            `${ideaStats.totalIdeas} total`,
+            `${ideaStats.publicIdeas} public`,
+            `${ideaStats.revisionIdeas} revision`,
           ]}
           description="Review visibility, revision requests, and removal decisions for idea pages."
         />
@@ -86,9 +72,9 @@ export default async function AdminHomePage() {
           href="/admin/users"
           icon={<UserRoundCog className="size-4" />}
           stats={[
-            `${totalUsersResult[0]?.value ?? 0} total`,
-            `${blockedUsersResult[0]?.value ?? 0} blocked`,
-            `${reviewUsersResult[0]?.value ?? 0} review`,
+            `${userStats.totalUsers} total`,
+            `${userStats.blockedUsers} blocked`,
+            `${userStats.reviewUsers} review`,
           ]}
           description="Moderate roles, account states, and workspace access."
         />
@@ -97,9 +83,9 @@ export default async function AdminHomePage() {
           href="/admin/comments"
           icon={<AlertCircle className="size-4" />}
           stats={[
-            `${totalCommentsResult[0]?.value ?? 0} total`,
-            `${hiddenCommentsResult[0]?.value ?? 0} hidden`,
-            `${deletedCommentsResult[0]?.value ?? 0} deleted`,
+            `${commentStats.totalComments} total`,
+            `${commentStats.hiddenComments} hidden`,
+            `${commentStats.deletedComments} deleted`,
           ]}
           description="Clean up public discussion without leaving the dashboard."
         />

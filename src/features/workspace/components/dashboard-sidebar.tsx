@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { motion } from "motion/react";
 import {
   Clock3,
   FilePenLine,
@@ -79,8 +78,20 @@ function getInitials(name: string) {
 export function DashboardSidebar({ user }: DashboardSidebarProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const expanded = mobileOpen || isHovered;
+  const mobileExpandedClasses = mobileOpen ? "w-72" : "w-20";
+  const isAdminRoute = pathname.startsWith("/admin");
+
+  function getIsActive(matchers: string[], href: string) {
+    if (href === "/dashboard") {
+      return pathname === "/dashboard";
+    }
+
+    if (href === "/admin") {
+      return isAdminRoute;
+    }
+
+    return matchers.some((matcher) => pathname.startsWith(matcher));
+  }
 
   return (
     <>
@@ -116,24 +127,11 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
         </div>
       </div>
 
-      <motion.aside
-        initial={false}
-        animate={{
-          width: expanded ? 288 : 80,
-          x: mobileOpen ? 0 : undefined,
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 260,
-          damping: 28,
-          mass: 0.9,
-        }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+      <aside
         className={cn(
-          "border-r border-border bg-card/92 shadow-[14px_0_40px_-24px_color-mix(in_oklch,var(--foreground)_20%,transparent)] backdrop-blur-xl md:fixed md:left-0 md:top-0 md:z-50 md:h-screen md:overflow-hidden",
+          "group border-r border-border bg-card/92 shadow-[14px_0_40px_-24px_color-mix(in_oklch,var(--foreground)_20%,transparent)] backdrop-blur-xl transition-[width,transform] duration-200 ease-out md:fixed md:left-0 md:top-0 md:z-50 md:h-screen md:w-20 md:overflow-hidden md:hover:w-72",
           mobileOpen
-            ? "fixed inset-y-0 left-0 z-50 block"
+            ? `fixed inset-y-0 left-0 z-50 block ${mobileExpandedClasses}`
             : "hidden md:block",
         )}
       >
@@ -150,23 +148,30 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
                   priority
                 />
               </div>
-              <motion.div
-                initial={false}
-                animate={{
-                  width: expanded ? 152 : 0,
-                  opacity: expanded ? 1 : 0,
-                  x: expanded ? 0 : -8,
-                }}
-                transition={{ duration: 0.18, ease: "easeOut" }}
+              <div
                 className="min-w-0 overflow-hidden"
               >
-                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground whitespace-nowrap">
+                <p
+                  className={cn(
+                    "font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground whitespace-nowrap transition-all duration-200 ease-out",
+                    mobileOpen
+                      ? "max-w-[152px] opacity-100"
+                      : "max-w-0 -translate-x-2 opacity-0 md:group-hover:max-w-[152px] md:group-hover:translate-x-0 md:group-hover:opacity-100",
+                  )}
+                >
                   tubmind
                 </p>
-                <p className="truncate text-base font-semibold text-foreground whitespace-nowrap">
+                <p
+                  className={cn(
+                    "truncate text-base font-semibold text-foreground whitespace-nowrap transition-all duration-200 ease-out",
+                    mobileOpen
+                      ? "max-w-[152px] opacity-100"
+                      : "max-w-0 -translate-x-2 opacity-0 md:group-hover:max-w-[152px] md:group-hover:translate-x-0 md:group-hover:opacity-100",
+                  )}
+                >
                   Creative OS
                 </p>
-              </motion.div>
+              </div>
             </Link>
           </div>
 
@@ -174,10 +179,7 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
             <div className="grid gap-2">
               <nav className="grid gap-2">
                 {navItems.filter((item) => !item.adminOnly || user.isAdmin).map((item) => {
-                  const isActive =
-                    item.href === "/dashboard"
-                      ? pathname === "/dashboard"
-                      : item.matchers.some((matcher) => pathname.startsWith(matcher));
+                  const isActive = getIsActive(item.matchers, item.href);
                   const Icon = item.icon;
 
                   return (
@@ -185,35 +187,26 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
                       key={item.href}
                       href={item.href}
                       onClick={() => setMobileOpen(false)}
-                      title={!expanded ? item.label : undefined}
+                      title={!mobileOpen ? item.label : undefined}
                       className={cn(
                         "relative flex h-11 items-center gap-3 border border-border bg-background/60 px-3 py-3 text-sm text-muted-foreground transition-[border-color,background-color,color,box-shadow] hover:border-primary/35 hover:bg-secondary/70 hover:text-foreground",
                         isActive &&
                           "border-primary/45 bg-secondary text-foreground shadow-[3px_3px_0px_0px_var(--color-border)]",
                       )}
                     >
-                      <motion.div
-                        initial={false}
-                        animate={{
-                          x: expanded ? 0 : 6,
-                        }}
-                        transition={{ duration: 0.18, ease: "easeOut" }}
-                        className="flex size-4 shrink-0 items-center justify-center"
-                      >
+                      <div className="flex size-4 shrink-0 items-center justify-center md:translate-x-[6px] md:transition-transform md:duration-200 md:ease-out md:group-hover:translate-x-0">
                         <Icon className="size-4 shrink-0" />
-                      </motion.div>
-                      <motion.span
-                        initial={false}
-                        animate={{
-                          width: expanded ? 120 : 0,
-                          opacity: expanded ? 1 : 0,
-                          x: expanded ? 0 : -6,
-                        }}
-                        transition={{ duration: 0.16, ease: "easeOut" }}
-                        className="overflow-hidden whitespace-nowrap"
+                      </div>
+                      <span
+                        className={cn(
+                          "overflow-hidden whitespace-nowrap transition-all duration-200 ease-out",
+                          mobileOpen
+                            ? "max-w-[120px] opacity-100"
+                            : "max-w-0 -translate-x-1.5 opacity-0 md:group-hover:max-w-[120px] md:group-hover:translate-x-0 md:group-hover:opacity-100",
+                        )}
                       >
                         {item.label}
-                      </motion.span>
+                      </span>
                     </Link>
                   );
                 })}
@@ -223,13 +216,7 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
 
           <div className="border-t border-border px-4 py-4">
             <div className="flex h-[72px] items-center gap-3 border border-border bg-background/70 p-3 shadow-[3px_3px_0px_0px_var(--color-border)]">
-              <motion.div
-                initial={false}
-                animate={{
-                  x: expanded ? 0 : -4,
-                }}
-                transition={{ duration: 0.18, ease: "easeOut" }}
-              >
+              <div className="md:-translate-x-1 md:transition-transform md:duration-200 md:ease-out md:group-hover:translate-x-0">
                 <Avatar size="default">
                   {user.avatarUrl ? (
                     <AvatarImage
@@ -240,16 +227,14 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
                   ) : null}
                   <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
                 </Avatar>
-              </motion.div>
-              <motion.div
-                initial={false}
-                animate={{
-                  width: expanded ? 152 : 0,
-                  opacity: expanded ? 1 : 0,
-                  x: expanded ? 0 : -8,
-                }}
-                transition={{ duration: 0.18, ease: "easeOut" }}
-                className="min-w-0 overflow-hidden"
+              </div>
+              <div
+                className={cn(
+                  "min-w-0 overflow-hidden transition-all duration-200 ease-out",
+                  mobileOpen
+                    ? "max-w-[152px] opacity-100"
+                    : "max-w-0 -translate-x-2 opacity-0 md:group-hover:max-w-[152px] md:group-hover:translate-x-0 md:group-hover:opacity-100",
+                )}
               >
                 <p className="truncate text-sm font-semibold text-foreground whitespace-nowrap">
                   {user.displayName}
@@ -261,11 +246,11 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
                   <LogOut className="size-3" />
                   Log out
                 </Link>
-              </motion.div>
+              </div>
             </div>
           </div>
         </div>
-      </motion.aside>
+      </aside>
     </>
   );
 }

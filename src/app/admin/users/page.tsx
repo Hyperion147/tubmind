@@ -3,6 +3,7 @@ import { and, count, desc, eq, ilike, inArray, isNotNull, or } from "drizzle-orm
 import { db } from "@/db";
 import { ideaComments, ideas, moderationLogs, profiles } from "@/db/schema";
 import { AdminUsersPageClient } from "@/features/admin/components/admin-users-page-client";
+import { getAdminUserStats } from "@/features/admin/lib/admin-queries";
 import { requireAdmin } from "@/lib/auth";
 
 type PageProps = {
@@ -59,18 +60,12 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
   const shownUserIds = userRows.map((user) => user.id);
 
   const [
-    totalUsersResult,
-    blockedUsersResult,
-    reviewUsersResult,
-    adminUsersResult,
+    userStats,
     ideaCounts,
     commentCounts,
     recentLogs,
   ] = await Promise.all([
-    db.select({ value: count() }).from(profiles),
-    db.select({ value: count() }).from(profiles).where(eq(profiles.status, "blocked")),
-    db.select({ value: count() }).from(profiles).where(eq(profiles.status, "under_review")),
-    db.select({ value: count() }).from(profiles).where(eq(profiles.role, "admin")),
+    getAdminUserStats(),
     shownUserIds.length
       ? db
           .select({ ownerId: ideas.ownerId, value: count() })
@@ -126,10 +121,10 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
         label: log.label ?? "Moderation target removed",
       }))}
       initialStats={{
-        totalUsers: totalUsersResult[0]?.value ?? 0,
-        blockedUsers: blockedUsersResult[0]?.value ?? 0,
-        reviewUsers: reviewUsersResult[0]?.value ?? 0,
-        adminUsers: adminUsersResult[0]?.value ?? 0,
+        totalUsers: userStats.totalUsers,
+        blockedUsers: userStats.blockedUsers,
+        reviewUsers: userStats.reviewUsers,
+        adminUsers: userStats.adminUsers,
       }}
       filters={{
         userQuery,

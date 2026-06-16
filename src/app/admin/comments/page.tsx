@@ -1,8 +1,9 @@
-import { and, count, desc, eq, ilike, isNotNull, or } from "drizzle-orm";
+import { and, desc, eq, ilike, isNotNull, or } from "drizzle-orm";
 
 import { db } from "@/db";
 import { ideaComments, ideas, moderationLogs, profiles } from "@/db/schema";
 import { AdminCommentsPageClient } from "@/features/admin/components/admin-comments-page-client";
+import { getAdminCommentStats } from "@/features/admin/lib/admin-queries";
 import { requireAdmin } from "@/lib/auth";
 
 type PageProps = {
@@ -37,7 +38,7 @@ export default async function AdminCommentsPage({ searchParams }: PageProps) {
     ...(commentStatusFilter !== "all" ? [eq(ideaComments.status, commentStatusFilter)] : []),
   ];
 
-  const [comments, totalCommentsResult, hiddenCommentsResult, deletedCommentsResult, recentLogs] =
+  const [comments, commentStats, recentLogs] =
     await Promise.all([
       db
         .select({
@@ -58,9 +59,7 @@ export default async function AdminCommentsPage({ searchParams }: PageProps) {
         .where(commentFilters.length ? and(...commentFilters) : undefined)
         .orderBy(desc(ideaComments.updatedAt))
         .limit(30),
-      db.select({ value: count() }).from(ideaComments),
-      db.select({ value: count() }).from(ideaComments).where(eq(ideaComments.status, "hidden")),
-      db.select({ value: count() }).from(ideaComments).where(eq(ideaComments.status, "deleted")),
+      getAdminCommentStats(),
       db
         .select({
           id: moderationLogs.id,
@@ -98,9 +97,9 @@ export default async function AdminCommentsPage({ searchParams }: PageProps) {
         label: log.label.slice(0, 72) || "Comment removed",
       }))}
       initialStats={{
-        totalComments: totalCommentsResult[0]?.value ?? 0,
-        hiddenComments: hiddenCommentsResult[0]?.value ?? 0,
-        deletedComments: deletedCommentsResult[0]?.value ?? 0,
+        totalComments: commentStats.totalComments,
+        hiddenComments: commentStats.hiddenComments,
+        deletedComments: commentStats.deletedComments,
       }}
       filters={{
         commentQuery,

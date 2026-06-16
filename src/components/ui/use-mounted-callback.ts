@@ -7,6 +7,9 @@ export function useMountedCallback<T extends unknown[]>(
 ) {
  const callbackRef = useRef(callback);
  const isMountedRef = useRef(false);
+ const isReadyRef = useRef(false);
+ const queuedArgsRef = useRef<T | null>(null);
+ const frameRef = useRef<number | null>(null);
 
  useEffect(() => {
   callbackRef.current = callback;
@@ -14,9 +17,25 @@ export function useMountedCallback<T extends unknown[]>(
 
  useEffect(() => {
   isMountedRef.current = true;
+  isReadyRef.current = false;
+  frameRef.current = window.requestAnimationFrame(() => {
+   isReadyRef.current = true;
+
+   if (queuedArgsRef.current) {
+    const args = queuedArgsRef.current;
+    queuedArgsRef.current = null;
+    callbackRef.current(...args);
+   }
+  });
 
   return () => {
+   if (frameRef.current !== null) {
+    window.cancelAnimationFrame(frameRef.current);
+   }
+
    isMountedRef.current = false;
+   isReadyRef.current = false;
+   queuedArgsRef.current = null;
   };
  }, []);
 
@@ -24,6 +43,11 @@ export function useMountedCallback<T extends unknown[]>(
   if (!isMountedRef.current) {
    return;
   }
+
+   if (!isReadyRef.current) {
+    queuedArgsRef.current = args;
+    return;
+   }
 
   callbackRef.current(...args);
  }, []);

@@ -130,7 +130,7 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
       >
         <div className="flex h-full flex-col">
           <div className="border-b border-border px-4 py-4">
-            <Link href="/dashboard" className="flex min-w-0 items-center gap-3">
+            <Link href="/" className="flex min-w-0 items-center gap-3">
               <div className="flex size-11 shrink-0 items-center justify-center border border-border bg-secondary shadow-[3px_3px_0px_0px_var(--color-border)]">
                 <Image
                   src="/logo.png"

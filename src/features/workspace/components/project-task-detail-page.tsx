@@ -10,6 +10,7 @@ import {
   FilePenLine,
 } from "lucide-react";
 
+import { SiteBreadcrumb } from "@/components/layout/site-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,6 +45,15 @@ export async function ProjectTaskDetailPage({
 
   return (
     <div className="grid gap-4">
+      <SiteBreadcrumb
+        items={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Projects", href: "/dashboard/projects" },
+          { label: task.ideaTitle, href: `/dashboard/projects/${projectId}` },
+          { label: task.title },
+        ]}
+      />
+
       <section className="flex flex-wrap items-center justify-between gap-3 border border-border bg-card/92 p-5 shadow-sm">
         <div className="space-y-2">
           <div className="flex flex-wrap gap-2">

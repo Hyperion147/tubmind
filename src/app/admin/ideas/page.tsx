@@ -1,10 +1,10 @@
-import { Suspense } from "react";
 import { and, count, desc, eq, ilike, isNotNull, or } from "drizzle-orm";
 
 import { db } from "@/db";
 import { ideas, moderationLogs, profiles } from "@/db/schema";
-import { AdminPageSkeleton } from "@/features/admin/components/admin-page-skeleton";
 import { AdminIdeasPageClient } from "@/features/admin/components/admin-ideas-page-client";
+import { getAdminIdeaStats } from "@/features/admin/lib/admin-queries";
+import { requireAdmin } from "@/lib/auth";
 
 const PAGE_SIZE = 8;
 
@@ -25,15 +25,9 @@ type PageProps = {
   }>;
 };
 
-export default function AdminIdeasPage({ searchParams }: PageProps) {
-  return (
-    <Suspense fallback={<AdminPageSkeleton />}>
-      <AdminIdeasContent searchParams={searchParams} />
-    </Suspense>
-  );
-}
+export default async function AdminIdeasPage({ searchParams }: PageProps) {
+  await requireAdmin();
 
-async function AdminIdeasContent({ searchParams }: PageProps) {
   const params = await searchParams;
   const query = params.q?.trim() ?? "";
   const visibilityFilter =
@@ -68,9 +62,7 @@ async function AdminIdeasContent({ searchParams }: PageProps) {
 
   const [
     ideaRows,
-    totalIdeasResult,
-    publicIdeasResult,
-    revisionIdeasResult,
+    ideaStats,
     totalFilteredResult,
     recentLogs,
   ] = await Promise.all([
@@ -93,9 +85,7 @@ async function AdminIdeasContent({ searchParams }: PageProps) {
       .orderBy(desc(ideas.updatedAt))
       .limit(PAGE_SIZE)
       .offset(offset),
-    db.select({ value: count() }).from(ideas),
-    db.select({ value: count() }).from(ideas).where(eq(ideas.visibility, "public")),
-    db.select({ value: count() }).from(ideas).where(eq(ideas.status, "needs_revision")),
+    getAdminIdeaStats(),
     db
       .select({ value: count() })
       .from(ideas)
@@ -140,9 +130,9 @@ async function AdminIdeasContent({ searchParams }: PageProps) {
         label: log.label ?? "Idea removed",
       }))}
       initialStats={{
-        totalIdeas: totalIdeasResult[0]?.value ?? 0,
-        publicIdeas: publicIdeasResult[0]?.value ?? 0,
-        revisionIdeas: revisionIdeasResult[0]?.value ?? 0,
+        totalIdeas: ideaStats.totalIdeas,
+        publicIdeas: ideaStats.publicIdeas,
+        revisionIdeas: ideaStats.revisionIdeas,
       }}
       filters={{
         query,

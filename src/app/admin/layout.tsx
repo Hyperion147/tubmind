@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { AdminShell } from "@/features/admin/components/admin-shell";
+import { DashboardShell } from "@/features/workspace/components/dashboard-shell";
 import { requireAdmin } from "@/lib/auth";
 
 export const metadata: Metadata = {
@@ -19,11 +19,14 @@ export default async function AdminLayout({
   const session = await requireAdmin();
 
   return (
-    <AdminShell
-      userLabel={session.profile.displayName}
-      userAvatarUrl={session.profile.avatarUrl}
+    <DashboardShell
+      user={{
+        displayName: session.profile.displayName,
+        avatarUrl: session.profile.avatarUrl,
+        isAdmin: true,
+      }}
     >
       {children}
-    </AdminShell>
+    </DashboardShell>
   );
 }

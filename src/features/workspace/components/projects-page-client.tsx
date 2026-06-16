@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   CalendarDays,
   CheckCheck,
@@ -14,10 +14,12 @@ import {
   Sparkles,
 } from "lucide-react";
 
+import { SiteBreadcrumb } from "@/components/layout/site-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useUrlSearchState } from "@/hooks/use-url-search-state";
 import { cn } from "@/lib/utils";
 
 import { formatShortDate, humanize, isTaskOverdue } from "../lib/formatters";
@@ -25,12 +27,18 @@ import { getProjectTaskHref, type WorkspaceIdea } from "../lib/workspace-model";
 
 type ProjectsPageClientProps = {
   ideas: WorkspaceIdea[];
+  initialFilters: {
+    query: string;
+    view: "projects" | "tasks";
+    selectedIdeaId: string;
+  };
 };
 
-export function ProjectsPageClient({ ideas }: ProjectsPageClientProps) {
-  const [query, setQuery] = useState("");
-  const [view, setView] = useState<"projects" | "tasks">("projects");
-  const [selectedIdeaId, setSelectedIdeaId] = useState<string>("all");
+export function ProjectsPageClient({ ideas, initialFilters }: ProjectsPageClientProps) {
+  const { isPending, searchParams, setSearchParams } = useUrlSearchState();
+  const query = searchParams.get("q") ?? initialFilters.query;
+  const view = searchParams.get("view") === "tasks" ? "tasks" : initialFilters.view;
+  const selectedIdeaId = searchParams.get("idea") ?? initialFilters.selectedIdeaId;
 
   const filteredIdeas = useMemo(() => {
     if (!query.trim()) {
@@ -65,6 +73,13 @@ export function ProjectsPageClient({ ideas }: ProjectsPageClientProps) {
 
   return (
     <div className="grid gap-4">
+      <SiteBreadcrumb
+        items={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Projects" },
+        ]}
+      />
+
       <section className="border border-border bg-card/92 p-6 shadow-sm backdrop-blur">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
           <div className="space-y-2">
@@ -83,7 +98,12 @@ export function ProjectsPageClient({ ideas }: ProjectsPageClientProps) {
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={query}
-                onChange={(event) => setQuery(event.target.value)}
+                onChange={(event) => {
+                  const nextQuery = event.target.value;
+                  setSearchParams({
+                    q: nextQuery.trim() ? nextQuery : null,
+                  });
+                }}
                 placeholder="Search ideas or tasks"
                 className="pl-10"
               />
@@ -94,16 +114,27 @@ export function ProjectsPageClient({ ideas }: ProjectsPageClientProps) {
                   key={option}
                   type="button"
                   variant={view === option ? "fill" : "fill2"}
-                  onClick={() => setView(option)}
+                  onClick={() => {
+                    setSearchParams({
+                      view: option === "tasks" ? "tasks" : null,
+                    });
+                  }}
                   className="capitalize gap-2"
                 >
-                  {option ? <FolderOpenDot /> : <CheckCheck />}
+                  {option === "projects" ? (
+                    <FolderOpenDot className="size-4" />
+                  ) : (
+                    <CheckCheck className="size-4" />
+                  )}
                   <span>{option}</span>
                 </Button>
               ))}
             </div>
           </div>
         </div>
+        {isPending ? (
+          <p className="mt-4 text-sm text-muted-foreground">Updating view...</p>
+        ) : null}
       </section>
 
       {view === "projects" ? (
@@ -199,7 +230,11 @@ export function ProjectsPageClient({ ideas }: ProjectsPageClientProps) {
               type="button"
               variant={selectedIdeaId === "all" ? "default" : "outline"}
               size="sm"
-              onClick={() => setSelectedIdeaId("all")}
+              onClick={() => {
+                setSearchParams({
+                  idea: null,
+                });
+              }}
             >
               All ideas
             </Button>
@@ -209,7 +244,11 @@ export function ProjectsPageClient({ ideas }: ProjectsPageClientProps) {
                 type="button"
                 variant={selectedIdeaId === idea.id ? "default" : "outline"}
                 size="sm"
-                onClick={() => setSelectedIdeaId(idea.id)}
+                onClick={() => {
+                  setSearchParams({
+                    idea: idea.id,
+                  });
+                }}
               >
                 {idea.title}
               </Button>

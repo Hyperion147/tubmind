@@ -1,10 +1,10 @@
-import { Suspense } from "react";
-import { and, count, desc, eq, ilike, isNotNull, or } from "drizzle-orm";
+import { and, desc, eq, ilike, isNotNull, or } from "drizzle-orm";
 
 import { db } from "@/db";
 import { ideaComments, ideas, moderationLogs, profiles } from "@/db/schema";
-import { AdminPageSkeleton } from "@/features/admin/components/admin-page-skeleton";
 import { AdminCommentsPageClient } from "@/features/admin/components/admin-comments-page-client";
+import { getAdminCommentStats } from "@/features/admin/lib/admin-queries";
+import { requireAdmin } from "@/lib/auth";
 
 type PageProps = {
   searchParams: Promise<{
@@ -13,15 +13,9 @@ type PageProps = {
   }>;
 };
 
-export default function AdminCommentsPage({ searchParams }: PageProps) {
-  return (
-    <Suspense fallback={<AdminPageSkeleton />}>
-      <AdminCommentsContent searchParams={searchParams} />
-    </Suspense>
-  );
-}
+export default async function AdminCommentsPage({ searchParams }: PageProps) {
+  await requireAdmin();
 
-async function AdminCommentsContent({ searchParams }: PageProps) {
   const params = await searchParams;
   const commentQuery = params.commentQ?.trim() ?? "";
   const commentStatusFilter =
@@ -44,7 +38,7 @@ async function AdminCommentsContent({ searchParams }: PageProps) {
     ...(commentStatusFilter !== "all" ? [eq(ideaComments.status, commentStatusFilter)] : []),
   ];
 
-  const [comments, totalCommentsResult, hiddenCommentsResult, deletedCommentsResult, recentLogs] =
+  const [comments, commentStats, recentLogs] =
     await Promise.all([
       db
         .select({
@@ -65,9 +59,7 @@ async function AdminCommentsContent({ searchParams }: PageProps) {
         .where(commentFilters.length ? and(...commentFilters) : undefined)
         .orderBy(desc(ideaComments.updatedAt))
         .limit(30),
-      db.select({ value: count() }).from(ideaComments),
-      db.select({ value: count() }).from(ideaComments).where(eq(ideaComments.status, "hidden")),
-      db.select({ value: count() }).from(ideaComments).where(eq(ideaComments.status, "deleted")),
+      getAdminCommentStats(),
       db
         .select({
           id: moderationLogs.id,
@@ -105,9 +97,9 @@ async function AdminCommentsContent({ searchParams }: PageProps) {
         label: log.label.slice(0, 72) || "Comment removed",
       }))}
       initialStats={{
-        totalComments: totalCommentsResult[0]?.value ?? 0,
-        hiddenComments: hiddenCommentsResult[0]?.value ?? 0,
-        deletedComments: deletedCommentsResult[0]?.value ?? 0,
+        totalComments: commentStats.totalComments,
+        hiddenComments: commentStats.hiddenComments,
+        deletedComments: commentStats.deletedComments,
       }}
       filters={{
         commentQuery,

@@ -2,6 +2,8 @@ import { and, count, desc, eq, ilike, inArray, or } from "drizzle-orm";
 import { ArrowRight, Bath } from "lucide-react";
 
 import { AppReveal } from "@/components/motion/app-reveal";
+import { AppProviders } from "@/components/providers/app-providers";
+import { SiteBreadcrumb } from "@/components/layout/site-breadcrumb";
 import { SiteNavbar } from "@/components/layout/site-navbar";
 import { db } from "@/db";
 import { ideaReactions, ideas, profiles } from "@/db/schema";
@@ -153,6 +155,7 @@ export default async function ListingsPage({
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   return (
+    <AppProviders>
     <main className="relative min-h-screen">
       <div
         className={cn(
@@ -215,6 +218,13 @@ export default async function ListingsPage({
                 duration={1}
                 className="mx-auto w-full max-w-2xl"
               >
+                <div className="grid gap-4">
+                  <SiteBreadcrumb
+                    items={[
+                      { label: "Home", href: "/" },
+                      { label: "Listings" },
+                    ]}
+                  />
                 <div className="relative overflow-hidden rounded-none border border-border bg-card/70 shadow-xl backdrop-blur">
                   <div className="snap-y snap-mandatory space-y-4 p-4 pt-6">
                     {listings.length === 0 ? (
@@ -232,6 +242,7 @@ export default async function ListingsPage({
                       </section>
                     )}
                   </div>
+                </div>
                 </div>
               </AppReveal>
             </div>
@@ -276,5 +287,6 @@ export default async function ListingsPage({
         />
       ) : null}
     </main>
+    </AppProviders>
   );
 }

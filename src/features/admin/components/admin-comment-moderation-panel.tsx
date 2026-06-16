@@ -1,7 +1,7 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
 import { Loader2, MessageSquareOff, Shield } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -40,8 +40,11 @@ export function AdminCommentModerationPanel({
   currentStatus,
   onModerated,
 }: AdminCommentModerationPanelProps) {
+  const router = useRouter();
   const [action, setAction] = useState<CommentAdminAction>("hide");
   const [note, setNote] = useState("");
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const availableActions = useMemo(() => {
     const actions: Array<{ value: CommentAdminAction; label: string }> = [];
@@ -67,18 +70,20 @@ export function AdminCommentModerationPanel({
     ? action
     : availableActions[0]?.value;
 
-  const mutation = useMutation({
-    mutationFn: async () => {
-      const confirmationCopy: Partial<Record<CommentAdminAction, string>> = {
-        delete: "Delete this comment from the discussion feed?",
-      };
+  async function applyAction() {
+    const confirmationCopy: Partial<Record<CommentAdminAction, string>> = {
+      delete: "Delete this comment from the discussion feed?",
+    };
+    const confirmation = selectedAction ? confirmationCopy[selectedAction] : null;
 
-      const confirmation = selectedAction ? confirmationCopy[selectedAction] : null;
+    if (confirmation && !window.confirm(confirmation)) {
+      return;
+    }
 
-      if (confirmation && !window.confirm(confirmation)) {
-        return null;
-      }
+    setIsPending(true);
+    setError(null);
 
+    try {
       const response = await fetch(`/api/admin/comments/${commentId}/moderate`, {
         method: "POST",
         headers: {
@@ -89,14 +94,13 @@ export function AdminCommentModerationPanel({
           note,
         }),
       });
-
       const payload = await response.json();
 
       if (!response.ok) {
         throw new Error(payload?.error?.message ?? "Failed to moderate comment");
       }
 
-      return payload.data as {
+      const result = payload.data as {
         comment: {
           id: string;
           status: CommentStatus;
@@ -109,16 +113,16 @@ export function AdminCommentModerationPanel({
           label: string;
         } | null;
       };
-    },
-    onSuccess: (result) => {
-      if (!result) {
-        return;
-      }
 
       setNote("");
       onModerated?.(result);
-    },
-  });
+      router.refresh();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Failed to moderate comment");
+    } finally {
+      setIsPending(false);
+    }
+  }
 
   return (
     <div className="grid gap-3 bg-background/55 p-4 ring-1 ring-border/35">
@@ -155,18 +159,18 @@ export function AdminCommentModerationPanel({
         className="min-h-24 bg-card/80"
       />
 
-      {mutation.error ? (
-        <p className="text-sm text-destructive">{mutation.error.message}</p>
+      {error ? (
+        <p className="text-sm text-destructive">{error}</p>
       ) : null}
 
       <Button
         type="button"
-        onClick={() => mutation.mutate()}
-        disabled={mutation.isPending || availableActions.length === 0}
+        onClick={applyAction}
+        disabled={isPending || availableActions.length === 0}
         className="justify-between"
       >
-        {mutation.isPending ? "Applying action..." : "Apply action"}
-        {mutation.isPending ? (
+        {isPending ? "Applying action..." : "Apply action"}
+        {isPending ? (
           <Loader2 className="size-4 animate-spin" />
         ) : (
           <MessageSquareOff className="size-4" />

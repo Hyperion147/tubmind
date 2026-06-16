@@ -1,8 +1,6 @@
-"use client";
-
-import { startTransition, useState } from "react";
 import { AlertCircle, Shield, ShieldAlert, UserRound } from "lucide-react";
 
+import { SiteBreadcrumb } from "@/components/layout/site-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,105 +58,34 @@ function humanize(value: string) {
   return value.replaceAll("_", " ");
 }
 
-function matchesUserFilters(
-  user: Pick<UserRow, "role" | "status">,
-  filters: Props["filters"]
-) {
-  const roleMatch = filters.roleFilter === "all" || user.role === filters.roleFilter;
-  const statusMatch =
-    filters.userStatusFilter === "all" || user.status === filters.userStatusFilter;
-
-  return roleMatch && statusMatch;
-}
-
 export function AdminUsersPageClient({
   initialUsers,
   initialLogs,
   initialStats,
   filters,
 }: Props) {
-  const [users, setUsers] = useState(initialUsers);
-  const [logs, setLogs] = useState(initialLogs);
-  const [stats, setStats] = useState(initialStats);
-
-  const handleModerated = (
-    row: UserRow,
-    result: {
-      profile: {
-        id: string;
-        role: UserRole;
-        status: UserStatus;
-        blockedReason: string | null;
-      };
-      log: UserLog | null;
-    }
-  ) => {
-    startTransition(() => {
-      setStats((current) => {
-        let blockedUsers = current.blockedUsers;
-        let reviewUsers = current.reviewUsers;
-        let adminUsers = current.adminUsers;
-
-        if (row.status !== result.profile.status) {
-          if (row.status === "blocked") {
-            blockedUsers -= 1;
-          }
-          if (row.status === "under_review") {
-            reviewUsers -= 1;
-          }
-          if (result.profile.status === "blocked") {
-            blockedUsers += 1;
-          }
-          if (result.profile.status === "under_review") {
-            reviewUsers += 1;
-          }
-        }
-
-        if (row.role !== result.profile.role) {
-          adminUsers += result.profile.role === "admin" ? 1 : -1;
-        }
-
-        return {
-          ...current,
-          blockedUsers,
-          reviewUsers,
-          adminUsers,
-        };
-      });
-
-      setUsers((current) => {
-        const nextRow: UserRow = {
-          ...row,
-          role: result.profile.role,
-          status: result.profile.status,
-          blockedReason: result.profile.blockedReason,
-        };
-
-        if (!matchesUserFilters(nextRow, filters)) {
-          return current.filter((item) => item.id !== row.id);
-        }
-
-        return current.map((item) => (item.id === row.id ? nextRow : item));
-      });
-
-      const nextLog = result.log;
-
-      if (nextLog) {
-        setLogs((current) => [nextLog, ...current].slice(0, 8));
-      }
-    });
-  };
+  const users = initialUsers;
+  const logs = initialLogs;
+  const stats = initialStats;
 
   return (
     <div className="grid gap-4">
+      <SiteBreadcrumb
+        items={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Admin", href: "/admin" },
+          { label: "Users" },
+        ]}
+      />
+
       <section className="grid gap-4 xl:grid-cols-[1fr_0.34fr]">
-        <Card className="border-border bg-card/90 shadow-xl backdrop-blur">
+        <Card className="border border-border bg-card/90 shadow-sm">
           <CardHeader className="p-5 md:p-6">
             <Badge variant="outline" className="w-fit px-2.5 py-0.5 font-mono">
               User Administration
             </Badge>
             <div className="max-w-4xl space-y-2">
-              <CardTitle className="font-semibold leading-[0.98] tracking-tight text-foreground md:text-4xl">
+              <CardTitle className="text-3xl font-semibold tracking-tight text-foreground">
                 Moderate accounts without dragging comments along.
               </CardTitle>
               <CardDescription className="max-w-2xl text-sm leading-7 md:text-base">
@@ -174,7 +101,7 @@ export function AdminUsersPageClient({
           </CardContent>
         </Card>
 
-        <Card className="border-border bg-secondary/80 shadow-xl backdrop-blur">
+        <Card className="border border-border bg-card/92 shadow-sm">
           <CardHeader className="gap-3 p-5 md:p-6">
             <div className="flex size-10 items-center justify-center border border-border bg-background/70 text-foreground">
               <Shield className="size-4" />
@@ -228,7 +155,7 @@ export function AdminUsersPageClient({
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[1fr_0.34fr]">
-        <Card className="border-border bg-card/92 shadow-xl backdrop-blur">
+        <Card className="border border-border bg-card/92 shadow-sm">
           <CardHeader className="flex-row items-start justify-between gap-4 p-5 md:p-6">
             <div>
               <Badge variant="outline" className="mb-3 px-2.5 py-0.5 font-mono">
@@ -252,7 +179,7 @@ export function AdminUsersPageClient({
               users.map((user) => (
                 <div
                   key={user.id}
-                  className="grid gap-4 bg-background/55 p-4 shadow-sm ring-1 ring-border/35 xl:grid-cols-[1fr_320px]"
+                  className="grid gap-4 border border-border bg-background/72 p-4 xl:grid-cols-[1fr_320px]"
                 >
                   <div className="space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
@@ -297,7 +224,6 @@ export function AdminUsersPageClient({
                     currentStatus={user.status}
                     blockedReason={user.blockedReason}
                     isSelf={user.isSelf}
-                    onModerated={(result) => handleModerated(user, result)}
                   />
                 </div>
               ))
@@ -305,7 +231,7 @@ export function AdminUsersPageClient({
           </CardContent>
         </Card>
 
-        <Card className="border-border bg-card/88 shadow-sm backdrop-blur">
+        <Card className="border border-border bg-card/88 shadow-sm">
           <CardHeader className="gap-3 p-5 md:p-6">
             <CardTitle className="text-xl">Recent user actions</CardTitle>
             <CardDescription className="text-sm leading-6">
@@ -342,7 +268,7 @@ export function AdminUsersPageClient({
 
 function AdminStat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="border border-border bg-background/70 p-3 transition-colors duration-300 hover:border-primary/35 hover:bg-background">
+    <div className="border border-border bg-background/70 p-3">
       <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
         {label}
       </p>

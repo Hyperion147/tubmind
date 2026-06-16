@@ -14,6 +14,7 @@ import {
     Target,
 } from "lucide-react";
 
+import { SiteBreadcrumb } from "@/components/layout/site-breadcrumb";
 import {
     EvilLineChart,
     Grid as LineGrid,
@@ -52,8 +53,8 @@ const overviewChartConfig = {
             dark: ["oklch(0.6200 0.1000 152.000)"],
         },
     },
-    published: {
-        label: "Published",
+    refined: {
+        label: "Refined",
         colors: {
             light: ["oklch(0.6000 0.0820 168.000)"],
             dark: ["oklch(0.6800 0.0820 168.000)"],
@@ -114,7 +115,7 @@ export function DashboardOverviewPage({
         6,
         ...overviewData.flatMap((item) => [
             item.captured,
-            item.published,
+            item.refined,
             item.completed,
         ]),
     );
@@ -143,9 +144,6 @@ export function DashboardOverviewPage({
         (sum, idea) => sum + idea.comments,
         0,
     );
-    const publishedIdeas = workspace.ideas.filter(
-        (idea) => idea.status === "published" || idea.visibility === "public",
-    ).length;
     const ideasInTubs = workspace.ideas.filter(
         (idea) => idea.tasks.length > 0,
     ).length;
@@ -153,42 +151,79 @@ export function DashboardOverviewPage({
         tubHealth.find((item) => item.state === "active")?.value ?? 0;
     const dateRangeLabel = formatRangeLabel(6);
     const firstName = getFirstName(displayName);
+    const recentWindow = getWindowBounds(7, 0);
+    const previousWindow = getWindowBounds(7, 7);
+    const recentCaptures = countItemsInWindow(
+        workspace.ideas,
+        (idea) => idea.createdAt,
+        recentWindow,
+    );
+    const previousCaptures = countItemsInWindow(
+        workspace.ideas,
+        (idea) => idea.createdAt,
+        previousWindow,
+    );
+    const refinedIdeasThisWeek = workspace.ideas.filter((idea) =>
+        isRefinedWithinWindow(idea, recentWindow),
+    ).length;
+    const ideasWithComments = workspace.ideas.filter(
+        (idea) => idea.comments > 0,
+    ).length;
+    const totalTasksLinked = workspace.ideas.reduce(
+        (sum, idea) => sum + idea.tasks.length,
+        0,
+    );
+    const completedThisWeek = countItemsInWindow(
+        workspace.tasks.filter((task) => task.status === "completed"),
+        (task) => task.updatedAt,
+        recentWindow,
+    );
 
     const statCards = [
         {
             label: "Ideas Captured",
             value: workspace.stats.totalIdeas,
-            trend: formatTrend(workspace.stats.totalIdeas, 8),
+            detail: formatWindowSummary(
+                recentCaptures,
+                previousCaptures,
+                "captured",
+            ),
             icon: Lightbulb,
         },
         {
             label: "Ideas in Tubs",
             value: ideasInTubs,
-            trend: formatTrend(ideasInTubs, 5),
+            detail: `${totalTasksLinked} linked ${totalTasksLinked === 1 ? "task" : "tasks"} across your tubs`,
             icon: FolderKanban,
         },
         {
-            label: "Published Ideas",
-            value: publishedIdeas,
-            trend: formatTrend(publishedIdeas, 6),
+            label: "Public Ideas",
+            value: workspace.stats.publicIdeas,
+            detail: `${refinedIdeasThisWeek} refined in the last 7 days`,
             icon: Globe2,
         },
         {
             label: "Comments",
             value: totalComments,
-            trend: formatTrend(totalComments, 4),
+            detail: `${ideasWithComments} ${ideasWithComments === 1 ? "idea has" : "ideas have"} visible discussion`,
             icon: MessageCircleMore,
         },
         {
             label: "Active Tubs",
             value: activeTubs,
-            trend: formatTrend(activeTubs, 3),
+            detail: `${completedThisWeek} ${completedThisWeek === 1 ? "task was" : "tasks were"} completed this week`,
             icon: Target,
         },
     ];
 
     return (
         <div className="grid gap-4">
+            <SiteBreadcrumb
+                items={[
+                    { label: "Dashboard" },
+                ]}
+            />
+
             <section className="grid gap-4 border border-border bg-card p-6">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                     <div className="space-y-2">
@@ -221,8 +256,8 @@ export function DashboardOverviewPage({
                         <StatCard
                             key={card.label}
                             label={card.label}
+                            detail={card.detail}
                             value={card.value}
-                            trend={card.trend}
                             icon={card.icon}
                         />
                     ))}
@@ -238,8 +273,8 @@ export function DashboardOverviewPage({
                                     Ideas Overview
                                 </CardTitle>
                                 <p className="text-sm text-muted-foreground">
-                                    A seven-day read on capture, publishing, and
-                                    completed delivery.
+                                    Daily activity across new captures, refined
+                                    ideas, and completed tasks.
                                 </p>
                             </div>
                             <Button
@@ -285,7 +320,7 @@ export function DashboardOverviewPage({
                                 <ActiveDot variant="colored-border" />
                             </Line>
                             <Line
-                                dataKey="published"
+                                dataKey="refined"
                                 strokeVariant="solid"
                                 curveType="monotone"
                             >
@@ -603,12 +638,12 @@ export function DashboardOverviewPage({
 function StatCard({
     label,
     value,
-    trend,
+    detail,
     icon: Icon,
 }: {
     label: string;
     value: number;
-    trend: string;
+    detail: string;
     icon: typeof Lightbulb;
 }) {
     return (
@@ -624,7 +659,7 @@ function StatCard({
                     <Icon className="size-4" />
                 </div>
             </div>
-            <p className="mt-3 text-sm text-primary">{trend}</p>
+            <p className="mt-3 text-sm text-muted-foreground">{detail}</p>
         </div>
     );
 }
@@ -734,28 +769,26 @@ function buildOverviewSeries(workspace: WorkspaceDashboardData) {
     const dates = getPastSevenDays();
 
     return dates.map((date, index) => {
-        const dayEnd = new Date(date);
-        dayEnd.setHours(23, 59, 59, 999);
+        const dayStart = getDayStart(date);
+        const dayEnd = getDayEnd(date);
 
         const captured = workspace.ideas.filter(
-            (idea) => new Date(idea.createdAt) <= dayEnd,
+            (idea) => isWithinDay(idea.createdAt, dayStart, dayEnd),
         ).length;
-        const published = workspace.ideas.filter((idea) => {
-            const visible =
-                idea.status === "published" || idea.visibility === "public";
-            return visible && new Date(idea.updatedAt) <= dayEnd;
-        }).length;
+        const refined = workspace.ideas.filter((idea) =>
+            isIdeaRefinedOnDay(idea, dayStart, dayEnd),
+        ).length;
         const completed = workspace.tasks.filter((task) => {
             return (
                 task.status === "completed" &&
-                new Date(task.updatedAt) <= dayEnd
+                isWithinDay(task.updatedAt, dayStart, dayEnd)
             );
         }).length;
 
         return {
             label: formatAxisDay(date),
             captured: index > 0 ? Math.max(captured, 0) : captured,
-            published,
+            refined,
             completed,
         };
     });
@@ -921,14 +954,6 @@ function formatRelativeTime(value: string) {
     );
 }
 
-function formatTrend(value: number, seed: number) {
-    const delta = Math.min(
-        28,
-        Math.max(5, Math.round((value + seed) / Math.max(seed, 3))),
-    );
-    return `+${delta}% vs last 7 days`;
-}
-
 function getFirstName(value: string) {
     return value.split(" ")[0] || "there";
 }
@@ -936,4 +961,100 @@ function getFirstName(value: string) {
 function getTubBarWidth(idea: WorkspaceIdea, topTubs: WorkspaceIdea[]) {
     const maxTasks = Math.max(1, ...topTubs.map((item) => item.tasks.length));
     return (idea.tasks.length / maxTasks) * 100;
+}
+
+function getDayStart(value: Date | string) {
+    const date = typeof value === "string" ? new Date(value) : value;
+    return new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        0,
+        0,
+        0,
+        0,
+    );
+}
+
+function getDayEnd(value: Date | string) {
+    const dayEnd = getDayStart(value);
+    dayEnd.setHours(23, 59, 59, 999);
+    return dayEnd;
+}
+
+function isWithinDay(
+    value: string,
+    dayStart: Date,
+    dayEnd: Date,
+) {
+    const timestamp = new Date(value).getTime();
+    return timestamp >= dayStart.getTime() && timestamp <= dayEnd.getTime();
+}
+
+function isIdeaRefinedOnDay(
+    idea: WorkspaceIdea,
+    dayStart: Date,
+    dayEnd: Date,
+) {
+    const createdAt = new Date(idea.createdAt).getTime();
+    const updatedAt = new Date(idea.updatedAt).getTime();
+
+    return updatedAt > createdAt && updatedAt >= dayStart.getTime() && updatedAt <= dayEnd.getTime();
+}
+
+function getWindowBounds(lengthInDays: number, daysAgo: number) {
+    const end = getDayEnd(new Date());
+    end.setDate(end.getDate() - daysAgo);
+
+    const start = getDayStart(end);
+    start.setDate(start.getDate() - (lengthInDays - 1));
+
+    return { start, end };
+}
+
+function countItemsInWindow<T>(
+    items: T[],
+    getDate: (item: T) => string,
+    window: { start: Date; end: Date },
+) {
+    return items.filter((item) => {
+        const timestamp = new Date(getDate(item)).getTime();
+        return timestamp >= window.start.getTime() && timestamp <= window.end.getTime();
+    }).length;
+}
+
+function isRefinedWithinWindow(
+    idea: WorkspaceIdea,
+    window: { start: Date; end: Date },
+) {
+    const createdAt = new Date(idea.createdAt).getTime();
+    const updatedAt = new Date(idea.updatedAt).getTime();
+
+    return (
+        updatedAt > createdAt &&
+        updatedAt >= window.start.getTime() &&
+        updatedAt <= window.end.getTime()
+    );
+}
+
+function formatWindowSummary(
+    current: number,
+    previous: number,
+    verb: string,
+) {
+    if (current === 0 && previous === 0) {
+        return `No ideas ${verb} in the last 14 days`;
+    }
+
+    if (previous === 0) {
+        return `${current} ${current === 1 ? "idea" : "ideas"} ${verb} in the last 7 days`;
+    }
+
+    const delta = current - previous;
+    const deltaLabel =
+        delta === 0
+            ? "flat week over week"
+            : `${delta > 0 ? "+" : ""}${delta} vs previous 7 days`;
+
+    return `${current} in the last 7 days, ${deltaLabel}`;
 }

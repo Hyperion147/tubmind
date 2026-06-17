@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo, useState, useTransition, type ChangeEvent, type DragEvent } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { emptyIdeaTubData, tubTaskStatuses, type TubTask, type TubTaskStatus } from "@/lib/tub";
+import { useUpdateTubTasks } from "@/features/tub/hooks/use-update-tub-tasks";
 
 import type { IdeaTubPageProps } from "./idea-tub-types";
 import {
@@ -16,7 +16,6 @@ import {
 } from "./idea-tub-utils";
 
 export function useIdeaTubState({ idea, initialTubData }: IdeaTubPageProps) {
-  const queryClient = useQueryClient();
   const [isPending, startTransition] = useTransition();
   const [tasks, setTasks] = useState(initialTubData.tasks);
   const [selectedDate, setSelectedDate] = useState<string | null>(() => {
@@ -32,33 +31,8 @@ export function useIdeaTubState({ idea, initialTubData }: IdeaTubPageProps) {
     return parseDateValue(seedDate) ?? parseDateValue(getTodayDateValue()) ?? new Date();
   });
 
-  const mutation = useMutation<unknown, Error, typeof emptyIdeaTubData>({
-    mutationFn: async (nextTubData) => {
-      const response = await fetch(`/api/ideas/${idea.id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          details: {
-            metadata: {
-              tub: nextTubData,
-            },
-          },
-        }),
-      });
-
-      const payload = await response.json();
-
-      if (!response.ok) {
-        throw new Error(payload?.error?.message ?? "Failed to save tub workspace");
-      }
-
-      return payload.data;
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["ideas", "mine"] });
-    },
+  const mutation = useUpdateTubTasks({
+    ideaId: idea.id,
   });
 
   const taskCountByDate = useMemo(() => {

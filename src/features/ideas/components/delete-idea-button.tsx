@@ -1,11 +1,11 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { ConfirmDeleteAction } from "@/components/confirm-delete-action";
+import { useDeleteIdea } from "@/features/ideas/hooks/use-idea-mutations";
 
 type DeleteIdeaButtonProps = {
   ideaId: string;
@@ -13,23 +13,9 @@ type DeleteIdeaButtonProps = {
 
 export function DeleteIdeaButton({ ideaId }: DeleteIdeaButtonProps) {
   const router = useRouter();
-  const queryClient = useQueryClient();
 
-  const mutation = useMutation({
-    mutationFn: async () => {
-      const response = await fetch(`/api/ideas/${ideaId}`, {
-        method: "DELETE",
-      });
-      const payload = await response.json();
-
-      if (!response.ok) {
-        throw new Error(payload?.error?.message ?? "Failed to delete idea");
-      }
-
-      return payload.data;
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["ideas", "mine"] });
+  const mutation = useDeleteIdea(ideaId, {
+    onSuccess: () => {
       toast.success("Idea deleted");
       router.push("/dashboard/ideas");
       router.refresh();

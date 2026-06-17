@@ -25,31 +25,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useUrlSearchState } from "@/hooks/use-url-search-state";
-import { cn } from "@/lib/utils";
 
 import { formatRelativeBucket, formatShortDate, isTaskOverdue } from "../lib/formatters";
-import type { WorkspaceDashboardData, WorkspaceTask } from "../lib/workspace-model";
-import { getTaskHref } from "../lib/workspace-model";
-
-type TimeLogEntry = {
-  id: string;
-  taskId: string;
-  taskTitle: string;
-  ideaId: string;
-  ideaTitle: string;
-  startedAt: string;
-  endedAt: string | null;
-  durationMs: number;
-  notes: string;
-};
-
-type ActiveTimerState = {
-  taskId: string;
-  startedAt: string;
-  accumulatedMs: number;
-  isRunning: boolean;
-  notes: string;
-};
+import type { WorkspaceDashboardData } from "../lib/workspace-model";
+import { SummaryMini, SummaryStat } from "./time-summary-cards";
+import { TaskBucket } from "./time-task-bucket";
+import type { ActiveTimerState, TimeLogEntry, TimeTab } from "./time-manager-types";
+import {
+  DAY_MS,
+  formatDuration,
+  formatSessionRange,
+  getDayStart,
+  getWeekStart,
+  readStoredActiveTimer,
+} from "./time-manager-utils";
 
 type TimeManagerPageProps = {
   profileId: string;
@@ -60,10 +49,6 @@ type TimeManagerPageProps = {
     selectedTaskId: string;
   };
 };
-
-type TimeTab = "today" | "week" | "all";
-
-const DAY_MS = 86_400_000;
 
 export function TimeManagerPage({
   profileId,
@@ -604,139 +589,3 @@ export function TimeManagerPage({
   );
 }
 
-function SummaryStat({
-  icon: Icon,
-  label,
-  value,
-  destructive = false,
-}: {
-  icon: typeof Clock3;
-  label: string;
-  value: string;
-  destructive?: boolean;
-}) {
-  return (
-    <div className="border border-border bg-background/70 p-3">
-      <div className="flex items-center gap-2">
-        <Icon className={cn("size-4", destructive ? "text-destructive" : "text-muted-foreground")} />
-        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-          {label}
-        </p>
-      </div>
-      <p className={cn("mt-2 text-2xl font-semibold", destructive ? "text-destructive" : "text-foreground")}>
-        {value}
-      </p>
-    </div>
-  );
-}
-
-function SummaryMini({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="border border-border bg-background/70 p-2.5">
-      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-        {label}
-      </p>
-      <p className="mt-1.5 text-lg font-semibold text-foreground">{value}</p>
-    </div>
-  );
-}
-
-function TaskBucket({
-  title,
-  description,
-  tasks,
-  destructive = false,
-}: {
-  title: string;
-  description: string;
-  tasks: WorkspaceTask[];
-  destructive?: boolean;
-}) {
-  return (
-    <div className="grid gap-2 border border-border bg-background/60 p-3">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className={cn("text-sm font-semibold", destructive ? "text-destructive" : "text-foreground")}>
-            {title}
-          </p>
-          <p className="text-sm text-muted-foreground">{description}</p>
-        </div>
-        <Badge variant={destructive ? "destructive" : "secondary"} className="font-mono">
-          {tasks.length}
-        </Badge>
-      </div>
-
-      {tasks.length === 0 ? (
-        <div className="border border-dashed border-border bg-card/60 p-3 text-sm text-muted-foreground">
-          Nothing here right now.
-        </div>
-      ) : (
-        tasks.slice(0, 3).map((task) => (
-          <Link
-            key={task.id}
-            href={getTaskHref(task)}
-            className="grid gap-2 border border-border bg-card p-3 transition-colors hover:border-primary/35 hover:bg-background"
-          >
-            <p className="text-sm font-semibold text-foreground">{task.title}</p>
-            <div className="flex items-center justify-between gap-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
-              <span>{task.ideaTitle}</span>
-              <span>{task.deadline ? formatShortDate(task.deadline) : formatShortDate(task.date)}</span>
-            </div>
-          </Link>
-        ))
-      )}
-    </div>
-  );
-}
-
-function getDayStart(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-}
-
-function getWeekStart(date: Date) {
-  const next = new Date(date);
-  next.setDate(next.getDate() - next.getDay());
-  next.setHours(0, 0, 0, 0);
-  return next.getTime();
-}
-
-function formatDuration(milliseconds: number) {
-  const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000));
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  return [hours, minutes, seconds].map((value) => value.toString().padStart(2, "0")).join(":");
-}
-
-function formatSessionRange(startedAt: string, endedAt: string | null) {
-  const start = new Date(startedAt);
-  const end = endedAt ? new Date(endedAt) : null;
-  const time = new Intl.DateTimeFormat("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
-  return `${time.format(start)}${end ? ` - ${time.format(end)}` : ""}`;
-}
-
-function readStoredActiveTimer(activeStorageKey: string) {
-  if (typeof window === "undefined") {
-    return {
-      activeTimer: null as ActiveTimerState | null,
-    };
-  }
-
-  let activeTimer: ActiveTimerState | null = null;
-  const storedActiveTimer = window.localStorage.getItem(activeStorageKey);
-
-  if (storedActiveTimer) {
-    try {
-      activeTimer = JSON.parse(storedActiveTimer) as ActiveTimerState;
-    } catch {
-      window.localStorage.removeItem(activeStorageKey);
-    }
-  }
-
-  return { activeTimer };
-}

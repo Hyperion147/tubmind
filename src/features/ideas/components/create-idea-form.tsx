@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     CheckSquare,
     FilePenLine,
@@ -34,6 +33,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { AuthModal } from "@/features/auth/components/auth-modal";
+import { useCreateIdea } from "@/features/ideas/hooks/use-idea-mutations";
 import {
     createIdeaSchema,
     type CreateIdeaFormValues,
@@ -74,7 +74,6 @@ export function CreateIdeaForm({
     variant = "full",
 }: CreateIdeaFormProps) {
     const router = useRouter();
-    const queryClient = useQueryClient();
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [isCaptureActive, setIsCaptureActive] = useState(false);
     const isCompact = variant === "compact";
@@ -84,30 +83,8 @@ export function CreateIdeaForm({
         defaultValues,
     });
 
-    const mutation = useMutation<{ id: string }, Error, CreateIdeaInput>({
-        mutationFn: async (values: CreateIdeaInput) => {
-            const response = await fetch("/api/ideas", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(values),
-            });
-
-            const payload = await response.json();
-
-            if (!response.ok) {
-                throw new Error(
-                    payload?.error?.message ?? "Failed to create idea",
-                );
-            }
-
-            return payload.data;
-        },
-        onSuccess: async (createdIdea) => {
-            await queryClient.invalidateQueries({
-                queryKey: ["ideas", "mine"],
-            });
+    const mutation = useCreateIdea({
+        onSuccess: (createdIdea) => {
             form.reset(defaultValues);
             router.push(`/dashboard/tubs/${createdIdea.id}`);
         },

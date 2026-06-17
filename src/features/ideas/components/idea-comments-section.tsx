@@ -1,6 +1,5 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
 import { createPortal } from "react-dom";
 import { useCallback, useState, useSyncExternalStore } from "react";
 import { toast } from "sonner";
@@ -8,17 +7,11 @@ import { toast } from "sonner";
 import { ConfirmDeleteAction } from "@/components/confirm-delete-action";
 import { Button } from "@/components/ui/button";
 import { AuthModal } from "@/features/auth/components/auth-modal";
-
-type CommentItem = {
-    id: string;
-    body: string;
-    createdAt: string | Date;
-    authorName?: string | null;
-};
+import { useIdeaComments, type IdeaComment } from "@/features/ideas/hooks/use-idea-comments";
 
 type IdeaCommentsSectionProps = {
     ideaId: string;
-    comments: CommentItem[];
+    comments: IdeaComment[];
     isAuthenticated: boolean;
     allowComments: boolean;
     nextPath?: string;
@@ -41,53 +34,16 @@ export function IdeaCommentsSection({
     const mounted = useHydrated();
     const portalTarget = usePortalTarget(commentsTargetId);
 
-    const mutation = useMutation({
-        mutationFn: async (nextBody: string) => {
-            const response = await fetch(`/api/ideas/${ideaId}/comments`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ body: nextBody }),
-            });
-
-            const payload = await response.json();
-
-            if (!response.ok) {
-                throw new Error(
-                    payload?.error?.message ?? "Failed to add comment",
-                );
-            }
-
-            return payload.data as CommentItem;
-        },
-        onSuccess: (comment) => {
+    const {
+        createComment: mutation,
+        deleteComment: deleteMutation,
+    } = useIdeaComments({
+        ideaId,
+        onCommentCreated: (comment) => {
             setComments((current) => [comment, ...current]);
             setBody("");
         },
-    });
-
-    const deleteMutation = useMutation({
-        mutationFn: async (commentId: string) => {
-            const response = await fetch(`/api/ideas/${ideaId}/comments`, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ commentId }),
-            });
-
-            const payload = await response.json();
-
-            if (!response.ok) {
-                throw new Error(
-                    payload?.error?.message ?? "Failed to delete comment",
-                );
-            }
-
-            return commentId;
-        },
-        onSuccess: (commentId) => {
+        onCommentDeleted: (commentId) => {
             setComments((current) =>
                 current.filter((comment) => comment.id !== commentId),
             );
@@ -198,7 +154,7 @@ function CommentsList({
     onDeleteComment,
     deleteError,
 }: {
-    comments: CommentItem[];
+    comments: IdeaComment[];
     canDeleteComments: boolean;
     deletingCommentId: string | null;
     onDeleteComment: (commentId: string) => void;

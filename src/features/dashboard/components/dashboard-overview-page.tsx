@@ -40,7 +40,7 @@ import {
     isTaskOverdue,
 } from "@/features/workspace/lib/formatters";
 import {
-    getProjectTaskHref,
+    getTaskHref,
     type WorkspaceDashboardData,
     type WorkspaceIdea,
 } from "@/features/workspace/lib/workspace-model";
@@ -357,10 +357,7 @@ export function DashboardOverviewPage({
                                 size="sm"
                                 className="rounded-none shadow-sm"
                             >
-                                <Link
-                                    href="/dashboard/projects"
-                                    className="gap-2"
-                                >
+                                <Link href="/dashboard/tubs" className="gap-2">
                                     <span>Manage tubs</span>
                                     <ArrowRight className="size-4" />
                                 </Link>
@@ -430,7 +427,7 @@ export function DashboardOverviewPage({
                             {recentIdeas.map((idea) => (
                                 <Link
                                     key={idea.id}
-                                    href={`/dashboard/ideas/${idea.id}`}
+                                    href={`/dashboard/tubs/${idea.id}`}
                                     className="grid gap-1 border-b border-border/70 pb-4 last:border-b-0 last:pb-0"
                                 >
                                     <div className="flex items-start justify-between gap-3">
@@ -469,7 +466,7 @@ export function DashboardOverviewPage({
                             {priorityTasks.map((task) => (
                                 <Link
                                     key={task.id}
-                                    href={getProjectTaskHref(task)}
+                                    href={getTaskHref(task)}
                                     className="grid grid-cols-[auto_1fr_auto] gap-3 border-b border-border/70 pb-4 last:border-b-0 last:pb-0"
                                 >
                                     <span
@@ -501,7 +498,7 @@ export function DashboardOverviewPage({
 
                 <PanelCard
                     title="Activity Feed"
-                    footerHref="/dashboard/projects"
+                    footerHref="/dashboard/tubs"
                     footerLabel="View all activity"
                 >
                     {activityFeed.length === 0 ? (
@@ -537,7 +534,7 @@ export function DashboardOverviewPage({
             <section className="grid gap-4 xl:grid-cols-3">
                 <PanelCard
                     title="Top Idea Tubs"
-                    footerHref="/dashboard/projects"
+                    footerHref="/dashboard/tubs"
                     footerLabel="View all tubs"
                 >
                     {topTubs.length === 0 ? (
@@ -614,9 +611,9 @@ export function DashboardOverviewPage({
                             title="Capture a new idea"
                         />
                         <QuickAction
-                            href="/dashboard/projects"
+                            href="/dashboard/tubs"
                             icon={FolderKanban}
-                            title="Create a new tub"
+                            title="Open idea tubs"
                         />
                         <QuickAction
                             href="/dashboard/tasks"

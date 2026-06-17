@@ -144,6 +144,22 @@ export function useIdeaTubState({ idea, initialTubData }: IdeaTubPageProps) {
     persistTasks(tasks.filter((task) => task.id !== taskId));
   }
 
+  function updateTask(taskId: string, values: Omit<TubTask, "id" | "updatedAt">) {
+    persistTasks(
+      tasks.map((task) =>
+        task.id === taskId
+          ? {
+              ...task,
+              ...values,
+              title: values.title.trim(),
+              description: values.description.trim(),
+              updatedAt: new Date().toISOString(),
+            }
+          : task,
+      ),
+    );
+  }
+
   function moveTask(taskId: string, status: TubTaskStatus) {
     persistTasks(
       tasks.map((task) =>
@@ -199,6 +215,7 @@ export function useIdeaTubState({ idea, initialTubData }: IdeaTubPageProps) {
     monthLabel,
     mutation,
     removeTask,
+    updateTask,
     selectedDate,
     selectedDayCount,
     setDraft,

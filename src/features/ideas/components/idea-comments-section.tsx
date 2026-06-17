@@ -3,7 +3,9 @@
 import { useMutation } from "@tanstack/react-query";
 import { createPortal } from "react-dom";
 import { useCallback, useState, useSyncExternalStore } from "react";
+import { toast } from "sonner";
 
+import { ConfirmDeleteAction } from "@/components/confirm-delete-action";
 import { Button } from "@/components/ui/button";
 import { AuthModal } from "@/features/auth/components/auth-modal";
 
@@ -89,6 +91,10 @@ export function IdeaCommentsSection({
             setComments((current) =>
                 current.filter((comment) => comment.id !== commentId),
             );
+            toast.success("Comment deleted");
+        },
+        onError: (error) => {
+            toast.error(error.message);
         },
     });
 
@@ -241,22 +247,28 @@ function CommentsList({
                                     </p>
                                 </div>
                                 {canDeleteComments ? (
-                                    <Button
-                                        type="button"
+                                    <ConfirmDeleteAction
+                                        title="Delete this comment?"
+                                        description="This removes the comment from the discussion feed permanently."
+                                        actionLabel={
+                                            deletingCommentId === comment.id
+                                                ? "Deleting..."
+                                                : "Delete comment"
+                                        }
                                         variant="outline"
                                         size="xs"
-                                        onClick={() =>
-                                            onDeleteComment(comment.id)
-                                        }
                                         disabled={
                                             deletingCommentId === comment.id
                                         }
-                                        className="shrink-0 text-[11px] uppercase tracking-[0.16em]"
+                                        onConfirm={() =>
+                                            onDeleteComment(comment.id)
+                                        }
+                                        triggerClassName="shrink-0 text-[11px] uppercase tracking-[0.16em]"
                                     >
                                         {deletingCommentId === comment.id
                                             ? "Deleting..."
                                             : "Delete"}
-                                    </Button>
+                                    </ConfirmDeleteAction>
                                 ) : null}
                             </div>
                             <p className="overflow-hidden whitespace-pre-wrap break-words text-sm leading-7 text-foreground [overflow-wrap:anywhere]">

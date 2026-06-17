@@ -29,14 +29,14 @@ import { cn } from "@/lib/utils";
 
 import { formatRelativeBucket, formatShortDate, isTaskOverdue } from "../lib/formatters";
 import type { WorkspaceDashboardData, WorkspaceTask } from "../lib/workspace-model";
-import { getProjectTaskHref } from "../lib/workspace-model";
+import { getTaskHref } from "../lib/workspace-model";
 
 type TimeLogEntry = {
   id: string;
   taskId: string;
   taskTitle: string;
-  projectId: string;
-  projectTitle: string;
+  ideaId: string;
+  ideaTitle: string;
   startedAt: string;
   endedAt: string | null;
   durationMs: number;
@@ -259,8 +259,8 @@ export function TimeManagerPage({
         id: saved.id,
         taskId: saved.taskId,
         taskTitle: saved.taskTitle,
-        projectId: saved.ideaId,
-        projectTitle: activeTask.ideaTitle,
+        ideaId: saved.ideaId,
+        ideaTitle: activeTask.ideaTitle,
         startedAt: new Date(saved.startedAt).toISOString(),
         endedAt: new Date(saved.endedAt).toISOString(),
         durationMs: saved.durationSeconds * 1000,
@@ -566,7 +566,7 @@ export function TimeManagerPage({
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="space-y-1">
                       <p className="text-base font-semibold text-foreground">{entry.taskTitle}</p>
-                      <p className="text-sm text-muted-foreground">{entry.projectTitle}</p>
+                      <p className="text-sm text-muted-foreground">{entry.ideaTitle}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-mono text-lg text-foreground">{formatDuration(entry.durationMs)}</p>
@@ -588,8 +588,8 @@ export function TimeManagerPage({
                       ) : null}
                     </div>
                     <Button asChild variant="ghost" size="sm">
-                      <Link href={`/dashboard/projects/${entry.projectId}`} className="gap-2">
-                        Open project
+                      <Link href={`/dashboard/tubs/${entry.ideaId}`} className="gap-2">
+                        Open idea
                         <ArrowRight className="size-4" />
                       </Link>
                     </Button>
@@ -674,7 +674,7 @@ function TaskBucket({
         tasks.slice(0, 3).map((task) => (
           <Link
             key={task.id}
-            href={getProjectTaskHref(task)}
+            href={getTaskHref(task)}
             className="grid gap-2 border border-border bg-card p-3 transition-colors hover:border-primary/35 hover:bg-background"
           >
             <p className="text-sm font-semibold text-foreground">{task.title}</p>

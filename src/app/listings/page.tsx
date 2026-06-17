@@ -1,26 +1,20 @@
-import { and, count, desc, eq, ilike, inArray, or } from "drizzle-orm";
 import { ArrowRight, Bath } from "lucide-react";
 
 import { AppReveal } from "@/components/motion/app-reveal";
 import { AppProviders } from "@/components/providers/app-providers";
 import { SiteBreadcrumb } from "@/components/layout/site-breadcrumb";
 import { SiteNavbar } from "@/components/layout/site-navbar";
-import { db } from "@/db";
-import { ideaReactions, ideas, profiles } from "@/db/schema";
 import { AuthGateOverlay } from "@/features/auth/components/auth-gate-overlay";
-import {
-  ListingCard,
-  type ListingCardData,
-} from "@/features/listing/card/listing-card";
+import { ListingCard } from "@/features/listing/card/listing-card";
 import { ListingEmptyState } from "@/features/listing/components/listing-empty-state";
 import { ListingFlowPanel } from "@/features/listing/components/listing-flow-panel";
+import { ListingMobileSearchButton } from "@/features/listing/components/listing-mobile-search-button";
 import { ListingSearchOptionsPanel } from "@/features/listing/components/listing-search-options-panel";
+import { getListingsPageData } from "@/features/listing/lib/listing-queries";
 import { getCurrentSession } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
-
-const PAGE_SIZE = 9;
 
 type ListingsPageProps = {
   searchParams: Promise<{
@@ -41,7 +35,6 @@ export default async function ListingsPage({
   const isLocked = !session || isBlocked;
   const query = params.q?.trim() ?? "";
   const page = Math.max(Number(params.page ?? "1") || 1, 1);
-  const offset = (page - 1) * PAGE_SIZE;
   const currentParams = new URLSearchParams();
 
   if (query) {
@@ -55,104 +48,11 @@ export default async function ListingsPage({
     ? `/listings?${currentParams.toString()}`
     : "/listings";
 
-  const filters = [
-    eq(ideas.visibility, "public"),
-    ...(query
-      ? [
-          or(
-            ilike(ideas.title, `%${query}%`),
-            ilike(ideas.summary, `%${query}%`),
-          )!,
-        ]
-      : []),
-  ];
-
-  let listings: ListingCardData[] = [];
-  let totalCount = 0;
-
-  try {
-    const [items, total] = await Promise.all([
-      db
-        .select({
-          id: ideas.id,
-          title: ideas.title,
-          summary: ideas.summary,
-          slug: ideas.slug,
-          publishedAt: ideas.publishedAt,
-          ownerName: profiles.displayName,
-        })
-        .from(ideas)
-        .innerJoin(profiles, eq(ideas.ownerId, profiles.id))
-        .where(and(...filters))
-        .orderBy(desc(ideas.publishedAt), desc(ideas.updatedAt))
-        .limit(PAGE_SIZE)
-        .offset(offset),
-      db.select({ value: count() }).from(ideas).where(and(...filters)),
-    ]);
-
-    const reactionCounts =
-      items.length > 0
-        ? await db
-            .select({
-              ideaId: ideaReactions.ideaId,
-              value: count(),
-            })
-            .from(ideaReactions)
-            .where(
-              inArray(
-                ideaReactions.ideaId,
-                items.map((item) => item.id),
-              ),
-            )
-            .groupBy(ideaReactions.ideaId)
-        : [];
-    const viewerReactions =
-      items.length > 0 && session
-        ? await db
-            .select({
-              ideaId: ideaReactions.ideaId,
-            })
-            .from(ideaReactions)
-            .where(
-              and(
-                eq(ideaReactions.userId, session.profile.id),
-                inArray(
-                  ideaReactions.ideaId,
-                  items.map((item) => item.id),
-                ),
-              ),
-            )
-        : [];
-
-    const reactionCountMap = new Map(
-      reactionCounts.map((row) => [row.ideaId, row.value]),
-    );
-    const viewerReactionIds = new Set(
-      viewerReactions.map((row) => row.ideaId),
-    );
-
-    listings = items.map((item) => ({
-      ...item,
-      initialReacted: viewerReactionIds.has(item.id),
-      reactionCount: reactionCountMap.get(item.id) ?? 0,
-    }));
-    totalCount = total[0]?.value ?? 0;
-  } catch (error) {
-    const relationMissing =
-      typeof error === "object" &&
-      error !== null &&
-      "cause" in error &&
-      typeof error.cause === "object" &&
-      error.cause !== null &&
-      "code" in error.cause &&
-      error.cause.code === "42P01";
-
-    if (!relationMissing) {
-      throw error;
-    }
-  }
-
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const { listings, totalCount, totalPages } = await getListingsPageData({
+    query,
+    page,
+    viewerId: session?.profile.id,
+  });
 
   return (
     <AppProviders>
@@ -173,10 +73,18 @@ export default async function ListingsPage({
                 activeHref="/listings"
                 userLabel={session?.profile.displayName}
                 userAvatarUrl={session?.profile.avatarUrl}
+                extraActions={
+                  <ListingMobileSearchButton
+                    query={query}
+                    page={page}
+                    totalCount={totalCount}
+                    totalPages={totalPages}
+                  />
+                }
                 actions={[
                   {
                     label: "Dashboard",
-                    href: "/",
+                    href: "/dashboard",
                     icon: ArrowRight,
                   },
                 ]}
@@ -253,7 +161,7 @@ export default async function ListingsPage({
               y={18}
               blur={10}
               duration={1}
-              className="order-2 w-full xl:h-full"
+              className="order-2 hidden w-full xl:block xl:h-full"
             >
               <div
                 className="xl:fixed xl:top-28 xl:w-[16rem] xl:self-start"

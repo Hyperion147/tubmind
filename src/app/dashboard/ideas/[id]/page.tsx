@@ -1,4 +1,4 @@
-import { DashboardIdeaDetailPage } from "@/features/workspace/components/dashboard-idea-detail-page";
+import { redirect } from "next/navigation";
 
 type PageProps = {
   params: Promise<{
@@ -9,5 +9,5 @@ type PageProps = {
 export default async function DashboardIdeaChildPage({ params }: PageProps) {
   const { id } = await params;
 
-  return <DashboardIdeaDetailPage id={id} />;
+  redirect(`/dashboard/tubs/${id}`);
 }

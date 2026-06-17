@@ -290,3 +290,24 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   return ok(updatedIdea);
 }
+
+export async function DELETE(_: Request, context: RouteContext) {
+  const { id } = await context.params;
+  const access = await getIdeaAccess(id);
+
+  if (!access.idea) {
+    return fail("Idea not found", 404);
+  }
+
+  if (access.isBlocked) {
+    return fail("Blocked users cannot delete ideas", 403);
+  }
+
+  if (!access.canEdit || !access.session) {
+    return fail("Forbidden", 403);
+  }
+
+  await db.delete(ideas).where(eq(ideas.id, id));
+
+  return ok({ deleted: true, id });
+}

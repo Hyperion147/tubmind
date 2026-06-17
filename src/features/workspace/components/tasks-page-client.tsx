@@ -30,7 +30,7 @@ import { statusMeta } from "@/features/tub/components/idea-tub-types";
 
 import { formatShortDate, humanize, isTaskOverdue } from "../lib/formatters";
 import {
-    getProjectTaskHref,
+    getTaskHref,
     groupTasksByStatus,
     type WorkspaceTask,
 } from "../lib/workspace-model";
@@ -200,10 +200,7 @@ export function TasksPageClient({ tasks, initialFilters }: TasksPageClientProps)
                                 className="rounded-none px-4"
                                 variant="fill"
                             >
-                                <Link
-                                    href="/dashboard/projects"
-                                    className="gap-2"
-                                >
+                                <Link href="/dashboard/ideas" className="gap-2">
                                     <Plus className="size-4" />
                                     <span>New task</span>
                                 </Link>
@@ -314,7 +311,7 @@ export function TasksPageClient({ tasks, initialFilters }: TasksPageClientProps)
                     <CardContent className="w-full">
                         <div className="hidden grid-cols-[1.85fr_0.7fr_0.65fr_0.62fr_0.62fr_0.62fr] border-b border-border pb-2 text-sm font-medium text-muted-foreground xl:grid">
                             <span className="pl-5">Task</span>
-                            <span>Project</span>
+                            <span>Idea</span>
                             <span>Status</span>
                             <span>Task date</span>
                             <span>Deadline</span>
@@ -451,7 +448,7 @@ export function TasksPageClient({ tasks, initialFilters }: TasksPageClientProps)
                                     boardGrouped[column].map((task) => (
                                         <Link
                                             key={task.id}
-                                            href={getProjectTaskHref(task)}
+                                            href={getTaskHref(task)}
                                             className="grid gap-3 border border-border bg-background/72 p-4 transition-colors hover:border-primary/35 hover:bg-secondary/35"
                                         >
                                             <div className="flex flex-wrap gap-2">
@@ -506,10 +503,10 @@ export function TasksPageClient({ tasks, initialFilters }: TasksPageClientProps)
 function TaskTableRow({ task }: { task: WorkspaceTask }) {
     return (
         <Link
-            href={getProjectTaskHref(task)}
-            className="grid gap-4 border-b border-x p-5 xl:grid-cols-[1.85fr_0.7fr_0.65fr_0.62fr_0.62fr_0.62fr] xl:items-center"
+            href={getTaskHref(task)}
+            className="grid min-w-0 gap-4 overflow-hidden border-b border-x p-5 xl:grid-cols-[minmax(0,1.85fr)_minmax(0,0.7fr)_minmax(0,0.65fr)_minmax(0,0.62fr)_minmax(0,0.62fr)_minmax(0,0.62fr)] xl:items-center"
         >
-            <div className="flex gap-4">
+            <div className="flex min-w-0 gap-4 overflow-hidden">
                 <div className="min-w-0 space-y-2">
                     <div className="space-y-1">
                         <h2 className="truncate text-2xl font-semibold tracking-tight text-foreground xl:text-[1.9rem]">
@@ -523,8 +520,8 @@ function TaskTableRow({ task }: { task: WorkspaceTask }) {
                 </div>
             </div>
 
-            <div className="flex items-center xl:justify-start">
-                <Badge variant="outline" className="font-mono">
+            <div className="flex min-w-0 items-center xl:justify-start">
+                <Badge variant="outline" className="max-w-full truncate font-mono">
                     {task.ideaTitle}
                 </Badge>
             </div>
@@ -554,18 +551,18 @@ function DateCell({
     destructive?: boolean;
 }) {
     return (
-        <div className="grid gap-1 text-sm">
+        <div className="grid min-w-0 gap-1 text-sm">
             <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground xl:hidden">
                 {label}
             </span>
             <div
                 className={cn(
-                    "inline-flex items-center gap-2 text-foreground",
+                    "inline-flex min-w-0 items-center gap-2 text-foreground",
                     destructive && "text-destructive",
                 )}
             >
-                <CalendarDays className="size-4 text-muted-foreground" />
-                <span>{value}</span>
+                <CalendarDays className="size-4 shrink-0 text-muted-foreground" />
+                <span className="truncate">{value}</span>
             </div>
         </div>
     );

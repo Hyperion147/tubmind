@@ -7,7 +7,7 @@ import { useState } from "react";
 import {
   Clock3,
   FilePenLine,
-  FolderKanban,
+  FolderOpenDot,
   LayoutDashboard,
   ListTodo,
   LogOut,
@@ -35,16 +35,16 @@ const navItems = [
     matchers: ["/dashboard"],
   },
   {
-    href: "/dashboard/projects",
-    label: "Projects",
-    icon: FolderKanban,
-    matchers: ["/dashboard/projects", "/tub"],
-  },
-  {
     href: "/dashboard/ideas",
     label: "Ideas",
     icon: FilePenLine,
     matchers: ["/dashboard/ideas", "/dashboard/idea"],
+  },
+  {
+    href: "/dashboard/tubs",
+    label: "Tubs",
+    icon: FolderOpenDot,
+    matchers: ["/dashboard/tubs"],
   },
   {
     href: "/dashboard/tasks",
@@ -159,7 +159,7 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
                       : "max-w-0 -translate-x-2 opacity-0 md:group-hover:max-w-[152px] md:group-hover:translate-x-0 md:group-hover:opacity-100",
                   )}
                 >
-                  tubmind
+                  Creative OS
                 </p>
                 <p
                   className={cn(
@@ -169,7 +169,7 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
                       : "max-w-0 -translate-x-2 opacity-0 md:group-hover:max-w-[152px] md:group-hover:translate-x-0 md:group-hover:opacity-100",
                   )}
                 >
-                  Creative OS
+                  TUBMIND
                 </p>
               </div>
             </Link>

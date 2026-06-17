@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { and, count, desc, eq } from "drizzle-orm";
 import {
   ArrowRight,
   Bath,
@@ -26,19 +25,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { db } from "@/db";
-import {
-  ideaComments,
-  ideaDetails,
-  ideaFeatures,
-  ideaReactions,
-  ideas,
-  ideaTechStacks,
-  profiles,
-} from "@/db/schema";
 import { getCurrentSession } from "@/lib/auth";
 import { AuthGateOverlay } from "@/features/auth/components/auth-gate-overlay";
 import { IdeaCommentsSection } from "@/features/ideas/components/idea-comments-section";
+import { getPublicIdeaPageData } from "@/features/ideas/lib/public-idea-queries";
 import { PublicIdeaReactionStat } from "@/features/ideas/components/public-idea-reaction-stat";
 import { cn } from "@/lib/utils";
 
@@ -66,85 +56,25 @@ export default async function PublicIdeaPage({ params }: PageProps) {
   const isBlocked = session?.profile.status === "blocked";
   const isLocked = !session || isBlocked;
 
-  const [idea] = await db
-    .select({
-      id: ideas.id,
-      ownerId: ideas.ownerId,
-      slug: ideas.slug,
-      title: ideas.title,
-      summary: ideas.summary,
-      description: ideas.description,
-      progressNotes: ideas.progressNotes,
-      status: ideas.status,
-      visibility: ideas.visibility,
-      allowComments: ideas.allowComments,
-      publishedAt: ideas.publishedAt,
-      ownerName: profiles.displayName,
-      ownerAvatarUrl: profiles.avatarUrl,
-    })
-    .from(ideas)
-    .innerJoin(profiles, eq(ideas.ownerId, profiles.id))
-    .where(and(eq(ideas.slug, slug), eq(ideas.visibility, "public")))
-    .limit(1);
+  const data = await getPublicIdeaPageData({
+    slug,
+    viewerId: session?.profile.id,
+  });
 
-  if (!idea) {
+  if (!data) {
     notFound();
   }
 
-  const [
-    details,
+  const {
+    idea,
+    detail,
     features,
     techStacks,
     comments,
-    reactionCountResult,
-    viewerReaction,
-  ] = await Promise.all([
-    db.select().from(ideaDetails).where(eq(ideaDetails.ideaId, idea.id)).limit(1),
-    db
-      .select()
-      .from(ideaFeatures)
-      .where(eq(ideaFeatures.ideaId, idea.id))
-      .orderBy(ideaFeatures.sortOrder, ideaFeatures.createdAt),
-    db
-      .select()
-      .from(ideaTechStacks)
-      .where(eq(ideaTechStacks.ideaId, idea.id))
-      .orderBy(ideaTechStacks.sortOrder, ideaTechStacks.name),
-    db
-      .select({
-        id: ideaComments.id,
-        body: ideaComments.body,
-        createdAt: ideaComments.createdAt,
-        authorName: profiles.displayName,
-      })
-      .from(ideaComments)
-      .innerJoin(profiles, eq(ideaComments.authorId, profiles.id))
-      .where(
-        and(
-          eq(ideaComments.ideaId, idea.id),
-          eq(ideaComments.status, "visible"),
-        ),
-      )
-      .orderBy(desc(ideaComments.createdAt)),
-    db.select({ value: count() }).from(ideaReactions).where(eq(ideaReactions.ideaId, idea.id)),
-    session
-      ? db
-          .select()
-          .from(ideaReactions)
-          .where(
-            and(
-              eq(ideaReactions.ideaId, idea.id),
-              eq(ideaReactions.userId, session.profile.id),
-            ),
-          )
-          .limit(1)
-      : Promise.resolve([]),
-  ]);
-
-  const detail = details[0];
+    reactionCount,
+    hasReacted,
+  } = data;
   const isOwner = session?.profile.id === idea.ownerId;
-  const reactionCount = reactionCountResult[0]?.value ?? 0;
-  const hasReacted = viewerReaction.length > 0;
 
   return (
     <AppProviders>
@@ -283,7 +213,7 @@ export default async function PublicIdeaPage({ params }: PageProps) {
                   <CardFooter className="relative">
                     <Button asChild className="w-full">
                       <Link
-                        href={`/dashboard/ideas/${idea.id}`}
+                        href={`/dashboard/tubs/${idea.id}`}
                         className="justify-between"
                       >
                         Edit this idea

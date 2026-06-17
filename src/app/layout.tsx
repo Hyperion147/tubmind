@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 
 import { getSiteUrl, seoConfig } from "@/lib/seo";
+import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({
@@ -83,6 +84,7 @@ export default function RootLayout({
                 suppressHydrationWarning
             >
                 {children}
+                <Toaster richColors />
                 <Analytics />
             </body>
         </html>

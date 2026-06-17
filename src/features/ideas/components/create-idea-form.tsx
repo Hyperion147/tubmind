@@ -109,7 +109,7 @@ export function CreateIdeaForm({
                 queryKey: ["ideas", "mine"],
             });
             form.reset(defaultValues);
-            router.push(`/dashboard/projects/${createdIdea.id}`);
+            router.push(`/dashboard/tubs/${createdIdea.id}`);
         },
     });
 

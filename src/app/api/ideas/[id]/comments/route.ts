@@ -100,6 +100,7 @@ export async function POST(request: Request, context: RouteContext) {
 
   revalidatePath(`/ideas/${idea.slug}`);
   revalidatePath(`/dashboard/ideas/${id}`);
+  revalidatePath(`/dashboard/tubs/${id}`);
 
   return ok(
     {
@@ -181,6 +182,7 @@ export async function DELETE(request: Request, context: RouteContext) {
 
   revalidatePath(`/ideas/${idea.slug}`);
   revalidatePath(`/dashboard/ideas/${id}`);
+  revalidatePath(`/dashboard/tubs/${id}`);
 
   return ok({ deleted: true, commentId });
 }

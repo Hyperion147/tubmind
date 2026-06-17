@@ -1,13 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Check, Pencil, Trash2, X } from "lucide-react";
+import { toast } from "sonner";
 
+import { ConfirmDeleteAction } from "@/components/confirm-delete-action";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { tubTaskStatuses, type TubTaskStatus } from "@/lib/tub";
+import { Textarea } from "@/components/ui/textarea";
+import { tubTaskStatuses, type TubTask, type TubTaskStatus } from "@/lib/tub";
 import { cn } from "@/lib/utils";
 
 import { statusMeta } from "./idea-tub-types";
@@ -20,16 +24,8 @@ type IdeaTubBoardProps = {
   removeTask: (taskId: string) => void;
   selectedDate: string | null;
   setDraggedTaskId: React.Dispatch<React.SetStateAction<string | null>>;
-  tasksByStatus: Record<TubTaskStatus, Array<{
-    id: string;
-    title: string;
-    description: string;
-    date: string;
-    deadline: string | null;
-    status: TubTaskStatus;
-    image: string | null;
-    updatedAt: string;
-  }>>;
+  tasksByStatus: Record<TubTaskStatus, TubTask[]>;
+  updateTask: (taskId: string, values: Omit<TubTask, "id" | "updatedAt">) => void;
 };
 
 export function IdeaTubBoard({
@@ -40,6 +36,7 @@ export function IdeaTubBoard({
   selectedDate,
   setDraggedTaskId,
   tasksByStatus,
+  updateTask,
 }: IdeaTubBoardProps) {
   const [statusFilter, setStatusFilter] = useState<"all" | TubTaskStatus>("all");
 
@@ -106,6 +103,7 @@ export function IdeaTubBoard({
                     moveTask={moveTask}
                     removeTask={removeTask}
                     setDraggedTaskId={setDraggedTaskId}
+                    updateTask={updateTask}
                   />
                 ))
               )}
@@ -129,27 +127,40 @@ function TaskSurface({
   moveTask,
   removeTask,
   setDraggedTaskId,
+  updateTask,
 }: {
-  task: {
-    id: string;
-    title: string;
-    description: string;
-    date: string;
-    deadline: string | null;
-    status: TubTaskStatus;
-    image: string | null;
-    updatedAt: string;
-  };
+  task: TubTask;
   draggedTaskId: string | null;
   moveTask: (taskId: string, status: TubTaskStatus) => void;
   removeTask: (taskId: string) => void;
   setDraggedTaskId: React.Dispatch<React.SetStateAction<string | null>>;
+  updateTask: (taskId: string, values: Omit<TubTask, "id" | "updatedAt">) => void;
 }) {
   const StatusIcon = statusMeta[task.status].icon;
+  const [isEditing, setIsEditing] = useState(false);
+  const [draft, setDraft] = useState<Omit<TubTask, "id" | "updatedAt">>({
+    title: task.title,
+    description: task.description,
+    date: task.date,
+    deadline: task.deadline,
+    status: task.status,
+    image: task.image,
+  });
+
+  function resetDraft() {
+    setDraft({
+      title: task.title,
+      description: task.description,
+      date: task.date,
+      deadline: task.deadline,
+      status: task.status,
+      image: task.image,
+    });
+  }
 
   return (
     <article
-      draggable
+      draggable={!isEditing}
       onDragStart={() => setDraggedTaskId(task.id)}
       onDragEnd={() => setDraggedTaskId(null)}
       className={cn(
@@ -174,41 +185,139 @@ function TaskSurface({
           type="button"
           size="icon-sm"
           variant="ghost"
-          onClick={() => removeTask(task.id)}
-          aria-label={`Delete ${task.title}`}
+          onClick={() => {
+            if (isEditing) {
+              resetDraft();
+              setIsEditing(false);
+              return;
+            }
+
+            setIsEditing(true);
+          }}
+          aria-label={isEditing ? `Cancel editing ${task.title}` : `Edit ${task.title}`}
+        >
+          {isEditing ? <X className="size-4" /> : <Pencil className="size-4" />}
+        </Button>
+        <ConfirmDeleteAction
+          title="Delete this task?"
+          description="This removes the task from the tub. The change is saved after confirmation."
+          actionLabel="Delete task"
+          size="icon-sm"
+          variant="ghost"
+          onConfirm={() => {
+            removeTask(task.id);
+            toast.success("Task deleted");
+          }}
+          triggerAriaLabel={`Delete ${task.title}`}
         >
           <Trash2 className="size-4" />
-        </Button>
+        </ConfirmDeleteAction>
       </div>
 
-      {task.description ? (
-        <p className="text-sm leading-6 text-muted-foreground">{task.description}</p>
-      ) : null}
+      {isEditing ? (
+        <div className="grid gap-3 border border-border bg-background/60 p-3">
+          <Input
+            value={draft.title}
+            onChange={(event) =>
+              setDraft((current) => ({ ...current, title: event.target.value }))
+            }
+            className="h-11 bg-card"
+            placeholder="Task title"
+          />
+          <Textarea
+            value={draft.description}
+            onChange={(event) =>
+              setDraft((current) => ({ ...current, description: event.target.value }))
+            }
+            className="min-h-24 bg-card"
+            placeholder="Task description"
+          />
+          <div className="grid gap-3 md:grid-cols-3">
+            <Input
+              type="date"
+              value={draft.date}
+              onChange={(event) =>
+                setDraft((current) => ({ ...current, date: event.target.value }))
+              }
+              className="h-10 bg-card"
+            />
+            <Input
+              type="date"
+              value={draft.deadline ?? ""}
+              onChange={(event) =>
+                setDraft((current) => ({
+                  ...current,
+                  deadline: event.target.value || null,
+                }))
+              }
+              className="h-10 bg-card"
+            />
+            <Select
+              value={draft.status}
+              onValueChange={(value) =>
+                setDraft((current) => ({
+                  ...current,
+                  status: value as TubTaskStatus,
+                }))
+              }
+            >
+              <SelectTrigger className="h-10 bg-card">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {tubTaskStatuses.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {statusMeta[option].label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button
+            type="button"
+            className="justify-between"
+            disabled={!draft.title.trim() || !draft.date}
+            onClick={() => {
+              updateTask(task.id, draft);
+              setIsEditing(false);
+            }}
+          >
+            Save task
+            <Check className="size-4" />
+          </Button>
+        </div>
+      ) : (
+        <>
+          {task.description ? (
+            <p className="text-sm leading-6 text-muted-foreground">{task.description}</p>
+          ) : null}
 
-      {task.image ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={task.image}
-          alt={`${task.title} reference`}
-          className="h-32 w-full border border-border object-cover"
-        />
-      ) : null}
+          {task.image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={task.image}
+              alt={`${task.title} reference`}
+              className="h-32 w-full border border-border object-cover"
+            />
+          ) : null}
 
-      <Select
-        value={task.status}
-        onValueChange={(value) => moveTask(task.id, value as TubTaskStatus)}
-      >
-        <SelectTrigger className="h-10 bg-background/70">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {tubTaskStatuses.map((option) => (
-            <SelectItem key={option} value={option}>
-              {statusMeta[option].label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+          <Select
+            value={task.status}
+            onValueChange={(value) => moveTask(task.id, value as TubTaskStatus)}
+          >
+            <SelectTrigger className="h-10 bg-background/70">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {tubTaskStatuses.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {statusMeta[option].label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </>
+      )}
     </article>
   );
 }

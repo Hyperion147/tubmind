@@ -68,6 +68,6 @@ export function getTaskById(tasks: WorkspaceTask[], taskId: string) {
   return tasks.find((task) => task.id === taskId) ?? null;
 }
 
-export function getProjectTaskHref(task: Pick<WorkspaceTask, "id" | "ideaId">) {
-  return `/dashboard/projects/${task.ideaId}/tasks/${task.id}`;
+export function getTaskHref(task: Pick<WorkspaceTask, "id">) {
+  return `/dashboard/tasks/${encodeURIComponent(task.id)}`;
 }

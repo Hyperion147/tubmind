@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowDown, ArrowUp, Plus, Save, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   useFieldArray,
   useForm,
@@ -13,6 +14,7 @@ import {
 } from "react-hook-form";
 import { z } from "zod/v4";
 
+import { ConfirmDeleteAction } from "@/components/confirm-delete-action";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -395,7 +397,9 @@ export function IdeaSkeletonForm({ ideaId, initialValues }: IdeaSkeletonFormProp
                                     ? `feature-${Math.max(0, index - 1)}`
                                     : ""
                                 );
+                                toast.success("Feature removed");
                               }}
+                              removeDescription="This removes the feature from the idea form. Save the idea skeleton to persist the change."
                             />
                           </div>
 
@@ -505,7 +509,9 @@ export function IdeaSkeletonForm({ ideaId, initialValues }: IdeaSkeletonFormProp
                                     ? `tech-${Math.max(0, index - 1)}`
                                     : ""
                                 );
+                                toast.success("Stack item removed");
                               }}
+                              removeDescription="This removes the stack item from the idea form. Save the idea skeleton to persist the change."
                             />
                           </div>
 
@@ -626,12 +632,14 @@ function FieldArrayControls({
   onMoveUp,
   onMoveDown,
   onRemove,
+  removeDescription,
 }: {
   canMoveUp: boolean;
   canMoveDown: boolean;
   onMoveUp: () => void;
   onMoveDown: () => void;
   onRemove: () => void;
+  removeDescription: string;
 }) {
   return (
     <div className="flex items-center gap-2">
@@ -647,7 +655,18 @@ function FieldArrayControls({
         disabled={!canMoveDown}
         icon={ArrowDown}
       />
-      <IconButton label="Remove" onClick={onRemove} icon={Trash2} tone="danger" />
+      <ConfirmDeleteAction
+        title="Remove this item?"
+        description={removeDescription}
+        actionLabel="Remove item"
+        size="icon-lg"
+        variant="ghost"
+        onConfirm={onRemove}
+        triggerAriaLabel="Remove"
+        triggerClassName="flex size-10 items-center justify-center rounded-none border border-border bg-card text-foreground transition-colors duration-300 hover:border-destructive hover:bg-destructive/10 hover:text-destructive"
+      >
+        <Trash2 className="size-4" />
+      </ConfirmDeleteAction>
     </div>
   );
 }

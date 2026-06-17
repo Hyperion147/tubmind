@@ -57,6 +57,7 @@ export function IdeaTubPage(props: IdeaTubPageProps) {
         selectedDate={tub.selectedDate}
         setDraggedTaskId={tub.setDraggedTaskId}
         tasksByStatus={tub.tasksByStatus}
+        updateTask={tub.updateTask}
       />
 
       <div className="flex flex-wrap items-center justify-between gap-3 border border-border bg-card/80 px-4 py-3 text-sm text-muted-foreground">
@@ -66,7 +67,7 @@ export function IdeaTubPage(props: IdeaTubPageProps) {
         </p>
         <div className="flex flex-wrap gap-3">
           <Button asChild variant="ghost">
-            <Link href="/dashboard/projects">Back to projects</Link>
+            <Link href="/dashboard/tubs">Back to tubs</Link>
           </Button>
           <Button asChild variant="outline">
             <Link href={`/ideas/${tub.idea.slug}`}>Public preview</Link>

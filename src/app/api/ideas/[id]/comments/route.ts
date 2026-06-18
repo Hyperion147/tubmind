@@ -98,8 +98,9 @@ export async function POST(request: Request, context: RouteContext) {
     })
     .returning();
 
-  revalidatePath(`/ideas/${idea.slug}`);
+  revalidatePath(`/listings/${idea.slug}`);
   revalidatePath(`/dashboard/ideas/${id}`);
+  revalidatePath(`/dashboard/tubs/${id}`);
 
   return ok(
     {
@@ -179,8 +180,9 @@ export async function DELETE(request: Request, context: RouteContext) {
 
   await db.delete(ideaComments).where(eq(ideaComments.id, commentId));
 
-  revalidatePath(`/ideas/${idea.slug}`);
+  revalidatePath(`/listings/${idea.slug}`);
   revalidatePath(`/dashboard/ideas/${id}`);
+  revalidatePath(`/dashboard/tubs/${id}`);
 
   return ok({ deleted: true, commentId });
 }

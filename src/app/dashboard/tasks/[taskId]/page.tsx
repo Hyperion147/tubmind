@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
-  Bath,
   CalendarDays,
   CheckCircle2,
   Clock3,
@@ -20,13 +19,14 @@ import { formatRelativeBucket, formatShortDate, humanize, isTaskOverdue } from "
 import { getDashboardWorkspace } from "@/features/workspace/lib/get-dashboard-workspace";
 import { getTaskById } from "@/features/workspace/lib/workspace-model";
 
-export async function ProjectTaskDetailPage({
-  projectId,
-  taskId,
-}: {
-  projectId: string;
-  taskId: string;
-}) {
+type PageProps = {
+  params: Promise<{
+    taskId: string;
+  }>;
+};
+
+export default async function DashboardTaskDetailPage({ params }: PageProps) {
+  const { taskId } = await params;
   const session = await getCurrentSession();
 
   if (!session) {
@@ -36,7 +36,7 @@ export async function ProjectTaskDetailPage({
   const workspace = await getDashboardWorkspace(session.profile.id);
   const task = getTaskById(workspace.tasks, taskId);
 
-  if (!task || task.ideaId !== projectId) {
+  if (!task) {
     notFound();
   }
 
@@ -48,8 +48,7 @@ export async function ProjectTaskDetailPage({
       <SiteBreadcrumb
         items={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Projects", href: "/dashboard/projects" },
-          { label: task.ideaTitle, href: `/dashboard/projects/${projectId}` },
+          { label: "Tasks", href: "/dashboard/tasks" },
           { label: task.title },
         ]}
       />
@@ -72,21 +71,21 @@ export async function ProjectTaskDetailPage({
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">{task.title}</h1>
           <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
             {task.description ||
-              "This task does not have a longer description yet, so the detail view focuses on scheduling and project context."}
+              "This task does not have a longer description yet, so the detail view focuses on scheduling and idea context."}
           </p>
         </div>
 
         <div className="flex flex-wrap gap-3">
           <Button asChild variant="ghost">
-            <Link href={`/dashboard/projects/${projectId}`} className="gap-2">
+            <Link href="/dashboard/tasks" className="gap-2">
               <ArrowLeft className="size-4" />
-              Back to project
+              Back to tasks
             </Link>
           </Button>
           <Button asChild variant="outline">
-            <Link href={`/dashboard/projects/${projectId}`} className="gap-2">
-              Open task manager
-              <Bath className="size-4" />
+            <Link href={`/dashboard/tubs/${task.ideaId}`} className="gap-2">
+              Edit idea
+              <FilePenLine className="size-4" />
             </Link>
           </Button>
         </div>
@@ -97,7 +96,7 @@ export async function ProjectTaskDetailPage({
           <CardHeader className="gap-3 p-5">
             <CardTitle className="text-2xl">Task snapshot</CardTitle>
             <CardDescription>
-              The detail view now lives under the project route so task context stays connected to the parent tub.
+              The detail view keeps task context connected to the idea it belongs to.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 px-5 pb-5 pt-0">
@@ -113,7 +112,7 @@ export async function ProjectTaskDetailPage({
                 Delivery notes
               </p>
               <p className="mt-3 text-sm leading-7 text-foreground">
-                {task.description || "No notes yet. Open the project tub to add context, images, or move this task through the workflow."}
+                {task.description || "No notes yet. Open the related idea to add context, images, or refine this task through the workflow."}
               </p>
             </div>
           </CardContent>
@@ -121,9 +120,9 @@ export async function ProjectTaskDetailPage({
 
         <Card className="border-border bg-secondary shadow-xl">
           <CardHeader className="gap-3 p-5">
-            <CardTitle className="text-2xl">Related project</CardTitle>
+            <CardTitle className="text-2xl">Related idea</CardTitle>
             <CardDescription>
-              This is the idea container the task belongs to.
+              This is the idea this task belongs to.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 px-5 pb-5 pt-0">
@@ -148,7 +147,7 @@ export async function ProjectTaskDetailPage({
 
             <div className="grid gap-3">
               <Button asChild>
-                <Link href={`/dashboard/ideas/${task.ideaId}`} className="justify-between">
+                <Link href={`/dashboard/tubs/${task.ideaId}`} className="justify-between">
                   Edit idea
                   <FilePenLine className="size-4" />
                 </Link>

@@ -58,6 +58,100 @@ export async function GET(_: Request, context: RouteContext) {
     return fail("Forbidden", 403);
   }
 
+  const isOwner = access.session?.profile.id === access.idea.ownerId;
+  const isAdmin = access.session?.profile.role === "admin";
+
+  if (!isOwner && !isAdmin) {
+    const [owner, details, features, techStacks, comments] = await Promise.all([
+      db
+        .select({
+          displayName: profiles.displayName,
+          avatarUrl: profiles.avatarUrl,
+        })
+        .from(profiles)
+        .where(eq(profiles.id, access.idea.ownerId))
+        .limit(1),
+      db
+        .select({
+          problem: ideaDetails.problem,
+          targetAudience: ideaDetails.targetAudience,
+          designStyle: ideaDetails.designStyle,
+          budgetRange: ideaDetails.budgetRange,
+          timeline: ideaDetails.timeline,
+          spaceType: ideaDetails.spaceType,
+        })
+        .from(ideaDetails)
+        .where(eq(ideaDetails.ideaId, id))
+        .limit(1),
+      db
+        .select({
+          id: ideaFeatures.id,
+          ideaId: ideaFeatures.ideaId,
+          label: ideaFeatures.label,
+          description: ideaFeatures.description,
+          sortOrder: ideaFeatures.sortOrder,
+          isCompleted: ideaFeatures.isCompleted,
+          createdAt: ideaFeatures.createdAt,
+        })
+        .from(ideaFeatures)
+        .where(eq(ideaFeatures.ideaId, id))
+        .orderBy(ideaFeatures.sortOrder, ideaFeatures.createdAt),
+      db
+        .select({
+          id: ideaTechStacks.id,
+          ideaId: ideaTechStacks.ideaId,
+          name: ideaTechStacks.name,
+          category: ideaTechStacks.category,
+          notes: ideaTechStacks.notes,
+          sortOrder: ideaTechStacks.sortOrder,
+        })
+        .from(ideaTechStacks)
+        .where(eq(ideaTechStacks.ideaId, id))
+        .orderBy(ideaTechStacks.sortOrder, ideaTechStacks.name),
+      db
+        .select({
+          id: ideaComments.id,
+          body: ideaComments.body,
+          status: ideaComments.status,
+          parentCommentId: ideaComments.parentCommentId,
+          createdAt: ideaComments.createdAt,
+          updatedAt: ideaComments.updatedAt,
+          authorId: profiles.id,
+          authorName: profiles.displayName,
+          authorAvatarUrl: profiles.avatarUrl,
+        })
+        .from(ideaComments)
+        .innerJoin(profiles, eq(ideaComments.authorId, profiles.id))
+        .where(
+          and(eq(ideaComments.ideaId, id), eq(ideaComments.status, "visible"))
+        )
+        .orderBy(desc(ideaComments.createdAt)),
+    ]);
+
+    return ok({
+      id: access.idea.id,
+      ownerId: access.idea.ownerId,
+      slug: access.idea.slug,
+      title: access.idea.title,
+      summary: access.idea.summary,
+      description: access.idea.description,
+      progressNotes: access.idea.progressNotes,
+      status: access.idea.status,
+      visibility: access.idea.visibility,
+      allowComments: access.idea.allowComments,
+      isFeatured: access.idea.isFeatured,
+      publishedAt: access.idea.publishedAt,
+      lastActivityAt: access.idea.lastActivityAt,
+      createdAt: access.idea.createdAt,
+      updatedAt: access.idea.updatedAt,
+      owner: owner[0] ?? null,
+      details: details[0] ?? null,
+      features,
+      techStacks,
+      comments,
+    });
+  }
+
   const [owner, details, features, techStacks, comments] = await Promise.all([
     db.select().from(profiles).where(eq(profiles.id, access.idea.ownerId)).limit(1),
     db.select().from(ideaDetails).where(eq(ideaDetails.ideaId, id)).limit(1),
@@ -289,4 +383,25 @@ export async function PATCH(request: Request, context: RouteContext) {
   });
 
   return ok(updatedIdea);
+}
+
+export async function DELETE(_: Request, context: RouteContext) {
+  const { id } = await context.params;
+  const access = await getIdeaAccess(id);
+
+  if (!access.idea) {
+    return fail("Idea not found", 404);
+  }
+
+  if (access.isBlocked) {
+    return fail("Blocked users cannot delete ideas", 403);
+  }
+
+  if (!access.canEdit || !access.session) {
+    return fail("Forbidden", 403);
+  }
+
+  await db.delete(ideas).where(eq(ideas.id, id));
+
+  return ok({ deleted: true, id });
 }

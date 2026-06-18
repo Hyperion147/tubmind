@@ -20,6 +20,7 @@ import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "@/components/ui/plus-icon";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 type IdeaStatus =
     | "Captured"
@@ -194,7 +195,12 @@ export function LandingDashboardCta() {
             <div className="relative mx-auto flex h-[70vh] w-[360px] max-w-full overflow-hidden border border-primary/16 bg-card/95 shadow-[0_30px_76px_-44px_color-mix(in_oklch,var(--foreground)_30%,transparent),0_16px_32px_-30px_color-mix(in_oklch,var(--primary)_22%,transparent),0_0_0_1px_color-mix(in_oklch,var(--background)_72%,transparent)_inset] md:h-[680px] md:w-full md:max-w-6xl lg:h-[740px]">
                 <aside className="hidden w-20 shrink-0 border-r border-border bg-card/95 md:flex md:flex-col md:items-center md:gap-3 md:px-2 md:py-4">
                     <div className="flex size-11 items-center justify-center border border-border bg-secondary shadow-[3px_3px_0_0_var(--color-border)]">
-                        <Lightbulb className="size-5 text-primary" />
+                        <Image
+                            src="/logo.png"
+                            alt="TUBMIND Logo"
+                            width={36}
+                            height={36}
+                        />
                     </div>
                     <nav className="mt-4 grid gap-2">
                         {navItems.map((item) => (

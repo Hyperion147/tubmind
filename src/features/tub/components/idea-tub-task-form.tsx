@@ -172,7 +172,7 @@ export function IdeaTubTaskForm({
             Add to tub
           </Button>
           <Button asChild variant="outline">
-            <Link href={`/dashboard/ideas/${ideaId}`} className="gap-2">
+            <Link href={`/dashboard/tubs/${ideaId}`} className="gap-2">
               Edit Idea
               <ArrowRight className="size-4" />
             </Link>

@@ -209,7 +209,8 @@ pnpm start
 - First admin account is promoted in `profiles`
 - Admin can access `/admin`
 - A signed-in user can create an idea
-- A signed-in user can open `/dashboard/projects/[id]` and manage tasks
+- A signed-in user can open `/dashboard/tubs/[id]` and manage an idea tub
+- A signed-in user can open `/dashboard/tasks` and review tasks
 - A private idea can be edited from `/dashboard`
 - A public idea appears in `/listings`
 - A public idea page opens at `/ideas/[slug]`

@@ -17,7 +17,7 @@ export default async function DashboardLayout({
         description={
           session?.profile.status === "blocked"
             ? "This account is currently blocked from the workspace. If that looks wrong, ask an admin to review it."
-            : "Projects, tasks, and your idea planning tools only open inside the authenticated workspace."
+            : "Ideas, tubs, tasks, and your planning tools only open inside the authenticated workspace."
         }
         next="/dashboard"
       />

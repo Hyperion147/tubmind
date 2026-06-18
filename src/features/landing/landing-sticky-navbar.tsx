@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Globe2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardIcon } from "@/components/ui/dashboard-icon";
 import Image from "next/image";
@@ -26,13 +27,16 @@ export function LandingStickyNavbar() {
                     </span>
                 </Link>
 
-                <div className="pointer-events-auto">
+                <div className="pointer-events-auto flex items-center gap-2">
+                    <Button asChild variant="outline">
+                        <Link href="/listings" className="gap-2">
+                            <span className="hidden md:flex">Listings</span>
+                            <Globe2 className="size-4" />
+                        </Link>
+                    </Button>
                     <Button asChild>
-                        <Link
-                            href="/dashboard"
-                            className="gap-2"
-                        >
-                            <span>Dashboard</span>
+                        <Link href="/dashboard" className="gap-2">
+                            <span className="hidden md:flex">Dashboard</span>
                             <DashboardIcon
                                 size={64}
                                 duration={1}

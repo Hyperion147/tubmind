@@ -31,6 +31,7 @@ export type SiteNavbarProps = {
     activeHref?: string;
     userLabel?: string;
     userAvatarUrl?: string | null;
+    extraActions?: React.ReactNode;
     actions?: SiteNavbarAction[];
     constrained?: boolean;
 };
@@ -52,6 +53,7 @@ export function SiteNavbar({
     activeHref,
     userLabel,
     userAvatarUrl,
+    extraActions,
     actions = [],
     constrained = false,
 }: SiteNavbarProps) {
@@ -122,6 +124,7 @@ export function SiteNavbar({
             ) : null}
 
             <div className="flex items-center gap-2">
+                {extraActions}
                 {userLabel ? (
                     <div className="hidden items-center gap-2 md:flex">
                         <Avatar

@@ -1,5 +1,6 @@
 import {
   boolean,
+  check,
   index,
   integer,
   jsonb,
@@ -13,6 +14,7 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 const auth = pgSchema("auth");
 
@@ -371,5 +373,7 @@ export const timeLogs = pgTable(
     index("time_logs_owner_idx").on(table.ownerId),
     index("time_logs_idea_idx").on(table.ideaId),
     index("time_logs_started_at_idx").on(table.startedAt),
+    check("time_logs_duration_positive", sql`${table.durationSeconds} > 0`),
+    check("time_logs_ended_after_started", sql`${table.endedAt} >= ${table.startedAt}`),
   ]
 );

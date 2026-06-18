@@ -66,6 +66,7 @@ export async function getPublicIdeaPageData(input: {
         id: ideaComments.id,
         body: ideaComments.body,
         createdAt: ideaComments.createdAt,
+        authorId: profiles.id,
         authorName: profiles.displayName,
       })
       .from(ideaComments)

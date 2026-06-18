@@ -16,7 +16,8 @@ type IdeaCommentsSectionProps = {
     allowComments: boolean;
     nextPath?: string;
     commentsTargetId?: string;
-    canDeleteComments?: boolean;
+    currentUserId?: string;
+    ideaOwnerId?: string;
 };
 
 export function IdeaCommentsSection({
@@ -26,7 +27,8 @@ export function IdeaCommentsSection({
     allowComments,
     nextPath,
     commentsTargetId,
-    canDeleteComments = false,
+    currentUserId,
+    ideaOwnerId,
 }: IdeaCommentsSectionProps) {
     const [comments, setComments] = useState(initialComments);
     const [body, setBody] = useState("");
@@ -113,7 +115,8 @@ export function IdeaCommentsSection({
                     createPortal(
                         <CommentsList
                             comments={comments}
-                            canDeleteComments={canDeleteComments}
+                            currentUserId={currentUserId}
+                            ideaOwnerId={ideaOwnerId}
                             deletingCommentId={deleteMutation.variables ?? null}
                             onDeleteComment={(commentId) =>
                                 deleteMutation.mutate(commentId)
@@ -126,7 +129,8 @@ export function IdeaCommentsSection({
             ) : (
                 <CommentsList
                     comments={comments}
-                    canDeleteComments={canDeleteComments}
+                    currentUserId={currentUserId}
+                    ideaOwnerId={ideaOwnerId}
                     deletingCommentId={deleteMutation.variables ?? null}
                     onDeleteComment={(commentId) =>
                         deleteMutation.mutate(commentId)
@@ -149,17 +153,27 @@ export function IdeaCommentsSection({
 
 function CommentsList({
     comments,
-    canDeleteComments,
+    currentUserId,
+    ideaOwnerId,
     deletingCommentId,
     onDeleteComment,
     deleteError,
 }: {
     comments: IdeaComment[];
-    canDeleteComments: boolean;
+    currentUserId?: string;
+    ideaOwnerId?: string;
     deletingCommentId: string | null;
     onDeleteComment: (commentId: string) => void;
     deleteError: string | null;
 }) {
+    function canDeleteComment(comment: IdeaComment) {
+        return Boolean(
+            currentUserId &&
+                (currentUserId === comment.authorId ||
+                    currentUserId === ideaOwnerId),
+        );
+    }
+
     return (
         <div className="border border-border bg-card p-6 shadow-sm">
             <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
@@ -202,7 +216,7 @@ function CommentsList({
                                         )}
                                     </p>
                                 </div>
-                                {canDeleteComments ? (
+                                {canDeleteComment(comment) ? (
                                     <ConfirmDeleteAction
                                         title="Delete this comment?"
                                         description="This removes the comment from the discussion feed permanently."

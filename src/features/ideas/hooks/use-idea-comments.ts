@@ -8,6 +8,7 @@ export type IdeaComment = {
   id: string;
   body: string;
   createdAt: string | Date;
+  authorId?: string | null;
   authorName?: string | null;
 };
 

@@ -115,8 +115,8 @@ export function ListingCard({
 
       <CardFooter className="justify-end border-t border-border/70 pt-5">
         <Button asChild variant="outline" size="sm">
-          <Link href={`/ideas/${idea.slug}`} className="gap-2">
-            Open idea
+          <Link href={`/listings/${idea.slug}`} className="gap-2">
+            Open listing
             <ArrowRight className="size-4 transition-colors" />
           </Link>
         </Button>

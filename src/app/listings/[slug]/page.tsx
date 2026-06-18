@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   ArrowRight,
   Bath,
@@ -16,21 +15,17 @@ import { AppProviders } from "@/components/providers/app-providers";
 import { SiteNavbar } from "@/components/layout/site-navbar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { getCurrentSession } from "@/lib/auth";
-import { AuthGateOverlay } from "@/features/auth/components/auth-gate-overlay";
 import { IdeaCommentsSection } from "@/features/ideas/components/idea-comments-section";
 import { getPublicIdeaPageData } from "@/features/ideas/lib/public-idea-queries";
 import { PublicIdeaReactionStat } from "@/features/ideas/components/public-idea-reaction-stat";
-import { cn } from "@/lib/utils";
 
 type PageProps = {
   params: Promise<{
@@ -53,8 +48,6 @@ function humanize(value: string) {
 export default async function PublicIdeaPage({ params }: PageProps) {
   const { slug } = await params;
   const session = await getCurrentSession();
-  const isBlocked = session?.profile.status === "blocked";
-  const isLocked = !session || isBlocked;
 
   const data = await getPublicIdeaPageData({
     slug,
@@ -74,25 +67,16 @@ export default async function PublicIdeaPage({ params }: PageProps) {
     reactionCount,
     hasReacted,
   } = data;
-  const isOwner = session?.profile.id === idea.ownerId;
 
   return (
     <AppProviders>
     <main className="relative min-h-screen overflow-hidden">
-      <div
-        className={cn(
-          "relative z-10 mx-auto flex w-full max-w-400 flex-col gap-8 px-4 py-4 transition-[filter,opacity,transform] duration-500 md:px-6 md:py-6",
-          isLocked &&
-            "pointer-events-none scale-[0.998] select-none blur-[2px] opacity-70",
-        )}
-      >
+      <div className="relative z-10 mx-auto flex w-full max-w-400 flex-col gap-8 px-4 py-4 md:px-6 md:py-6">
         <AppReveal delay={0.1} y={-10} blur={10} duration={1}>
           <SiteNavbar
             title="Public Idea"
             icon={Bath}
             activeHref="/listings"
-            userLabel={session?.profile.displayName}
-            userAvatarUrl={session?.profile.avatarUrl}
             actions={[
               {
                 label: "Back to listings",
@@ -183,7 +167,7 @@ export default async function PublicIdeaPage({ params }: PageProps) {
                     initialCount={reactionCount}
                     initialReacted={hasReacted}
                     isAuthenticated={Boolean(session)}
-                    nextPath={`/ideas/${idea.slug}`}
+                    nextPath={`/listings/${idea.slug}`}
                   />
                 </CardContent>
               </Card>
@@ -209,19 +193,6 @@ export default async function PublicIdeaPage({ params }: PageProps) {
                     budget: {detail?.budgetRange || "not set"}
                   </span>
                 </CardContent>
-                {isOwner ? (
-                  <CardFooter className="relative">
-                    <Button asChild className="w-full">
-                      <Link
-                        href={`/dashboard/tubs/${idea.id}`}
-                        className="justify-between"
-                      >
-                        Edit this idea
-                        <ArrowRight className="size-4" />
-                      </Link>
-                    </Button>
-                  </CardFooter>
-                ) : null}
               </Card>
             </section>
           </AppReveal>
@@ -312,6 +283,8 @@ export default async function PublicIdeaPage({ params }: PageProps) {
                     )}
                   </CardContent>
                 </Card>
+
+                <section id="public-listing-comments" className="grid gap-4" />
               </div>
 
               <div className="grid content-start gap-4">
@@ -377,42 +350,16 @@ export default async function PublicIdeaPage({ params }: PageProps) {
                   comments={comments}
                   isAuthenticated={Boolean(session)}
                   allowComments={idea.allowComments}
-                  nextPath={`/ideas/${idea.slug}`}
-                  commentsTargetId="public-idea-comments"
-                  canDeleteComments={isOwner}
+                  nextPath={`/listings/${idea.slug}`}
+                  commentsTargetId="public-listing-comments"
+                  currentUserId={session?.profile.id}
+                  ideaOwnerId={idea.ownerId}
                 />
               </div>
             </section>
           </AppReveal>
-
-          <AppReveal
-            inherit
-            delay={0.36}
-            y={20}
-            blur={10}
-            duration={1}
-            className="w-full"
-          >
-            <section id="public-idea-comments" className="grid gap-4" />
-          </AppReveal>
         </AppStagger>
       </div>
-
-      {isLocked ? (
-        <AuthGateOverlay
-          title={
-            isBlocked
-              ? "This idea view is locked"
-              : "Sign in to view idea details"
-          }
-          description={
-            isBlocked
-              ? "This account is currently blocked from the beta workspace. If that looks wrong, review your account status with the admin who invited you."
-              : "Idea details, comments, and reactions stay behind sign-in so the workspace remains focused during the beta."
-          }
-          next={`/ideas/${idea.slug}`}
-        />
-      ) : null}
     </main>
     </AppProviders>
   );

@@ -30,13 +30,13 @@ export function LandingStickyNavbar() {
                 <div className="pointer-events-auto flex items-center gap-2">
                     <Button asChild variant="outline">
                         <Link href="/listings" className="gap-2">
-                            <span>Listings</span>
+                            <span className="hidden md:flex">Listings</span>
                             <Globe2 className="size-4" />
                         </Link>
                     </Button>
                     <Button asChild>
                         <Link href="/dashboard" className="gap-2">
-                            <span>Dashboard</span>
+                            <span className="hidden md:flex">Dashboard</span>
                             <DashboardIcon
                                 size={64}
                                 duration={1}

@@ -8,11 +8,11 @@ export function ListingFlowPanel({ isAdmin }: { isAdmin: boolean }) {
   return (
     <Card className="md:block hidden border-border bg-secondary/90 shadow-xl backdrop-blur-2xl transition-colors duration-300 hover:border-primary/35 hover:bg-secondary">
       <CardHeader>
-        <div className="border border-border bg-accent/50 p-3 shadow-xs backdrop-blur-sm">
+        <div className="shadow-xs mb-4">
           <CardTitle className="text-xl">Listing flow</CardTitle>
           <CardDescription className="mt-3 text-sm leading-6">
-            Public ideas stay browsable, while creation, comments, and personal
-            management remain behind Google login.
+            Public ideas stay browsable.
+            Sign in to add comments.
           </CardDescription>
         </div>
       </CardHeader>

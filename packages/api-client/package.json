@@ -1,0 +1,13 @@
+{
+  "name": "@tubmind/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "devDependencies": {
+    "@tubmind/typescript-config": "workspace:*",
+    "typescript": "5.9.2"
+  }
+}

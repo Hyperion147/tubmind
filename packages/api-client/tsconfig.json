@@ -1,0 +1,8 @@
+{
+  "extends": "@tubmind/typescript-config/base.json",
+  "compilerOptions": {
+    "lib": ["DOM", "ESNext"],
+    "noEmit": true
+  },
+  "include": ["src"]
+}

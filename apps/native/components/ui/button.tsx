@@ -1,10 +1,5 @@
-import * as React from "react";
-import {
-  StyleSheet,
-  GestureResponderEvent,
-  Text,
-  Pressable,
-} from "react-native";
+import type { GestureResponderEvent } from "react-native";
+import { Pressable, StyleSheet, Text } from "react-native";
 
 export interface ButtonProps {
   text: string;
@@ -22,16 +17,13 @@ export function Button({ text, onPress }: ButtonProps) {
 const styles = StyleSheet.create({
   button: {
     maxWidth: 200,
-    textAlign: "center",
     borderRadius: 10,
-    paddingTop: 14,
-    paddingBottom: 14,
-    paddingLeft: 30,
-    paddingRight: 30,
-    fontSize: 15,
+    paddingHorizontal: 30,
+    paddingVertical: 14,
     backgroundColor: "#2f80ed",
   },
   text: {
     color: "white",
+    textAlign: "center",
   },
 });

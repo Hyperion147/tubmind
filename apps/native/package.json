@@ -11,7 +11,9 @@
     "eject": "expo eject"
   },
   "dependencies": {
-    "@tubmind/ui": "workspace:*",
+    "@tubmind/api-client": "workspace:*",
+    "@tubmind/contracts": "workspace:*",
+    "@tubmind/domain": "workspace:*",
     "expo": "^55.0.4",
     "expo-constants": "~55.0.7",
     "expo-linking": "~55.0.7",

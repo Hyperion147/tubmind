@@ -1,32 +1,35 @@
-# Turborepo react-native starter
+# Tubmind monorepo
 
-This is a community-maintained example. If you experience a problem, please submit a pull request with a fix. GitHub Issues will be closed.
+Tubmind uses pnpm workspaces and Turborepo to manage the web and native apps.
 
-## Using this example
+## Apps
 
-Run the following command:
+- `@tubmind/web`: Next.js web application
+- `@tubmind/native`: Expo React Native application
+
+Web and native UI components live inside their respective apps because they use
+different component systems and interaction patterns.
+
+## Shared packages
+
+- `@tubmind/contracts`: API validation schemas and request/response types
+- `@tubmind/domain`: platform-independent business models and rules
+- `@tubmind/api-client`: shared HTTP client utilities
+- `@tubmind/database`: server-only Drizzle schema
+- `@tubmind/typescript-config`: shared TypeScript configuration
+
+The native app must not import `@tubmind/database`.
+
+## Development
 
 ```sh
-npx create-turbo@latest -e with-react-native-web
+pnpm install
+pnpm dev:web
+pnpm dev:mobile
 ```
 
-## What's inside?
+Run the complete web and package build with:
 
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `native`: a [react-native](https://reactnative.dev/) app built with [expo](https://docs.expo.dev/)
-- `web`: a [Next.js](https://nextjs.org/) app built with [react-native-web](https://necolas.github.io/react-native-web/)
-- `@repo/ui`: a stub [react-native](https://reactnative.dev/) component library shared by both `web` and `native` applications
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [Expo](https://docs.expo.dev/) for native development
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [Prettier](https://prettier.io) for code formatting
+```sh
+pnpm build
+```

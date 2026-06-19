@@ -1,0 +1,15 @@
+{
+  "name": "@tubmind/domain",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./ideas": "./src/ideas.ts",
+    "./tub": "./src/tub.ts"
+  },
+  "devDependencies": {
+    "@tubmind/typescript-config": "workspace:*",
+    "typescript": "5.9.2"
+  }
+}

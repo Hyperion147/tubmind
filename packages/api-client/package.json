@@ -6,6 +6,9 @@
   "exports": {
     ".": "./src/index.ts"
   },
+  "dependencies": {
+    "@tubmind/contracts": "workspace:*"
+  },
   "devDependencies": {
     "@tubmind/typescript-config": "workspace:*",
     "typescript": "5.9.2"

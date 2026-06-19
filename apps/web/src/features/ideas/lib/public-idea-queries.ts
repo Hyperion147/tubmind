@@ -11,7 +11,7 @@ import {
   ideas,
   ideaTechStacks,
   profiles,
-} from "@/db/schema";
+} from "@tubmind/database";
 
 export async function getPublicIdeaPageData(input: {
   slug: string;

@@ -1,10 +1,10 @@
 import { desc, eq } from "drizzle-orm";
 
 import { db } from "@/db";
-import { ideas, timeLogs } from "@/db/schema";
+import { ideas, timeLogs } from "@tubmind/database";
 import { getCurrentSessionAccess } from "@/lib/auth";
 import { fail, ok } from "@/lib/http";
-import { createTimeLogSchema } from "@/lib/validators/time-log";
+import { createTimeLogSchema } from "@tubmind/contracts";
 
 export async function GET() {
   const { session } = await getCurrentSessionAccess();

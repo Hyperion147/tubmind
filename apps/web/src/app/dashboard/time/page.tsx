@@ -1,7 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 
 import { db } from "@/db";
-import { timeLogs } from "@/db/schema";
+import { timeLogs } from "@tubmind/database";
 import { getCurrentSession } from "@/lib/auth";
 import { TimeManagerPage } from "@/features/workspace/components/time-manager-page";
 import { getDashboardWorkspace } from "@/features/workspace/lib/get-dashboard-workspace";

@@ -1,10 +1,10 @@
 import { and, count, eq } from "drizzle-orm";
 
 import { db } from "@/db";
-import { ideaReactions, ideas } from "@/db/schema";
+import { ideaReactions, ideas } from "@tubmind/database"
 import { getCurrentSessionAccess } from "@/lib/auth";
 import { fail, ok } from "@/lib/http";
-import { isIdeaLive } from "@/lib/ideas";
+import { isIdeaLive } from "@tubmind/domain"
 
 type RouteContext = {
   params: Promise<{

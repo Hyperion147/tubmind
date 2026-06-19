@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { startTransition, useState } from "react";
 
-import { createClient } from "@/lib/client";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type GoogleLoginButtonProps = {
   next?: string;
@@ -18,7 +18,7 @@ export function GoogleLoginButton({
     startTransition(async () => {
       setPending(true);
 
-      const supabase = createClient();
+      const supabase = createSupabaseBrowserClient();
       const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
 
       const { error } = await supabase.auth.signInWithOAuth({

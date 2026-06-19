@@ -1,4 +1,4 @@
-import type { TubTask, TubTaskStatus } from "@/lib/tub";
+import type { TubTask, TubTaskStatus } from "@tubmind/domain/tub";
 
 export type IdeaStatus =
   | "draft"

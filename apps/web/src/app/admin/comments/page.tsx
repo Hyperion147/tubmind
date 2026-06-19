@@ -1,7 +1,7 @@
 import { and, desc, eq, ilike, isNotNull, or } from "drizzle-orm";
 
 import { db } from "@/db";
-import { ideaComments, ideas, moderationLogs, profiles } from "@/db/schema";
+import { ideaComments, ideas, moderationLogs, profiles } from "@tubmind/database"
 import { AdminCommentsPageClient } from "@/features/admin/components/admin-comments-page-client";
 import { getAdminCommentStats } from "@/features/admin/lib/admin-queries";
 import { requireAdmin } from "@/lib/auth";

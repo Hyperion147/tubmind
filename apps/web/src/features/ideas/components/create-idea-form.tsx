@@ -38,7 +38,7 @@ import {
     createIdeaSchema,
     type CreateIdeaFormValues,
     type CreateIdeaInput,
-} from "@/lib/validators/idea";
+} from "@tubmind/contracts/idea";
 import { cn } from "@/lib/utils";
 
 const defaultValues: CreateIdeaFormValues = {

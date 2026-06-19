@@ -1,6 +1,6 @@
 import type { ChangeEvent } from "react";
 
-import type { TubTask } from "@/lib/tub";
+import type { TubTask } from "@tubmind/domain/tub";
 
 import type { TaskDraft } from "./idea-tub-types";
 

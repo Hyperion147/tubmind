@@ -12,9 +12,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { tubTaskStatuses, type TubTaskStatus } from "@/lib/tub";
+import { tubTaskStatuses, type TubTaskStatus } from "@tubmind/domain/tub";
+import { taskStatusMeta } from "@/features/workspace/lib/task-status";
 
-import { statusMeta, type IdeaTubPageProps, type TaskDraft } from "./idea-tub-types";
+import type { IdeaTubPageProps, TaskDraft } from "./idea-tub-types";
 import { formatDateLabel, parseDateValue, toDateValue } from "./idea-tub-utils";
 
 type IdeaTubTaskFormProps = {
@@ -111,7 +112,7 @@ export function IdeaTubTaskForm({
             <SelectContent>
               {tubTaskStatuses.map((status) => (
                 <SelectItem key={status} value={status}>
-                  {statusMeta[status].label}
+                  {taskStatusMeta[status].label}
                 </SelectItem>
               ))}
             </SelectContent>

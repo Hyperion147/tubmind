@@ -8,11 +8,11 @@ import {
   ideas,
   ideaTechStacks,
   profiles,
-} from "@/db/schema";
+} from "@tubmind/database"
 import { getCurrentSessionAccess } from "@/lib/auth";
 import { fail, ok } from "@/lib/http";
-import { getPublishedAtForState, isIdeaLive } from "@/lib/ideas";
-import { updateIdeaSchema } from "@/lib/validators/idea";
+import { getPublishedAtForState, isIdeaLive } from "@tubmind/domain";
+import { updateIdeaSchema } from "@tubmind/contracts";
 
 type RouteContext = {
   params: Promise<{

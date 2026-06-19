@@ -3,8 +3,8 @@ import "server-only";
 import { and, count, desc, eq, ilike, inArray, or } from "drizzle-orm";
 
 import { db } from "@/db";
-import { ideaReactions, ideas, profiles } from "@/db/schema";
-import type { ListingCardData } from "@/features/listing/card/listing-card";
+import { ideaReactions, ideas, profiles } from "@tubmind/database";
+import type { ListingCardData } from "@/features/listing/types";
 
 export const LISTINGS_PAGE_SIZE = 9;
 

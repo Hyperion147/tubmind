@@ -198,6 +198,10 @@ importers:
         version: 5.9.2
 
   packages/api-client:
+    dependencies:
+      '@tubmind/contracts':
+        specifier: workspace:*
+        version: link:../contracts
     devDependencies:
       '@tubmind/typescript-config':
         specifier: workspace:*

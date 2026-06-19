@@ -11,10 +11,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { tubTaskStatuses, type TubTask, type TubTaskStatus } from "@/lib/tub";
+import {
+  tubTaskStatuses,
+  type TubTask,
+  type TubTaskStatus,
+} from "@tubmind/domain/tub";
 import { cn } from "@/lib/utils";
+import { taskStatusMeta } from "@/features/workspace/lib/task-status";
 
-import { statusMeta } from "./idea-tub-types";
 import { formatDateLabel } from "./idea-tub-utils";
 
 type IdeaTubBoardProps = {
@@ -80,7 +84,7 @@ export function IdeaTubBoard({
                     <SelectItem value="all">All statuses</SelectItem>
                     {tubTaskStatuses.map((status) => (
                       <SelectItem key={status} value={status}>
-                        {statusMeta[status].label}
+                        {taskStatusMeta[status].label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -136,7 +140,7 @@ function TaskSurface({
   setDraggedTaskId: React.Dispatch<React.SetStateAction<string | null>>;
   updateTask: (taskId: string, values: Omit<TubTask, "id" | "updatedAt">) => void;
 }) {
-  const StatusIcon = statusMeta[task.status].icon;
+  const StatusIcon = taskStatusMeta[task.status].icon;
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState<Omit<TubTask, "id" | "updatedAt">>({
     title: task.title,
@@ -267,7 +271,7 @@ function TaskSurface({
               <SelectContent>
                 {tubTaskStatuses.map((option) => (
                   <SelectItem key={option} value={option}>
-                    {statusMeta[option].label}
+                    {taskStatusMeta[option].label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -311,7 +315,7 @@ function TaskSurface({
             <SelectContent>
               {tubTaskStatuses.map((option) => (
                 <SelectItem key={option} value={option}>
-                  {statusMeta[option].label}
+                  {taskStatusMeta[option].label}
                 </SelectItem>
               ))}
             </SelectContent>

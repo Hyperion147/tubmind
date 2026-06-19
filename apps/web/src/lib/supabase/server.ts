@@ -4,22 +4,24 @@ import { createServerClient } from "@supabase/ssr";
 import { serverEnv } from "@/lib/env/server";
 
 export async function createSupabaseServerClient() {
-  const cookieStore = await cookies();
+    const cookieStore = await cookies();
 
-  return createServerClient(
-    serverEnv.NEXT_PUBLIC_SUPABASE_URL,
-    serverEnv.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
+    return createServerClient(
+        serverEnv.NEXT_PUBLIC_SUPABASE_URL,
+        serverEnv.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+        {
+            cookies: {
+                getAll() {
+                    return cookieStore.getAll();
+                },
+                setAll(cookiesToSet) {
+                    try {
+                        cookiesToSet.forEach(({ name, value, options }) => {
+                            cookieStore.set(name, value, options);
+                        });
+                    } catch {}
+                },
+            },
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            cookieStore.set(name, value, options);
-          });
-        },
-      },
-    }
-  );
+    );
 }

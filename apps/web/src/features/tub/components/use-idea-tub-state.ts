@@ -2,7 +2,12 @@
 
 import { useMemo, useState, useTransition, type ChangeEvent, type DragEvent } from "react";
 
-import { emptyIdeaTubData, tubTaskStatuses, type TubTask, type TubTaskStatus } from "@/lib/tub";
+import {
+  emptyIdeaTubData,
+  tubTaskStatuses,
+  type TubTask,
+  type TubTaskStatus,
+} from "@tubmind/domain/tub";
 import { useUpdateTubTasks } from "@/features/tub/hooks/use-update-tub-tasks";
 
 import type { IdeaTubPageProps } from "./idea-tub-types";

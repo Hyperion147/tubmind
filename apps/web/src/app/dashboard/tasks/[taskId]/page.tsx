@@ -13,7 +13,7 @@ import { SiteBreadcrumb } from "@/components/layout/site-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { statusMeta } from "@/features/tub/components/idea-tub-types";
+import { taskStatusMeta } from "@/features/workspace/lib/task-status";
 import { getCurrentSession } from "@/lib/auth";
 import { formatRelativeBucket, formatShortDate, humanize, isTaskOverdue } from "@/features/workspace/lib/formatters";
 import { getDashboardWorkspace } from "@/features/workspace/lib/get-dashboard-workspace";
@@ -41,7 +41,7 @@ export default async function DashboardTaskDetailPage({ params }: PageProps) {
   }
 
   const idea = workspace.ideas.find((item) => item.id === task.ideaId);
-  const StatusIcon = statusMeta[task.status].icon;
+  const StatusIcon = taskStatusMeta[task.status].icon;
 
   return (
     <div className="grid gap-4">
@@ -101,7 +101,7 @@ export default async function DashboardTaskDetailPage({ params }: PageProps) {
           </CardHeader>
           <CardContent className="grid gap-4 px-5 pb-5 pt-0">
             <div className="grid gap-3 md:grid-cols-2">
-              <DetailTile icon={StatusIcon} label="Status" value={statusMeta[task.status].label} />
+              <DetailTile icon={StatusIcon} label="Status" value={taskStatusMeta[task.status].label} />
               <DetailTile icon={Clock3} label="Timing bucket" value={formatRelativeBucket(task)} />
               <DetailTile icon={CalendarDays} label="Planned date" value={formatShortDate(task.date)} />
               <DetailTile icon={CheckCircle2} label="Deadline" value={formatShortDate(task.deadline)} />

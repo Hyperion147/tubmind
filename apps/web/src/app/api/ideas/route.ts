@@ -1,12 +1,12 @@
 import { desc, eq } from "drizzle-orm";
 
 import { db } from "@/db";
-import { ideaDetails, ideaFeatures, ideas, ideaTechStacks, profiles } from "@/db/schema";
+import { ideaDetails, ideaFeatures, ideas, ideaTechStacks, profiles } from "@tubmind/database"
 import { getCurrentSession, getCurrentSessionAccess } from "@/lib/auth";
 import { fail, ok } from "@/lib/http";
-import { getPublishedAtForState } from "@/lib/ideas";
+import { getPublishedAtForState } from "@tubmind/domain";
 import { slugify } from "@/lib/utils/slug";
-import { createIdeaSchema } from "@/lib/validators/idea";
+import { createIdeaSchema } from "@tubmind/contracts";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);

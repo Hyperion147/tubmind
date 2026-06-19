@@ -2,7 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 
-import { apiRequest } from "@/lib/api-client";
+import { apiRequest } from "@tubmind/api-client";
 
 export type IdeaComment = {
   id: string;

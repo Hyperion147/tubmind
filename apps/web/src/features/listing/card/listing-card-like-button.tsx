@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
 import { Heart } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { AuthModal } from "@/features/auth/components/auth-modal";
+import { useToggleReaction } from "@/features/ideas/hooks/use-toggle-reaction";
 
 export function ListingCardLikeButton({
   ideaId,
@@ -24,23 +24,10 @@ export function ListingCardLikeButton({
   const [reacted, setReacted] = useState(initialReacted);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
-  const mutation = useMutation({
-    mutationFn: async () => {
-      const response = await fetch(`/api/ideas/${ideaId}/reactions`, {
-        method: "POST",
-      });
-
-      const payload = await response.json();
-
-      if (!response.ok) {
-        throw new Error(payload?.error?.message ?? "Failed to update reaction");
-      }
-
-      return payload.data as { reacted: boolean; count: number };
-    },
-    onSuccess: (payload) => {
-      setReacted(payload.reacted);
-      setCount(payload.count);
+  const mutation = useToggleReaction(ideaId, {
+    onSuccess(result) {
+      setReacted(result.reacted);
+      setCount(result.count);
     },
   });
 

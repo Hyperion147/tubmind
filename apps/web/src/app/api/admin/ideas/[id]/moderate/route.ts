@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 
 import { db } from "@/db";
-import { ideas, moderationLogs } from "@/db/schema";
+import { ideas, moderationLogs } from "@tubmind/database";
 import { requireAdmin } from "@/lib/auth";
 import { fail, ok } from "@/lib/http";
 

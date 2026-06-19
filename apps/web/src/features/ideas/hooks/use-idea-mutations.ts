@@ -2,8 +2,8 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { apiRequest } from "@/lib/api-client";
-import type { CreateIdeaInput, UpdateIdeaInput } from "@/lib/validators/idea";
+import { apiRequest } from "@tubmind/api-client";
+import type { CreateIdeaInput, UpdateIdeaInput } from "@tubmind/contracts/idea";
 
 type MutationOptions<TData, TVariables> = {
   onError?: (error: Error, variables: TVariables) => void;

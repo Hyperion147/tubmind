@@ -2,10 +2,10 @@ import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { statusMeta } from "@/features/tub/components/idea-tub-types";
 import { cn } from "@/lib/utils";
 
 import { formatShortDate, isTaskOverdue } from "../lib/formatters";
+import { taskStatusMeta } from "../lib/task-status";
 import { getTaskHref, type WorkspaceTask } from "../lib/workspace-model";
 import type { TasksByStatus } from "./tasks-page-types";
 
@@ -53,13 +53,13 @@ export function TasksBoardView({
                                     )}
                                 >
                                     {(() => {
-                                        const Icon = statusMeta[column].icon;
+                                        const Icon = taskStatusMeta[column].icon;
                                         return <Icon className="size-5" />;
                                     })()}
                                 </div>
                                 <div>
                                     <CardTitle className="text-lg font-semibold text-foreground">
-                                        {statusMeta[column].label}
+                                        {taskStatusMeta[column].label}
                                     </CardTitle>
                                     <p className="text-sm text-muted-foreground">
                                         {boardGrouped[column].length} tasks

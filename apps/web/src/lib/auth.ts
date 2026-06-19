@@ -6,8 +6,8 @@ import type { User } from "@supabase/supabase-js";
 import { eq } from "drizzle-orm";
 
 import { db } from "@/db";
-import { profiles } from "@/db/schema";
-import { createClient } from "@/lib/server";
+import { profiles } from "@tubmind/database";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function getProfileValuesFromUser(user: User) {
   const displayName =
@@ -53,7 +53,7 @@ export async function syncProfileForUser(user: User) {
 }
 
 export const getCurrentSession = cache(async () => {
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
   const {
     data: { user },
     error,

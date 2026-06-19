@@ -8,8 +8,8 @@ import {
   ideaDetails,
   ideaReactions,
   ideas,
-} from "@/db/schema";
-import { normalizeIdeaTubData } from "@/lib/tub";
+} from "@tubmind/database";
+import { normalizeIdeaTubData } from "@tubmind/domain";
 import type { IdeaStatus, IdeaVisibility, WorkspaceDashboardData, WorkspaceIdea, WorkspaceTask } from "./workspace-model";
 
 function compareIsoDate(a: string | null, b: string | null) {

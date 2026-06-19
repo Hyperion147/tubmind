@@ -9,8 +9,8 @@ import {
   ideaFeatures,
   ideas,
   ideaTechStacks,
-} from "@/db/schema";
-import { normalizeIdeaTubData } from "@/lib/tub";
+} from "@tubmind/database";
+import { normalizeIdeaTubData } from "@tubmind/domain";
 
 export async function getTubDetailData(input: {
   ideaId: string;

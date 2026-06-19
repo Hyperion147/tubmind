@@ -2,11 +2,11 @@ import { and, desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import { db } from "@/db";
-import { ideaComments, ideas, profiles } from "@/db/schema";
+import { ideaComments, ideas, profiles } from "@tubmind/database"
 import { getCurrentSessionAccess } from "@/lib/auth";
 import { fail, ok } from "@/lib/http";
-import { isIdeaLive } from "@/lib/ideas";
-import { createCommentSchema } from "@/lib/validators/comment";
+import { isIdeaLive } from "@tubmind/domain";
+import { createCommentSchema } from "@tubmind/contracts";
 
 type RouteContext = {
   params: Promise<{

@@ -3,7 +3,7 @@ import "server-only";
 import { sql } from "drizzle-orm";
 
 import { db } from "@/db";
-import { ideaComments, ideas, profiles } from "@/db/schema";
+import { ideaComments, ideas, profiles } from "@tubmind/database";
 
 function toNumber(value: unknown) {
   return Number(value ?? 0);

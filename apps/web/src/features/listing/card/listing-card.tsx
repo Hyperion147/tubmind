@@ -12,17 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ListingCardLikeButton } from "@/features/listing/card/listing-card-like-button";
-
-export type ListingCardData = {
-  id: string;
-  initialReacted: boolean;
-  ownerName: string;
-  publishedAt: Date | null;
-  reactionCount: number;
-  slug: string;
-  summary: string | null;
-  title: string;
-};
+import type { ListingCardData } from "@/features/listing/types";
 
 function formatPublishedAt(date: Date | null) {
   if (!date) {

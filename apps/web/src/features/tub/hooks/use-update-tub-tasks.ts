@@ -2,8 +2,8 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { apiRequest } from "@/lib/api-client";
-import type { emptyIdeaTubData } from "@/lib/tub";
+import { apiRequest } from "@tubmind/api-client";
+import type { emptyIdeaTubData } from "@tubmind/domain/tub";
 
 type IdeaTubData = typeof emptyIdeaTubData;
 

@@ -92,7 +92,7 @@ export function LandingAppAccessCta() {
                             </Link>
                         </Button>
                         <a
-                            href="https://suryansu.pro/"
+                            href="https://suryansu.in/"
                             target="_blank"
                             rel="noreferrer"
                             onBlur={() => portfolioIconRef.current?.stopAnimation()}

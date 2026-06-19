@@ -4,6 +4,12 @@ import { Loader2, Shield, UserRoundCog } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
+import type {
+  AdminUserAction,
+  AdminUserResult,
+  UserRole,
+  UserStatus,
+} from "@tubmind/contracts/moderation";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -13,17 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-
-type UserRole = "user" | "admin";
-type UserStatus = "active" | "under_review" | "blocked" | "deleted";
-
-type UserAdminAction =
-  | "set_active"
-  | "set_under_review"
-  | "block"
-  | "unblock"
-  | "make_admin"
-  | "make_user";
+import { useModerateUser } from "@/features/admin/api/use-moderation";
 
 type AdminUserModerationPanelProps = {
   userId: string;
@@ -31,21 +27,7 @@ type AdminUserModerationPanelProps = {
   currentStatus: UserStatus;
   blockedReason: string | null;
   isSelf?: boolean;
-  onModerated?: (result: {
-    profile: {
-      id: string;
-      role: UserRole;
-      status: UserStatus;
-      blockedReason: string | null;
-    };
-    log: {
-      id: string;
-      action: string;
-      note: string | null;
-      createdAtLabel: string;
-      label: string;
-    } | null;
-  }) => void;
+  onModerated?: (result: AdminUserResult) => void;
 };
 
 export function AdminUserModerationPanel({
@@ -57,13 +39,15 @@ export function AdminUserModerationPanel({
   onModerated,
 }: AdminUserModerationPanelProps) {
   const router = useRouter();
-  const [action, setAction] = useState<UserAdminAction>("set_under_review");
+  const [action, setAction] = useState<AdminUserAction>("set_under_review");
   const [note, setNote] = useState(blockedReason ?? "");
-  const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const mutation = useModerateUser(userId, (result) => {
+    onModerated?.(result);
+    router.refresh();
+  });
 
   const availableActions = useMemo(() => {
-    const actions: Array<{ value: UserAdminAction; label: string }> = [];
+    const actions: Array<{ value: AdminUserAction; label: string }> = [];
 
     if (currentStatus !== "active") {
       actions.push({ value: "set_active", label: "Set active" });
@@ -97,7 +81,7 @@ export function AdminUserModerationPanel({
     : availableActions[0]?.value;
 
   async function applyAction() {
-    const confirmationCopy: Partial<Record<UserAdminAction, string>> = {
+    const confirmationCopy: Partial<Record<AdminUserAction, string>> = {
       block: "Block this user from normal access?",
       make_admin: "Promote this user to admin access?",
       make_user: "Demote this account back to a normal user?",
@@ -108,48 +92,12 @@ export function AdminUserModerationPanel({
       return;
     }
 
-    setIsPending(true);
-    setError(null);
-
     try {
-      const response = await fetch(`/api/admin/users/${userId}/moderate`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          action: selectedAction,
-          note,
-        }),
-      });
-      const payload = await response.json();
-
-      if (!response.ok) {
-        throw new Error(payload?.error?.message ?? "Failed to moderate user");
+      if (selectedAction) {
+        await mutation.mutateAsync({ action: selectedAction, note });
       }
-
-      const result = payload.data as {
-        profile: {
-          id: string;
-          role: UserRole;
-          status: UserStatus;
-          blockedReason: string | null;
-        };
-        log: {
-          id: string;
-          action: string;
-          note: string | null;
-          createdAtLabel: string;
-          label: string;
-        } | null;
-      };
-
-      onModerated?.(result);
-      router.refresh();
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Failed to moderate user");
-    } finally {
-      setIsPending(false);
+    } catch {
+      // Error state is exposed by the mutation.
     }
   }
 
@@ -181,7 +129,7 @@ export function AdminUserModerationPanel({
 
       <Select
         value={selectedAction}
-        onValueChange={(value) => setAction(value as UserAdminAction)}
+        onValueChange={(value) => setAction(value as AdminUserAction)}
       >
         <SelectTrigger className="h-11 bg-card/80">
           <SelectValue />
@@ -202,18 +150,18 @@ export function AdminUserModerationPanel({
         className="min-h-24 bg-card/80"
       />
 
-      {error ? (
-        <p className="text-sm text-destructive">{error}</p>
+      {mutation.error ? (
+        <p className="text-sm text-destructive">{mutation.error.message}</p>
       ) : null}
 
       <Button
         type="button"
         onClick={applyAction}
-        disabled={isPending || availableActions.length === 0}
+        disabled={mutation.isPending || availableActions.length === 0}
         className="justify-between"
       >
-        {isPending ? "Applying action..." : "Apply action"}
-        {isPending ? (
+        {mutation.isPending ? "Applying action..." : "Apply action"}
+        {mutation.isPending ? (
           <Loader2 className="size-4 animate-spin" />
         ) : (
           <UserRoundCog className="size-4" />

@@ -12,9 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { AdminUserModerationPanel } from "@/features/admin/components/admin-user-moderation-panel";
-
-type UserRole = "user" | "admin";
-type UserStatus = "active" | "under_review" | "blocked" | "deleted";
+import type { UserRole, UserStatus } from "@tubmind/contracts/moderation";
 
 type UserRow = {
   id: string;

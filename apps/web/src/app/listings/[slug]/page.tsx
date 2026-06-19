@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/card";
 import { getCurrentSession } from "@/lib/auth";
 import { IdeaCommentsSection } from "@/features/ideas/components/idea-comments-section";
-import { getPublicIdeaPageData } from "@/features/ideas/lib/public-idea-queries";
+import { getPublicIdeaPageData } from "@/features/ideas/server/public-idea-queries";
 import { PublicIdeaReactionStat } from "@/features/ideas/components/public-idea-reaction-stat";
 
 type PageProps = {

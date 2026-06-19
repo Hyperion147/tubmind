@@ -65,9 +65,13 @@ export async function getPublicIdeaPageData(input: {
       .select({
         id: ideaComments.id,
         body: ideaComments.body,
+        status: ideaComments.status,
+        parentCommentId: ideaComments.parentCommentId,
         createdAt: ideaComments.createdAt,
+        updatedAt: ideaComments.updatedAt,
         authorId: profiles.id,
         authorName: profiles.displayName,
+        authorAvatarUrl: profiles.avatarUrl,
       })
       .from(ideaComments)
       .innerJoin(profiles, eq(ideaComments.authorId, profiles.id))
@@ -101,7 +105,11 @@ export async function getPublicIdeaPageData(input: {
     detail: details[0],
     features,
     techStacks,
-    comments,
+    comments: comments.map((comment) => ({
+      ...comment,
+      createdAt: comment.createdAt.toISOString(),
+      updatedAt: comment.updatedAt.toISOString(),
+    })),
     reactionCount: reactionCountResult[0]?.value ?? 0,
     hasReacted: viewerReaction.length > 0,
   };

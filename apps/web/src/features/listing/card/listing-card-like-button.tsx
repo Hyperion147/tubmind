@@ -5,7 +5,7 @@ import { Heart } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { AuthModal } from "@/features/auth/components/auth-modal";
-import { useToggleReaction } from "@/features/ideas/hooks/use-toggle-reaction";
+import { useToggleReaction } from "@/features/ideas/api/use-toggle-reaction";
 
 export function ListingCardLikeButton({
   ideaId,

@@ -4,6 +4,12 @@ import { Loader2, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
+import type {
+  AdminIdeaAction,
+  AdminIdeaResult,
+  IdeaStatus,
+  IdeaVisibility,
+} from "@tubmind/contracts";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -13,43 +19,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useModerateIdea } from "@/features/admin/api/use-moderation";
 
 type AdminIdeaModerationPanelProps = {
   ideaId: string;
-  currentVisibility: "private" | "public";
-  currentStatus:
-    | "draft"
-    | "in_progress"
-    | "submitted"
-    | "published"
-    | "needs_revision"
-    | "archived";
-  onModerated?: (result: {
-    idea:
-      | {
-          id: string;
-          visibility: "private" | "public";
-          status:
-            | "draft"
-            | "in_progress"
-            | "submitted"
-            | "published"
-            | "needs_revision"
-            | "archived";
-        }
-      | null;
-    deleted: boolean;
-    log: {
-      id: string;
-      action: string;
-      note: string | null;
-      createdAtLabel: string;
-      label: string;
-    } | null;
-  }) => void;
+  currentVisibility: IdeaVisibility;
+  currentStatus: IdeaStatus;
+  onModerated?: (result: AdminIdeaResult) => void;
 };
-
-type AdminAction = "make_public" | "make_private" | "request_revision" | "archive" | "delete";
 
 export function AdminIdeaModerationPanel({
   ideaId,
@@ -58,13 +35,16 @@ export function AdminIdeaModerationPanel({
   onModerated,
 }: AdminIdeaModerationPanelProps) {
   const router = useRouter();
-  const [action, setAction] = useState<AdminAction>("make_public");
+  const [action, setAction] = useState<AdminIdeaAction>("make_public");
   const [note, setNote] = useState("");
-  const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const mutation = useModerateIdea(ideaId, (result) => {
+    setNote("");
+    onModerated?.(result);
+    router.refresh();
+  });
 
   const availableActions = useMemo(() => {
-    const actions: Array<{ value: AdminAction; label: string }> = [];
+    const actions: Array<{ value: AdminIdeaAction; label: string }> = [];
 
     if (currentVisibility !== "public") {
       actions.push({ value: "make_public", label: "Make public" });
@@ -92,7 +72,7 @@ export function AdminIdeaModerationPanel({
     : availableActions[0]?.value;
 
   async function applyAction() {
-    const confirmationCopy: Partial<Record<AdminAction, string>> = {
+    const confirmationCopy: Partial<Record<AdminIdeaAction, string>> = {
       make_private: "Move this idea back to private and remove it from the public listings?",
       request_revision: "Request revision and pull this idea out of public view?",
       archive: "Archive this idea and remove it from the active moderation queue?",
@@ -104,55 +84,12 @@ export function AdminIdeaModerationPanel({
       return;
     }
 
-    setIsPending(true);
-    setError(null);
-
     try {
-      const response = await fetch(`/api/admin/ideas/${ideaId}/moderate`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          action: selectedAction,
-          note,
-        }),
-      });
-      const payload = await response.json();
-
-      if (!response.ok) {
-        throw new Error(payload?.error?.message ?? "Failed to moderate idea");
+      if (selectedAction) {
+        await mutation.mutateAsync({ action: selectedAction, note });
       }
-
-      const result = payload.data as {
-        idea: {
-          id: string;
-          visibility: "private" | "public";
-          status:
-            | "draft"
-            | "in_progress"
-            | "submitted"
-            | "published"
-            | "needs_revision"
-            | "archived";
-        } | null;
-        deleted: boolean;
-        log: {
-          id: string;
-          action: string;
-          note: string | null;
-          createdAtLabel: string;
-          label: string;
-        } | null;
-      };
-
-      setNote("");
-      onModerated?.(result);
-      router.refresh();
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Failed to moderate idea");
-    } finally {
-      setIsPending(false);
+    } catch {
+      // Error state is exposed by the mutation.
     }
   }
 
@@ -170,7 +107,7 @@ export function AdminIdeaModerationPanel({
 
       <Select
         value={selectedAction}
-        onValueChange={(value) => setAction(value as AdminAction)}
+        onValueChange={(value) => setAction(value as AdminIdeaAction)}
       >
         <SelectTrigger className="h-11 bg-card/80">
           <SelectValue />
@@ -191,18 +128,18 @@ export function AdminIdeaModerationPanel({
         className="min-h-24 bg-card/80"
       />
 
-      {error ? (
-        <p className="text-sm text-destructive">{error}</p>
+      {mutation.error ? (
+        <p className="text-sm text-destructive">{mutation.error.message}</p>
       ) : null}
 
       <Button
         type="button"
         onClick={applyAction}
-        disabled={isPending || availableActions.length === 0}
+        disabled={mutation.isPending || availableActions.length === 0}
         className="justify-between"
       >
-        {isPending ? "Applying action..." : "Apply action"}
-        {isPending ? <Loader2 className="size-4 animate-spin" /> : <Shield className="size-4" />}
+        {mutation.isPending ? "Applying action..." : "Apply action"}
+        {mutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <Shield className="size-4" />}
       </Button>
     </div>
   );

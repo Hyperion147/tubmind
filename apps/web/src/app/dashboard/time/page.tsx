@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { timeLogs } from "@tubmind/database";
 import { getCurrentSession } from "@/lib/auth";
 import { TimeManagerPage } from "@/features/workspace/components/time-manager-page";
-import { getDashboardWorkspace } from "@/features/workspace/lib/get-dashboard-workspace";
+import { getDashboardWorkspace } from "@/features/workspace/server/get-dashboard-workspace";
 
 type PageProps = {
   searchParams: Promise<{

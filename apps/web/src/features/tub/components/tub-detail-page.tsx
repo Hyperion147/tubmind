@@ -16,7 +16,7 @@ import { IdeaSkeletonForm } from "@/features/ideas/components/idea-skeleton-form
 import { humanize } from "@/features/workspace/lib/formatters";
 
 import { IdeaTubPage } from "./idea-tub-page";
-import type { getTubDetailData } from "../lib/tub-detail-data";
+import type { getTubDetailData } from "../server/tub-detail-data";
 
 type TubDetailData = NonNullable<Awaited<ReturnType<typeof getTubDetailData>>>;
 

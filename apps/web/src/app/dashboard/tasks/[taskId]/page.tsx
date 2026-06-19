@@ -16,7 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { taskStatusMeta } from "@/features/workspace/lib/task-status";
 import { getCurrentSession } from "@/lib/auth";
 import { formatRelativeBucket, formatShortDate, humanize, isTaskOverdue } from "@/features/workspace/lib/formatters";
-import { getDashboardWorkspace } from "@/features/workspace/lib/get-dashboard-workspace";
+import { getDashboardWorkspace } from "@/features/workspace/server/get-dashboard-workspace";
 import { getTaskById } from "@/features/workspace/lib/workspace-model";
 
 type PageProps = {

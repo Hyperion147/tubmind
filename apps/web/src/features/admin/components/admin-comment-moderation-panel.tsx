@@ -4,6 +4,11 @@ import { Loader2, MessageSquareOff, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
+import type {
+  AdminCommentAction,
+  AdminCommentResult,
+} from "@tubmind/contracts/moderation";
+import type { CommentStatus } from "@tubmind/contracts/comment";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -13,26 +18,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-
-type CommentStatus = "visible" | "hidden" | "deleted";
-type CommentAdminAction = "hide" | "restore" | "delete";
+import { useModerateComment } from "@/features/admin/api/use-moderation";
 
 type AdminCommentModerationPanelProps = {
   commentId: string;
   currentStatus: CommentStatus;
-  onModerated?: (result: {
-    comment: {
-      id: string;
-      status: CommentStatus;
-    };
-    log: {
-      id: string;
-      action: string;
-      note: string | null;
-      createdAtLabel: string;
-      label: string;
-    } | null;
-  }) => void;
+  onModerated?: (result: AdminCommentResult) => void;
 };
 
 export function AdminCommentModerationPanel({
@@ -41,13 +32,16 @@ export function AdminCommentModerationPanel({
   onModerated,
 }: AdminCommentModerationPanelProps) {
   const router = useRouter();
-  const [action, setAction] = useState<CommentAdminAction>("hide");
+  const [action, setAction] = useState<AdminCommentAction>("hide");
   const [note, setNote] = useState("");
-  const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const mutation = useModerateComment(commentId, (result) => {
+    setNote("");
+    onModerated?.(result);
+    router.refresh();
+  });
 
   const availableActions = useMemo(() => {
-    const actions: Array<{ value: CommentAdminAction; label: string }> = [];
+    const actions: Array<{ value: AdminCommentAction; label: string }> = [];
 
     if (currentStatus === "visible") {
       actions.push({ value: "hide", label: "Hide comment" });
@@ -71,7 +65,7 @@ export function AdminCommentModerationPanel({
     : availableActions[0]?.value;
 
   async function applyAction() {
-    const confirmationCopy: Partial<Record<CommentAdminAction, string>> = {
+    const confirmationCopy: Partial<Record<AdminCommentAction, string>> = {
       delete: "Delete this comment from the discussion feed?",
     };
     const confirmation = selectedAction ? confirmationCopy[selectedAction] : null;
@@ -80,47 +74,12 @@ export function AdminCommentModerationPanel({
       return;
     }
 
-    setIsPending(true);
-    setError(null);
-
     try {
-      const response = await fetch(`/api/admin/comments/${commentId}/moderate`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          action: selectedAction,
-          note,
-        }),
-      });
-      const payload = await response.json();
-
-      if (!response.ok) {
-        throw new Error(payload?.error?.message ?? "Failed to moderate comment");
+      if (selectedAction) {
+        await mutation.mutateAsync({ action: selectedAction, note });
       }
-
-      const result = payload.data as {
-        comment: {
-          id: string;
-          status: CommentStatus;
-        };
-        log: {
-          id: string;
-          action: string;
-          note: string | null;
-          createdAtLabel: string;
-          label: string;
-        } | null;
-      };
-
-      setNote("");
-      onModerated?.(result);
-      router.refresh();
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Failed to moderate comment");
-    } finally {
-      setIsPending(false);
+    } catch {
+      // Error state is exposed by the mutation.
     }
   }
 
@@ -138,7 +97,7 @@ export function AdminCommentModerationPanel({
 
       <Select
         value={selectedAction}
-        onValueChange={(value) => setAction(value as CommentAdminAction)}
+        onValueChange={(value) => setAction(value as AdminCommentAction)}
       >
         <SelectTrigger className="h-11 bg-card/80">
           <SelectValue />
@@ -159,18 +118,18 @@ export function AdminCommentModerationPanel({
         className="min-h-24 bg-card/80"
       />
 
-      {error ? (
-        <p className="text-sm text-destructive">{error}</p>
+      {mutation.error ? (
+        <p className="text-sm text-destructive">{mutation.error.message}</p>
       ) : null}
 
       <Button
         type="button"
         onClick={applyAction}
-        disabled={isPending || availableActions.length === 0}
+        disabled={mutation.isPending || availableActions.length === 0}
         className="justify-between"
       >
-        {isPending ? "Applying action..." : "Apply action"}
-        {isPending ? (
+        {mutation.isPending ? "Applying action..." : "Apply action"}
+        {mutation.isPending ? (
           <Loader2 className="size-4 animate-spin" />
         ) : (
           <MessageSquareOff className="size-4" />

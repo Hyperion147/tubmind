@@ -3,7 +3,7 @@ import { and, count, desc, eq, ilike, isNotNull, or } from "drizzle-orm";
 import { db } from "@/db";
 import { ideas, moderationLogs, profiles } from "@tubmind/database";
 import { AdminIdeasPageClient } from "@/features/admin/components/admin-ideas-page-client";
-import { getAdminIdeaStats } from "@/features/admin/lib/admin-queries";
+import { getAdminIdeaStats } from "@/features/admin/server/admin-queries";
 import { requireAdmin } from "@/lib/auth";
 
 const PAGE_SIZE = 8;

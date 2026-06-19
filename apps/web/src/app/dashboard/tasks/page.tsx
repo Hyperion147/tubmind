@@ -1,6 +1,6 @@
 import { getCurrentSession } from "@/lib/auth";
 import { TasksPageClient } from "@/features/workspace/components/tasks-page-client";
-import { getDashboardWorkspace } from "@/features/workspace/lib/get-dashboard-workspace";
+import { getDashboardWorkspace } from "@/features/workspace/server/get-dashboard-workspace";
 
 type PageProps = {
   searchParams: Promise<{

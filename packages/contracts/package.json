@@ -5,8 +5,10 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./api": "./src/api.ts",
     "./comment": "./src/comment.ts",
     "./idea": "./src/idea.ts",
+    "./moderation": "./src/moderation.ts",
     "./reaction": "./src/reaction.ts",
     "./time-log": "./src/time-log.ts"
   },

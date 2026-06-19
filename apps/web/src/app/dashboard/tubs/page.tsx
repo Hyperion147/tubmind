@@ -1,5 +1,5 @@
 import { TubPageClient } from "@/features/tub/components/tub-page-client";
-import { getDashboardWorkspace } from "@/features/workspace/lib/get-dashboard-workspace";
+import { getDashboardWorkspace } from "@/features/workspace/server/get-dashboard-workspace";
 import { getCurrentSession } from "@/lib/auth";
 
 type PageProps = {

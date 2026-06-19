@@ -10,7 +10,13 @@ import {
   ideas,
 } from "@tubmind/database";
 import { normalizeIdeaTubData } from "@tubmind/domain";
-import type { IdeaStatus, IdeaVisibility, WorkspaceDashboardData, WorkspaceIdea, WorkspaceTask } from "./workspace-model";
+import type {
+  IdeaStatus,
+  IdeaVisibility,
+  WorkspaceDashboardData,
+  WorkspaceIdea,
+  WorkspaceTask,
+} from "../lib/workspace-model";
 
 function compareIsoDate(a: string | null, b: string | null) {
   if (!a && !b) {

@@ -20,7 +20,7 @@ import {
   getAdminCommentStats,
   getAdminIdeaStats,
   getAdminUserStats,
-} from "@/features/admin/lib/admin-queries";
+} from "@/features/admin/server/admin-queries";
 import { requireAdmin } from "@/lib/auth";
 
 export default async function AdminHomePage() {

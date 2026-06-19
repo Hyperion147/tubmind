@@ -1,78 +1,41 @@
-import { desc, eq } from "drizzle-orm";
-
-import { db } from "@/db";
-import { ideas, timeLogs } from "@tubmind/database";
+import { createTimeLogSchema } from "@tubmind/contracts/time-log";
+import {
+  createTimeLog,
+  listTimeLogs,
+} from "@/features/workspace/server/time-log-service";
 import { getCurrentSessionAccess } from "@/lib/auth";
 import { fail, ok } from "@/lib/http";
-import { createTimeLogSchema } from "@tubmind/contracts";
+import { handleRoute } from "@/lib/route-handler";
 
 export async function GET() {
-  const { session } = await getCurrentSessionAccess();
-
-  if (!session) {
-    return fail("Unauthorized", 401);
-  }
-
-  const logs = await db
-    .select()
-    .from(timeLogs)
-    .where(eq(timeLogs.ownerId, session.profile.id))
-    .orderBy(desc(timeLogs.startedAt));
-
-  return ok(logs);
+  return handleRoute(async () => {
+    const { session } = await getCurrentSessionAccess();
+    return session
+      ? ok(await listTimeLogs(session.profile.id))
+      : fail("Unauthorized", 401);
+  });
 }
 
 export async function POST(request: Request) {
-  const { session, isBlocked } = await getCurrentSessionAccess();
+  return handleRoute(async () => {
+    const { session, isBlocked } = await getCurrentSessionAccess();
 
-  if (!session) {
-    return fail("Unauthorized", 401);
-  }
+    if (!session) return fail("Unauthorized", 401);
+    if (isBlocked) return fail("Blocked users cannot create time logs", 403);
 
-  if (isBlocked) {
-    return fail("Blocked users cannot create time logs", 403);
-  }
+    const payload = await request.json().catch(() => null);
+    const parsed = createTimeLogSchema.safeParse(payload);
 
-  let payload: unknown;
+    if (!parsed.success) {
+      return fail("Validation failed", 422, parsed.error.flatten());
+    }
 
-  try {
-    payload = await request.json();
-  } catch {
-    return fail("Invalid JSON body", 400);
-  }
-
-  const parsed = createTimeLogSchema.safeParse(payload);
-
-  if (!parsed.success) {
-    return fail("Validation failed", 422, parsed.error.flatten());
-  }
-
-  const [idea] = await db
-    .select({
-      id: ideas.id,
-      ownerId: ideas.ownerId,
-    })
-    .from(ideas)
-    .where(eq(ideas.id, parsed.data.ideaId))
-    .limit(1);
-
-  if (!idea || idea.ownerId !== session.profile.id) {
-    return fail("Task project not found", 404);
-  }
-
-  const [log] = await db
-    .insert(timeLogs)
-    .values({
-      ownerId: session.profile.id,
-      ideaId: parsed.data.ideaId,
-      taskId: parsed.data.taskId,
-      taskTitle: parsed.data.taskTitle,
-      startedAt: new Date(parsed.data.startedAt),
-      endedAt: new Date(parsed.data.endedAt),
-      durationSeconds: parsed.data.durationSeconds,
-      notes: parsed.data.notes?.trim() ? parsed.data.notes.trim() : null,
-    })
-    .returning();
-
-  return ok(log, { status: 201 });
+    return ok(
+      await createTimeLog({
+        ownerId: session.profile.id,
+        data: parsed.data,
+      }),
+      { status: 201 },
+    );
+  });
 }

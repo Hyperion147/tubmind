@@ -8,7 +8,7 @@ import {
   type TubTask,
   type TubTaskStatus,
 } from "@tubmind/domain/tub";
-import { useUpdateTubTasks } from "@/features/tub/hooks/use-update-tub-tasks";
+import { useUpdateTubTasks } from "@/features/tub/api/use-update-tub-tasks";
 
 import type { IdeaTubPageProps } from "./idea-tub-types";
 import {

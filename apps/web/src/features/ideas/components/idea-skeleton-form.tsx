@@ -27,7 +27,7 @@ import {
   skeletonFormSchema,
   type SkeletonFormValues,
 } from "@/features/ideas/components/idea-skeleton-form-schema";
-import { useUpdateIdea } from "@/features/ideas/hooks/use-idea-mutations";
+import { useUpdateIdea } from "@/features/ideas/api/use-idea-mutations";
 
 type IdeaSkeletonFormProps = {
   ideaId: string;

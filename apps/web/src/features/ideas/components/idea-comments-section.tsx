@@ -7,7 +7,10 @@ import { toast } from "sonner";
 import { ConfirmDeleteAction } from "@/components/confirm-delete-action";
 import { Button } from "@/components/ui/button";
 import { AuthModal } from "@/features/auth/components/auth-modal";
-import { useIdeaComments, type IdeaComment } from "@/features/ideas/hooks/use-idea-comments";
+import {
+  useIdeaComments,
+  type IdeaComment,
+} from "@/features/ideas/api/use-idea-comments";
 
 type IdeaCommentsSectionProps = {
     ideaId: string;

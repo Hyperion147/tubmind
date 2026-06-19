@@ -4,10 +4,15 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./core": "./src/core.ts",
+    "./ideas": "./src/ideas.ts",
+    "./moderation": "./src/moderation.ts",
+    "./time-logs": "./src/time-logs.ts"
   },
   "dependencies": {
-    "@tubmind/contracts": "workspace:*"
+    "@tubmind/contracts": "workspace:*",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tubmind/typescript-config": "workspace:*",

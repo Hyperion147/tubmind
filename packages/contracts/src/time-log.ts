@@ -11,3 +11,16 @@ export const createTimeLogSchema = z.object({
 });
 
 export type CreateTimeLogInput = z.infer<typeof createTimeLogSchema>;
+
+export const timeLogSchema = z.object({
+  id: z.string(),
+  ideaId: z.string(),
+  taskId: z.string(),
+  taskTitle: z.string(),
+  startedAt: z.string(),
+  endedAt: z.string(),
+  durationSeconds: z.number().int().positive(),
+  notes: z.string().nullable(),
+});
+
+export type TimeLog = z.infer<typeof timeLogSchema>;

@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { AuthModal } from "@/features/auth/components/auth-modal";
-import { useToggleReaction } from "../hooks/use-toggle-reaction";
+import { useToggleReaction } from "../api/use-toggle-reaction";
 
 type PublicIdeaReactionStatProps = {
     ideaId: string;

@@ -1,14 +1,10 @@
 import type { TubTask, TubTaskStatus } from "@tubmind/domain/tub";
+import type {
+  IdeaStatus,
+  IdeaVisibility,
+} from "@tubmind/contracts/idea";
 
-export type IdeaStatus =
-  | "draft"
-  | "in_progress"
-  | "submitted"
-  | "published"
-  | "needs_revision"
-  | "archived";
-
-export type IdeaVisibility = "private" | "public" | "hidden";
+export type { IdeaStatus, IdeaVisibility };
 
 export type WorkspaceTask = TubTask & {
   ideaId: string;

@@ -1,188 +1,87 @@
-import { and, desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-import { db } from "@/db";
-import { ideaComments, ideas, profiles } from "@tubmind/database"
+import {
+  createCommentSchema,
+  deleteCommentInputSchema,
+} from "@tubmind/contracts/comment";
+import {
+  createIdeaComment,
+  deleteIdeaComment,
+  listIdeaComments,
+} from "@/features/ideas/server/comment-service";
 import { getCurrentSessionAccess } from "@/lib/auth";
 import { fail, ok } from "@/lib/http";
-import { isIdeaLive } from "@tubmind/domain";
-import { createCommentSchema } from "@tubmind/contracts";
+import { handleRoute } from "@/lib/route-handler";
 
 type RouteContext = {
-  params: Promise<{
-    id: string;
-  }>;
+  params: Promise<{ id: string }>;
 };
 
+function revalidateIdeaPaths(ideaId: string, slug: string) {
+  revalidatePath(`/listings/${slug}`);
+  revalidatePath(`/dashboard/ideas/${ideaId}`);
+  revalidatePath(`/dashboard/tubs/${ideaId}`);
+}
+
 export async function GET(_: Request, context: RouteContext) {
-  const { id } = await context.params;
-
-  const comments = await db
-    .select({
-      id: ideaComments.id,
-      body: ideaComments.body,
-      status: ideaComments.status,
-      parentCommentId: ideaComments.parentCommentId,
-      createdAt: ideaComments.createdAt,
-      updatedAt: ideaComments.updatedAt,
-      authorId: profiles.id,
-      authorName: profiles.displayName,
-      authorAvatarUrl: profiles.avatarUrl,
-    })
-    .from(ideaComments)
-    .innerJoin(profiles, eq(ideaComments.authorId, profiles.id))
-    .where(and(eq(ideaComments.ideaId, id), eq(ideaComments.status, "visible")))
-    .orderBy(desc(ideaComments.createdAt));
-
-  return ok(comments);
+  return handleRoute(async () => {
+    const { id } = await context.params;
+    return ok(await listIdeaComments(id));
+  });
 }
 
 export async function POST(request: Request, context: RouteContext) {
-  const { id } = await context.params;
-  const { session, isBlocked } = await getCurrentSessionAccess();
+  return handleRoute(async () => {
+    const { id } = await context.params;
+    const { session, isBlocked } = await getCurrentSessionAccess();
 
-  if (!session) {
-    return fail("Unauthorized", 401);
-  }
+    if (!session) return fail("Unauthorized", 401);
+    if (isBlocked) return fail("Blocked users cannot comment", 403);
 
-  if (isBlocked) {
-    return fail("Blocked users cannot comment", 403);
-  }
+    const parsed = createCommentSchema.safeParse(
+      await request.json().catch(() => null),
+    );
+    if (!parsed.success) {
+      return fail("Validation failed", 422, parsed.error.flatten());
+    }
 
-  const [idea] = await db
-    .select({
-      id: ideas.id,
-      ownerId: ideas.ownerId,
-      slug: ideas.slug,
-      allowComments: ideas.allowComments,
-      status: ideas.status,
-      visibility: ideas.visibility,
-    })
-    .from(ideas)
-    .where(eq(ideas.id, id))
-    .limit(1);
-
-  if (!idea) {
-    return fail("Idea not found", 404);
-  }
-
-  const canComment =
-    idea.allowComments &&
-    (isIdeaLive(idea) || idea.ownerId === session.profile.id);
-
-  if (!canComment) {
-    return fail("Comments are disabled for this idea", 403);
-  }
-
-  let payload: unknown;
-
-  try {
-    payload = await request.json();
-  } catch {
-    return fail("Invalid JSON body", 400);
-  }
-
-  const parsed = createCommentSchema.safeParse(payload);
-
-  if (!parsed.success) {
-    return fail("Validation failed", 422, parsed.error.flatten());
-  }
-
-  const [comment] = await db
-    .insert(ideaComments)
-    .values({
+    const result = await createIdeaComment({
       ideaId: id,
-      authorId: session.profile.id,
-      parentCommentId: parsed.data.parentCommentId,
-      body: parsed.data.body,
-    })
-    .returning();
+      author: {
+        id: session.profile.id,
+        displayName: session.profile.displayName,
+        avatarUrl: session.profile.avatarUrl,
+      },
+      data: parsed.data,
+    });
 
-  revalidatePath(`/listings/${idea.slug}`);
-  revalidatePath(`/dashboard/ideas/${id}`);
-  revalidatePath(`/dashboard/tubs/${id}`);
-
-  return ok(
-    {
-      ...comment,
-      authorName: session.profile.displayName,
-      authorAvatarUrl: session.profile.avatarUrl,
-    },
-    { status: 201 }
-  );
+    revalidateIdeaPaths(id, result.slug);
+    return ok(result.comment, { status: 201 });
+  });
 }
 
 export async function DELETE(request: Request, context: RouteContext) {
-  const { id } = await context.params;
-  const { session, isBlocked } = await getCurrentSessionAccess();
+  return handleRoute(async () => {
+    const { id } = await context.params;
+    const { session, isBlocked } = await getCurrentSessionAccess();
 
-  if (!session) {
-    return fail("Unauthorized", 401);
-  }
+    if (!session) return fail("Unauthorized", 401);
+    if (isBlocked) return fail("Blocked users cannot delete comments", 403);
 
-  if (isBlocked) {
-    return fail("Blocked users cannot delete comments", 403);
-  }
+    const parsed = deleteCommentInputSchema.safeParse(
+      await request.json().catch(() => null),
+    );
+    if (!parsed.success) {
+      return fail("Validation failed", 422, parsed.error.flatten());
+    }
 
-  let payload: unknown;
+    const result = await deleteIdeaComment({
+      ideaId: id,
+      commentId: parsed.data.commentId,
+      userId: session.profile.id,
+    });
 
-  try {
-    payload = await request.json();
-  } catch {
-    return fail("Invalid JSON body", 400);
-  }
-
-  const commentId =
-    typeof payload === "object" &&
-    payload !== null &&
-    "commentId" in payload &&
-    typeof payload.commentId === "string"
-      ? payload.commentId
-      : null;
-
-  if (!commentId) {
-    return fail("Comment id is required", 422);
-  }
-
-  const [idea] = await db
-    .select({
-      id: ideas.id,
-      ownerId: ideas.ownerId,
-      slug: ideas.slug,
-    })
-    .from(ideas)
-    .where(eq(ideas.id, id))
-    .limit(1);
-
-  if (!idea) {
-    return fail("Idea not found", 404);
-  }
-
-  const [comment] = await db
-    .select({
-      id: ideaComments.id,
-      authorId: ideaComments.authorId,
-    })
-    .from(ideaComments)
-    .where(and(eq(ideaComments.id, commentId), eq(ideaComments.ideaId, id)))
-    .limit(1);
-
-  if (!comment) {
-    return fail("Comment not found", 404);
-  }
-
-  const canDelete =
-    session.profile.id === idea.ownerId || session.profile.id === comment.authorId;
-
-  if (!canDelete) {
-    return fail("Forbidden", 403);
-  }
-
-  await db.delete(ideaComments).where(eq(ideaComments.id, commentId));
-
-  revalidatePath(`/listings/${idea.slug}`);
-  revalidatePath(`/dashboard/ideas/${id}`);
-  revalidatePath(`/dashboard/tubs/${id}`);
-
-  return ok({ deleted: true, commentId });
+    revalidateIdeaPaths(id, result.slug);
+    return ok(result.result);
+  });
 }

@@ -15,8 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { AdminCommentModerationPanel } from "@/features/admin/components/admin-comment-moderation-panel";
-
-type CommentStatus = "visible" | "hidden" | "deleted";
+import type { CommentStatus } from "@tubmind/contracts/comment";
 
 type CommentRow = {
   id: string;

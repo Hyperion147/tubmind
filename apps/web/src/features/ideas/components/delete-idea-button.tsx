@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { ConfirmDeleteAction } from "@/components/confirm-delete-action";
-import { useDeleteIdea } from "@/features/ideas/hooks/use-idea-mutations";
+import { useDeleteIdea } from "@/features/ideas/api/use-idea-mutations";
 
 type DeleteIdeaButtonProps = {
   ideaId: string;

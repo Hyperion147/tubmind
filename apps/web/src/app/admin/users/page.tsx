@@ -17,7 +17,7 @@ import {
     profiles,
 } from "@tubmind/database";
 import { AdminUsersPageClient } from "@/features/admin/components/admin-users-page-client";
-import { getAdminUserStats } from "@/features/admin/lib/admin-queries";
+import { getAdminUserStats } from "@/features/admin/server/admin-queries";
 import { requireAdmin } from "@/lib/auth";
 
 type PageProps = {

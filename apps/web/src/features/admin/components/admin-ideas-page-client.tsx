@@ -30,16 +30,10 @@ import {
 } from "@/components/ui/pagination";
 import { Separator } from "@/components/ui/separator";
 import { AdminIdeaModerationPanel } from "@/features/admin/components/admin-idea-moderation-panel";
-
-type IdeaStatus =
-  | "draft"
-  | "in_progress"
-  | "submitted"
-  | "published"
-  | "needs_revision"
-  | "archived";
-
-type IdeaVisibility = "private" | "public";
+import type {
+  IdeaStatus,
+  IdeaVisibility,
+} from "@tubmind/contracts/idea";
 
 type IdeaRow = {
   id: string;

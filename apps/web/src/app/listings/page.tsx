@@ -9,7 +9,7 @@ import { ListingEmptyState } from "@/features/listing/components/listing-empty-s
 import { ListingFlowPanel } from "@/features/listing/components/listing-flow-panel";
 import { ListingMobileSearchButton } from "@/features/listing/components/listing-mobile-search-button";
 import { ListingSearchOptionsPanel } from "@/features/listing/components/listing-search-options-panel";
-import { getListingsPageData } from "@/features/listing/lib/listing-queries";
+import { getListingsPageData } from "@/features/listing/server/listing-queries";
 import { getCurrentSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";

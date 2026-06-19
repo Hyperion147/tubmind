@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { TubDetailPage } from "@/features/tub/components/tub-detail-page";
-import { getTubDetailData } from "@/features/tub/lib/tub-detail-data";
+import { getTubDetailData } from "@/features/tub/server/tub-detail-data";
 import { getCurrentSession } from "@/lib/auth";
 
 type PageProps = {

@@ -1,5 +1,5 @@
 import { DashboardOverviewPage } from "@/features/dashboard/components/dashboard-overview-page";
-import { getDashboardWorkspace } from "@/features/workspace/lib/get-dashboard-workspace";
+import { getDashboardWorkspace } from "@/features/workspace/server/get-dashboard-workspace";
 import { getCurrentSession } from "@/lib/auth";
 
 export default async function DashboardPage() {

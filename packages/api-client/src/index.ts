@@ -1,44 +1,16 @@
-import type { ToggleReactionResult } from "@tubmind/contracts";
+import { createRequest } from "./core";
+import { createIdeasApi } from "./ideas";
+import { createModerationApi } from "./moderation";
+import { createTimeLogsApi } from "./time-logs";
 
-export async function apiRequest<TData>(
-    input: RequestInfo | URL,
-    init?: RequestInit,
-    fallbackErrorMessage = "Request failed",
-) {
-    const response = await fetch(input, init);
-    const payload = await response.json().catch(() => null);
+export function createTubmindApi(baseUrl = "") {
+  const request = createRequest(baseUrl);
 
-    if (!response.ok) {
-        throw new Error(payload?.error?.message ?? fallbackErrorMessage);
-    }
-
-    return payload?.data as TData;
+  return {
+    ideas: createIdeasApi(request),
+    moderation: createModerationApi(request),
+    timeLogs: createTimeLogsApi(request),
+  };
 }
 
-export function createApiClient(baseUrl: string) {
-    const normalizedBaseUrl = baseUrl.replace(/\/+$/, "");
-
-    return {
-        request<TData>(
-            path: string,
-            init?: RequestInit,
-            fallbackErrorMessage?: string,
-        ) {
-            const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-
-            return apiRequest<TData>(
-                `${normalizedBaseUrl}${normalizedPath}`,
-                init,
-                fallbackErrorMessage,
-            );
-        },
-    };
-}
-
-export function toggleReaction(ideaId: string) {
-  return apiRequest<ToggleReactionResult>(
-    `/api/ideas/${ideaId}/reactions`,
-    { method: "POST" },
-    "Failed to update reaction",
-  );
-}
+export const tubmindApi = createTubmindApi();

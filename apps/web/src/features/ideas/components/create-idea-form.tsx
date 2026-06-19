@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { AuthModal } from "@/features/auth/components/auth-modal";
-import { useCreateIdea } from "@/features/ideas/hooks/use-idea-mutations";
+import { useCreateIdea } from "@/features/ideas/api/use-idea-mutations";
 import {
     createIdeaSchema,
     type CreateIdeaFormValues,

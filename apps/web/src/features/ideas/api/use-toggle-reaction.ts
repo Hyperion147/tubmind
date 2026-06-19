@@ -2,7 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 
-import { toggleReaction } from "@tubmind/api-client";
+import { tubmindApi } from "@tubmind/api-client";
 import type { ToggleReactionResult } from "@tubmind/contracts/reaction";
 
 export function useToggleReaction(
@@ -12,7 +12,7 @@ export function useToggleReaction(
   },
 ) {
   return useMutation<ToggleReactionResult, Error, void>({
-    mutationFn: () => toggleReaction(ideaId),
+    mutationFn: () => tubmindApi.ideas.toggleReaction(ideaId),
     onSuccess: options?.onSuccess,
   });
 }

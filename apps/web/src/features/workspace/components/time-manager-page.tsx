@@ -25,6 +25,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useUrlSearchState } from "@/hooks/use-url-search-state";
+import { useCreateTimeLog } from "@/features/workspace/api/use-create-time-log";
 
 import { formatRelativeBucket, formatShortDate, isTaskOverdue } from "../lib/formatters";
 import type { WorkspaceDashboardData } from "../lib/workspace-model";
@@ -63,9 +64,8 @@ export function TimeManagerPage({
   const [entries, setEntries] = useState<TimeLogEntry[]>(initialLogs);
   const [activeTimer, setActiveTimer] = useState<ActiveTimerState | null>(initialStorageState.activeTimer);
   const [now, setNow] = useState(() => Date.now());
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
   const timerRef = useRef<number | null>(null);
+  const createTimeLog = useCreateTimeLog();
 
   const tasks = workspace.tasks;
   const selectedTaskId = activeTimer?.taskId ?? searchParams.get("task") ?? initialFilters.selectedTaskId;
@@ -152,7 +152,7 @@ export function TimeManagerPage({
       return;
     }
 
-    setSaveError(null);
+    createTimeLog.reset();
     setActiveTimer({
       taskId: selectedTask.id,
       startedAt: new Date().toISOString(),
@@ -183,7 +183,7 @@ export function TimeManagerPage({
       return;
     }
 
-    setSaveError(null);
+    createTimeLog.reset();
     setActiveTimer({
       ...activeTimer,
       startedAt: new Date().toISOString(),
@@ -203,42 +203,18 @@ export function TimeManagerPage({
 
     const startedAt = new Date(endedAt.getTime() - durationMs).toISOString();
 
-    setIsSaving(true);
-    setSaveError(null);
+    createTimeLog.reset();
 
     try {
-      const response = await fetch("/api/time-logs", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ideaId: activeTask.ideaId,
-          taskId: activeTask.id,
-          taskTitle: activeTask.title,
-          startedAt,
-          endedAt: endedAt.toISOString(),
-          durationSeconds: Math.floor(durationMs / 1000),
-          notes: activeTimer.notes,
-        }),
+      const saved = await createTimeLog.mutateAsync({
+        ideaId: activeTask.ideaId,
+        taskId: activeTask.id,
+        taskTitle: activeTask.title,
+        startedAt,
+        endedAt: endedAt.toISOString(),
+        durationSeconds: Math.floor(durationMs / 1000),
+        notes: activeTimer.notes,
       });
-
-      const payload = await response.json();
-
-      if (!response.ok) {
-        throw new Error(payload?.error?.message ?? "Failed to save time log");
-      }
-
-      const saved = payload.data as {
-        id: string;
-        ideaId: string;
-        taskId: string;
-        taskTitle: string;
-        startedAt: string;
-        endedAt: string;
-        durationSeconds: number;
-        notes: string | null;
-      };
 
       const nextEntry: TimeLogEntry = {
         id: saved.id,
@@ -258,10 +234,8 @@ export function TimeManagerPage({
         task: null,
       });
       setNotes("");
-    } catch (error) {
-      setSaveError(error instanceof Error ? error.message : "Failed to save time log");
-    } finally {
-      setIsSaving(false);
+    } catch {
+      // Error state is exposed by the mutation.
     }
   }
 
@@ -421,11 +395,11 @@ export function TimeManagerPage({
                         className="h-11 justify-between"
                         variant="secondary"
                         onClick={stopTimer}
-                        disabled={isSaving}
+                        disabled={createTimeLog.isPending}
                       >
                         <span className="inline-flex items-center gap-2">
                           <Square className="size-4" />
-                          {isSaving ? "Saving..." : "Stop + save"}
+                          {createTimeLog.isPending ? "Saving..." : "Stop + save"}
                         </span>
                         <CheckCircle2 className="size-4" />
                       </Button>
@@ -435,8 +409,10 @@ export function TimeManagerPage({
               </div>
             </div>
 
-            {saveError ? (
-              <p className="text-sm text-destructive">{saveError}</p>
+            {createTimeLog.error ? (
+              <p className="text-sm text-destructive">
+                {createTimeLog.error.message}
+              </p>
             ) : null}
 
             <div className="grid gap-2">

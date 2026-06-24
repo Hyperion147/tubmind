@@ -44,19 +44,6 @@ export function IdeaCommentsSection({
         deleteComment: deleteMutation,
     } = useIdeaComments({
         ideaId,
-        onCommentCreated: (comment) => {
-            setComments((current) => [comment, ...current]);
-            setBody("");
-        },
-        onCommentDeleted: (commentId) => {
-            setComments((current) =>
-                current.filter((comment) => comment.id !== commentId),
-            );
-            toast.success("Comment deleted");
-        },
-        onError: (error) => {
-            toast.error(error.message);
-        },
     });
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -71,7 +58,72 @@ export function IdeaCommentsSection({
             return;
         }
 
-        mutation.mutate(body.trim());
+        const nextBody = body.trim();
+        const optimisticComment = createOptimisticComment({
+            body: nextBody,
+            authorId: currentUserId,
+        });
+
+        setBody("");
+        setComments((current) => [optimisticComment, ...current]);
+
+        mutation.mutate(nextBody, {
+            onSuccess(comment) {
+                setComments((current) =>
+                    current.map((item) =>
+                        item.id === optimisticComment.id ? comment : item,
+                    ),
+                );
+            },
+            onError(error) {
+                setComments((current) =>
+                    current.filter(
+                        (comment) => comment.id !== optimisticComment.id,
+                    ),
+                );
+                setBody(nextBody);
+                toast.error("Comment failed", {
+                    description: error.message,
+                });
+            },
+        });
+    }
+
+    function handleDeleteComment(commentId: string) {
+        const commentIndex = comments.findIndex(
+            (comment) => comment.id === commentId,
+        );
+        const deletedComment = comments[commentIndex];
+
+        if (!deletedComment) {
+            return;
+        }
+
+        setComments((current) =>
+            current.filter((comment) => comment.id !== commentId),
+        );
+
+        deleteMutation.mutate(commentId, {
+            onSuccess() {
+                toast.success("Comment deleted");
+            },
+            onError(error) {
+                setComments((current) => {
+                    if (current.some((comment) => comment.id === commentId)) {
+                        return current;
+                    }
+
+                    return [
+                        ...current.slice(0, commentIndex),
+                        deletedComment,
+                        ...current.slice(commentIndex),
+                    ];
+                });
+                toast.error("Delete failed", {
+                    description: error.message,
+                });
+            },
+        });
     }
 
     return (
@@ -105,11 +157,6 @@ export function IdeaCommentsSection({
                                 : "Sign in to comment"}
                         </Button>
                     </div>
-                    {mutation.error ? (
-                        <p className="text-sm text-red-600">
-                            {mutation.error.message}
-                        </p>
-                    ) : null}
                 </form>
             </div>
 
@@ -120,11 +167,12 @@ export function IdeaCommentsSection({
                             comments={comments}
                             currentUserId={currentUserId}
                             ideaOwnerId={ideaOwnerId}
-                            deletingCommentId={deleteMutation.variables ?? null}
-                            onDeleteComment={(commentId) =>
-                                deleteMutation.mutate(commentId)
+                            deletingCommentId={
+                                deleteMutation.isPending
+                                    ? (deleteMutation.variables ?? null)
+                                    : null
                             }
-                            deleteError={deleteMutation.error?.message ?? null}
+                            onDeleteComment={handleDeleteComment}
                         />,
                         portalTarget,
                     )
@@ -134,11 +182,12 @@ export function IdeaCommentsSection({
                     comments={comments}
                     currentUserId={currentUserId}
                     ideaOwnerId={ideaOwnerId}
-                    deletingCommentId={deleteMutation.variables ?? null}
-                    onDeleteComment={(commentId) =>
-                        deleteMutation.mutate(commentId)
+                    deletingCommentId={
+                        deleteMutation.isPending
+                            ? (deleteMutation.variables ?? null)
+                            : null
                     }
-                    deleteError={deleteMutation.error?.message ?? null}
+                    onDeleteComment={handleDeleteComment}
                 />
             )}
 
@@ -160,14 +209,12 @@ function CommentsList({
     ideaOwnerId,
     deletingCommentId,
     onDeleteComment,
-    deleteError,
 }: {
     comments: IdeaComment[];
     currentUserId?: string;
     ideaOwnerId?: string;
     deletingCommentId: string | null;
     onDeleteComment: (commentId: string) => void;
-    deleteError: string | null;
 }) {
     function canDeleteComment(comment: IdeaComment) {
         return Boolean(
@@ -192,10 +239,6 @@ function CommentsList({
                     {comments.length} total
                 </p>
             </div>
-
-            {deleteError ? (
-                <p className="mb-4 text-sm text-red-600">{deleteError}</p>
-            ) : null}
 
             <ul className="grid gap-4 text-sm text-muted-foreground lg:grid-cols-2">
                 {comments.length === 0 ? (
@@ -262,6 +305,32 @@ function formatCommentTimestamp(value: string | Date) {
         dateStyle: "medium",
         timeStyle: "short",
     }).format(date);
+}
+
+function createOptimisticComment({
+    body,
+    authorId,
+}: {
+    body: string;
+    authorId?: string;
+}): IdeaComment {
+    const timestamp = new Date().toISOString();
+    const randomId =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+            ? crypto.randomUUID()
+            : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+    return {
+        id: `optimistic-${randomId}`,
+        body,
+        status: "visible",
+        parentCommentId: null,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+        authorId: authorId ?? "optimistic-author",
+        authorName: "You",
+        authorAvatarUrl: null,
+    };
 }
 
 function usePortalTarget(targetId?: string) {

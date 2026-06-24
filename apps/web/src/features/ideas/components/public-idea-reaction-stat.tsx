@@ -2,6 +2,7 @@
 
 import { Sparkles } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { AuthModal } from "@/features/auth/components/auth-modal";
@@ -39,7 +40,28 @@ export function PublicIdeaReactionStat({
             return;
         }
 
-        mutation.mutate();
+        if (mutation.isPending) {
+            return;
+        }
+
+        const previousCount = count;
+        const previousReacted = reacted;
+        const nextReacted = !reacted;
+
+        setReacted(nextReacted);
+        setCount((current) =>
+            Math.max(0, current + (nextReacted ? 1 : -1)),
+        );
+
+        mutation.mutate(undefined, {
+            onError(error) {
+                setReacted(previousReacted);
+                setCount(previousCount);
+                toast.error("Like failed", {
+                    description: error.message,
+                });
+            },
+        });
     }
 
     return (
@@ -60,18 +82,13 @@ export function PublicIdeaReactionStat({
                         onClick={handleToggleReaction}
                         variant={reacted ? "secondary" : "outline"}
                         size="xs"
-                        disabled={mutation.isPending}
+                        aria-busy={mutation.isPending}
                         className="gap-2 text-[11px] uppercase tracking-[0.16em]"
                     >
                         <Sparkles className="size-3.5" />
                         {reacted ? "Liked" : "Like"}
                     </Button>
                 </div>
-                {mutation.error ? (
-                    <p className="mt-2 text-xs text-red-600">
-                        {mutation.error.message}
-                    </p>
-                ) : null}
             </div>
 
             {showAuthModal ? (

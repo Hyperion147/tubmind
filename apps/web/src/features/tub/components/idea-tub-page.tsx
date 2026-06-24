@@ -62,8 +62,13 @@ export function IdeaTubPage(props: IdeaTubPageProps) {
 
       <div className="flex flex-wrap items-center justify-between gap-3 border border-border bg-card/80 px-4 py-3 text-sm text-muted-foreground">
         <p>
-          Auto-saves happen whenever the tub changes.
-          {tub.isPending || tub.mutation.isPending ? " Saving latest move..." : " Latest tub state is in sync."}
+          {tub.isPending || tub.mutation.isPending
+            ? "Saving latest tub change..."
+            : tub.mutation.isError
+              ? "Last save failed. The task list was restored."
+              : tub.lastSavedAt
+                ? `Saved ${formatSaveTime(tub.lastSavedAt)}.`
+                : "Auto-saves happen whenever the tub changes."}
         </p>
         <div className="flex flex-wrap gap-3">
           <Button asChild variant="ghost">
@@ -76,4 +81,11 @@ export function IdeaTubPage(props: IdeaTubPageProps) {
       </div>
     </main>
   );
+}
+
+function formatSaveTime(value: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(value));
 }

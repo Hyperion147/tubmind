@@ -172,7 +172,7 @@ function TaskSurface({
         draggedTaskId === task.id && "opacity-60",
       )}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-2">
           <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center border border-border bg-background/70">
             <StatusIcon className="size-4 text-muted-foreground" />
@@ -185,37 +185,51 @@ function TaskSurface({
             </div>
           </div>
         </div>
-        <Button
-          type="button"
-          size="icon-sm"
-          variant="ghost"
-          onClick={() => {
-            if (isEditing) {
-              resetDraft();
-              setIsEditing(false);
-              return;
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-1">
+          <Button
+            type="button"
+            size="xs"
+            variant={task.status === "completed" ? "outline" : "secondary"}
+            onClick={() =>
+              moveTask(task.id, task.status === "completed" ? "ongoing" : "completed")
             }
+            className="gap-2 text-[11px] uppercase tracking-[0.16em]"
+          >
+            <Check className="size-3.5" />
+            {task.status === "completed" ? "Reopen" : "Done"}
+          </Button>
+          <Button
+            type="button"
+            size="icon-sm"
+            variant="ghost"
+            onClick={() => {
+              if (isEditing) {
+                resetDraft();
+                setIsEditing(false);
+                return;
+              }
 
-            setIsEditing(true);
-          }}
-          aria-label={isEditing ? `Cancel editing ${task.title}` : `Edit ${task.title}`}
-        >
-          {isEditing ? <X className="size-4" /> : <Pencil className="size-4" />}
-        </Button>
-        <ConfirmDeleteAction
-          title="Delete this task?"
-          description="This removes the task from the tub. The change is saved after confirmation."
-          actionLabel="Delete task"
-          size="icon-sm"
-          variant="ghost"
-          onConfirm={() => {
-            removeTask(task.id);
-            toast.success("Task deleted");
-          }}
-          triggerAriaLabel={`Delete ${task.title}`}
-        >
-          <Trash2 className="size-4" />
-        </ConfirmDeleteAction>
+              setIsEditing(true);
+            }}
+            aria-label={isEditing ? `Cancel editing ${task.title}` : `Edit ${task.title}`}
+          >
+            {isEditing ? <X className="size-4" /> : <Pencil className="size-4" />}
+          </Button>
+          <ConfirmDeleteAction
+            title="Delete this task?"
+            description="This removes the task from the tub. The change is saved after confirmation."
+            actionLabel="Delete task"
+            size="icon-sm"
+            variant="ghost"
+            onConfirm={() => {
+              removeTask(task.id);
+              toast.success("Task deleted");
+            }}
+            triggerAriaLabel={`Delete ${task.title}`}
+          >
+            <Trash2 className="size-4" />
+          </ConfirmDeleteAction>
+        </div>
       </div>
 
       {isEditing ? (

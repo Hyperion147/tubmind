@@ -135,6 +135,7 @@ export function buildActivityFeed(workspace: WorkspaceDashboardData) {
                 : "Updated an idea space",
         subtitle: idea.title,
         timestamp: idea.updatedAt,
+        href: `/dashboard/tubs/${idea.id}`,
         icon:
             idea.status === "published" || idea.visibility === "public"
                 ? Globe2
@@ -145,6 +146,7 @@ export function buildActivityFeed(workspace: WorkspaceDashboardData) {
         title: `Moved task to ${humanize(task.status)}`,
         subtitle: task.title,
         timestamp: task.updatedAt,
+        href: `/dashboard/tasks/${encodeURIComponent(task.id)}`,
         icon: task.status === "completed" ? CheckCircle2 : CircleDot,
     }));
 

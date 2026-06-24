@@ -38,6 +38,7 @@ import {
 } from "@/features/workspace/lib/formatters";
 import {
     getTaskHref,
+    getTubWorkflowState,
     type WorkspaceDashboardData,
 } from "@/features/workspace/lib/workspace-model";
 import {
@@ -154,30 +155,35 @@ export function DashboardOverviewPage({
                 "captured",
             ),
             icon: Lightbulb,
+            href: "/dashboard/ideas",
         },
         {
             label: "Ideas in Tubs",
             value: ideasInTubs,
             detail: `${totalTasksLinked} linked ${totalTasksLinked === 1 ? "task" : "tasks"} across your tubs`,
             icon: FolderKanban,
+            href: "/dashboard/tubs",
         },
         {
             label: "Public Ideas",
             value: workspace.stats.publicIdeas,
             detail: `${refinedIdeasThisWeek} refined in the last 7 days`,
             icon: Globe2,
+            href: "/listings",
         },
         {
             label: "Comments",
             value: totalComments,
             detail: `${ideasWithComments} ${ideasWithComments === 1 ? "idea has" : "ideas have"} visible discussion`,
             icon: MessageCircleMore,
+            href: "/dashboard/tubs",
         },
         {
             label: "Active Tubs",
             value: activeTubs,
             detail: `${completedThisWeek} ${completedThisWeek === 1 ? "task was" : "tasks were"} completed this week`,
             icon: Target,
+            href: "/dashboard/tubs",
         },
     ];
 
@@ -189,7 +195,7 @@ export function DashboardOverviewPage({
                 ]}
             />
 
-            <section className="grid gap-4 border border-border bg-card p-6">
+            <section className="grid gap-4 border border-border bg-card/80 p-6 shadow-sm">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                     <div className="space-y-2">
                         <h1 className="text-4xl font-semibold tracking-tight text-primary">
@@ -224,13 +230,14 @@ export function DashboardOverviewPage({
                             detail={card.detail}
                             value={card.value}
                             icon={card.icon}
+                            href={card.href}
                         />
                     ))}
                 </div>
             </section>
 
             <section className="grid gap-4 xl:grid-cols-[1.5fr_1.1fr]">
-                <Card className="border border-border bg-card/92 shadow-sm">
+                <Card className="border border-border/80 bg-card/86 shadow-sm">
                     <CardHeader className="border-b border-border">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                             <div>
@@ -304,7 +311,7 @@ export function DashboardOverviewPage({
                     </CardContent>
                 </Card>
 
-                <Card className="border border-border bg-card/92 shadow-sm">
+                <Card className="border border-border/80 bg-card/86 shadow-sm">
                     <CardHeader className="border-b border-border">
                         <div className="flex flex-wrap items-center justify-between">
                             <div>
@@ -471,8 +478,9 @@ export function DashboardOverviewPage({
                     ) : (
                         <div className="grid gap-4">
                             {activityFeed.map((item) => (
-                                <div
+                                <Link
                                     key={`${item.title}-${item.timestamp}`}
+                                    href={item.href}
                                     className="grid grid-cols-[auto_1fr_auto] gap-3 border-b border-border/70 pb-4 last:border-b-0 last:pb-0"
                                 >
                                     <div className="mt-1 flex size-8 items-center justify-center bg-secondary text-primary">
@@ -489,7 +497,7 @@ export function DashboardOverviewPage({
                                     <span className="justify-self-end text-xs text-muted-foreground">
                                         {formatRelativeTime(item.timestamp)}
                                     </span>
-                                </div>
+                                </Link>
                             ))}
                         </div>
                     )}
@@ -506,35 +514,37 @@ export function DashboardOverviewPage({
                         <EmptyPanel copy="No tubs yet. Once ideas start collecting tasks, rankings will show here." />
                     ) : (
                         <div className="grid gap-4">
-                            {topTubs.map((idea, index) => (
-                                <div
-                                    key={idea.id}
-                                    className="grid grid-cols-[auto_1fr_auto] items-center gap-3"
-                                >
-                                    <div className="flex size-6 items-center justify-center border border-border bg-background text-xs text-muted-foreground">
-                                        {index + 1}
-                                    </div>
-                                    <div className="min-w-0">
-                                        <p className="truncate text-sm font-medium text-foreground">
-                                            {idea.title}
-                                        </p>
-                                        <div className="mt-2 h-2 w-full bg-secondary/80">
-                                            <div
-                                                className="h-full bg-[var(--color-chart-1)]"
-                                                style={{
-                                                    width: `${Math.max(14, getTubBarWidth(idea, topTubs))}%`,
-                                                }}
-                                            />
+                            {topTubs.map((idea, index) => {
+                                const workflowState = getTubWorkflowState(idea);
+
+                                return (
+                                    <Link
+                                        key={idea.id}
+                                        href={`/dashboard/tubs/${idea.id}`}
+                                        className="grid grid-cols-[auto_1fr_auto] items-center gap-3 transition-colors hover:text-primary"
+                                    >
+                                        <div className="flex size-6 items-center justify-center border border-border bg-background text-xs text-muted-foreground">
+                                            {index + 1}
                                         </div>
-                                    </div>
-                                    <span className="text-xs text-muted-foreground">
-                                        {idea.tasks.length}{" "}
-                                        {idea.tasks.length === 1
-                                            ? "task"
-                                            : "tasks"}
-                                    </span>
-                                </div>
-                            ))}
+                                        <div className="min-w-0">
+                                            <p className="truncate text-sm font-medium text-foreground">
+                                                {idea.title}
+                                            </p>
+                                            <div className="mt-2 h-2 w-full bg-secondary/80">
+                                                <div
+                                                    className="h-full bg-[var(--color-chart-1)]"
+                                                    style={{
+                                                        width: `${Math.max(14, getTubBarWidth(idea, topTubs))}%`,
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                        <span className="max-w-28 truncate text-right text-xs text-muted-foreground">
+                                            {workflowState.label}
+                                        </span>
+                                    </Link>
+                                );
+                            })}
                         </div>
                     )}
                 </PanelCard>

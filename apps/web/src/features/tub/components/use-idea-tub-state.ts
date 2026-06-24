@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState, useTransition, type ChangeEvent, type DragEvent } from "react";
+import { useMemo, useRef, useState, useTransition, type ChangeEvent, type DragEvent } from "react";
+import { toast } from "sonner";
 
 import {
   emptyIdeaTubData,
@@ -30,7 +31,9 @@ export function useIdeaTubState({ idea, initialTubData }: IdeaTubPageProps) {
   const [draft, setDraft] = useState(createEmptyDraft());
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const [isDeadlinePickerOpen, setIsDeadlinePickerOpen] = useState(false);
+  const saveVersionRef = useRef(0);
   const [calendarMonth, setCalendarMonth] = useState(() => {
     const seedDate = initialTubData.tasks[0]?.date ?? getTodayDateValue();
     return parseDateValue(seedDate) ?? parseDateValue(getTodayDateValue()) ?? new Date();
@@ -74,6 +77,9 @@ export function useIdeaTubState({ idea, initialTubData }: IdeaTubPageProps) {
   const hasSelectedDate = selectedDate !== null;
 
   function persistTasks(nextTasks: TubTask[]) {
+    const previousTasks = tasks;
+    const saveVersion = saveVersionRef.current + 1;
+    saveVersionRef.current = saveVersion;
     const normalized = nextTasks
       .map((task) => ({
         ...task,
@@ -85,10 +91,33 @@ export function useIdeaTubState({ idea, initialTubData }: IdeaTubPageProps) {
     startTransition(() => {
       setTasks(normalized);
     });
-    mutation.mutate({
-      ...emptyIdeaTubData,
-      tasks: normalized,
-    });
+    mutation.mutate(
+      {
+        ...emptyIdeaTubData,
+        tasks: normalized,
+      },
+      {
+        onSuccess() {
+          if (saveVersionRef.current !== saveVersion) {
+            return;
+          }
+
+          setLastSavedAt(new Date().toISOString());
+          setErrorMessage(null);
+        },
+        onError(error) {
+          if (saveVersionRef.current !== saveVersion) {
+            return;
+          }
+
+          setTasks(previousTasks);
+          setErrorMessage(error.message);
+          toast.error("Tub update failed", {
+            description: "Your last task change was restored.",
+          });
+        },
+      },
+    );
   }
 
   function addTask() {
@@ -193,6 +222,7 @@ export function useIdeaTubState({ idea, initialTubData }: IdeaTubPageProps) {
     isPending,
     monthLabel,
     mutation,
+    lastSavedAt,
     removeTask,
     updateTask,
     selectedDate,

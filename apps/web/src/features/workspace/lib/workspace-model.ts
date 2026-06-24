@@ -67,3 +67,64 @@ export function getTaskById(tasks: WorkspaceTask[], taskId: string) {
 export function getTaskHref(task: Pick<WorkspaceTask, "id">) {
   return `/dashboard/tasks/${encodeURIComponent(task.id)}`;
 }
+
+export function getTubWorkflowState(idea: WorkspaceIdea) {
+  const hasTasks = idea.tasks.length > 0;
+  const hasOverdueTasks = idea.tasks.some((task) => {
+    if (!task.deadline || task.status === "completed") {
+      return false;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return new Date(task.deadline) < today;
+  });
+  const openTasks = idea.tasks.filter((task) => task.status !== "completed");
+
+  if (hasOverdueTasks) {
+    return {
+      label: "Blocked",
+      description: "Overdue task needs attention",
+      tone: "destructive" as const,
+    };
+  }
+
+  if (idea.status === "submitted") {
+    return {
+      label: "Ready to publish",
+      description: "Review and publish when ready",
+      tone: "ready" as const,
+    };
+  }
+
+  if (idea.status === "published" || idea.visibility === "public") {
+    return {
+      label: idea.comments > 0 ? "Published with discussion" : "Published",
+      description:
+        idea.comments > 0 ? `${idea.comments} visible comments` : "Live on listings",
+      tone: "published" as const,
+    };
+  }
+
+  if (!hasTasks) {
+    return {
+      label: "No tasks yet",
+      description: "Add first steps to start the tub",
+      tone: "muted" as const,
+    };
+  }
+
+  if (openTasks.length > 0) {
+    return {
+      label: "Active",
+      description: `${openTasks.length} open ${openTasks.length === 1 ? "task" : "tasks"}`,
+      tone: "active" as const,
+    };
+  }
+
+  return {
+    label: "Needs review",
+    description: "All tasks are complete",
+    tone: "ready" as const,
+  };
+}

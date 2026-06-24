@@ -253,9 +253,17 @@ function CommentsList({
                         >
                             <div className="flex flex-wrap items-start justify-between gap-3">
                                 <div className="min-w-0 space-y-1">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground">
-                                        {comment.authorName || "Anonymous"}
-                                    </p>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground">
+                                            {comment.authorName || "Anonymous"}
+                                        </p>
+                                        {currentUserId === comment.authorId ? (
+                                            <CommentBadge>You</CommentBadge>
+                                        ) : null}
+                                        {ideaOwnerId === comment.authorId ? (
+                                            <CommentBadge>Owner</CommentBadge>
+                                        ) : null}
+                                    </div>
                                     <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
                                         {formatCommentTimestamp(
                                             comment.createdAt,
@@ -295,6 +303,14 @@ function CommentsList({
                 )}
             </ul>
         </div>
+    );
+}
+
+function CommentBadge({ children }: { children: React.ReactNode }) {
+    return (
+        <span className="inline-flex items-center border border-primary/20 bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-primary">
+            {children}
+        </span>
     );
 }
 

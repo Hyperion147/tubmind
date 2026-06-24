@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type React from "react";
 import { useMemo } from "react";
 import {
   CheckCircle2,
@@ -26,7 +27,10 @@ import { useUrlSearchState } from "@/hooks/use-url-search-state";
 import { cn } from "@/lib/utils";
 
 import { formatShortDate, humanize, isTaskOverdue } from "../../workspace/lib/formatters";
-import type { WorkspaceIdea } from "../../workspace/lib/workspace-model";
+import {
+  getTubWorkflowState,
+  type WorkspaceIdea,
+} from "../../workspace/lib/workspace-model";
 
 type TubPageClientProps = {
   ideas: WorkspaceIdea[];
@@ -110,6 +114,7 @@ export function TubPageClient({ ideas, initialQuery }: TubPageClientProps) {
               (task) => task.status === "completed",
             ).length;
             const overdueCount = idea.tasks.filter(isTaskOverdue).length;
+            const workflowState = getTubWorkflowState(idea);
 
             return (
               <Card
@@ -123,6 +128,9 @@ export function TubPageClient({ ideas, initialQuery }: TubPageClientProps) {
                         <Badge variant="secondary" className="font-mono">
                           {humanize(idea.status)}
                         </Badge>
+                        <WorkflowBadge tone={workflowState.tone}>
+                          {workflowState.label}
+                        </WorkflowBadge>
                         <Badge variant="outline" className="font-mono">
                           {idea.visibility}
                         </Badge>
@@ -161,6 +169,11 @@ export function TubPageClient({ ideas, initialQuery }: TubPageClientProps) {
                   </div>
 
                   <div className="grid gap-2 border border-border bg-background/60 p-3 text-sm">
+                    <MetaRow
+                      label="Workflow"
+                      value={workflowState.description}
+                      destructive={workflowState.tone === "destructive"}
+                    />
                     <MetaRow label="Created" value={formatShortDate(idea.createdAt)} />
                     <MetaRow label="Timeline" value={idea.timeline || "Not set"} />
                     <MetaRow
@@ -187,6 +200,36 @@ export function TubPageClient({ ideas, initialQuery }: TubPageClientProps) {
         )}
       </section>
     </div>
+  );
+}
+
+function WorkflowBadge({
+  children,
+  tone,
+}: {
+  children: React.ReactNode;
+  tone: ReturnType<typeof getTubWorkflowState>["tone"];
+}) {
+  const toneClass =
+    tone === "destructive"
+      ? "border-destructive/30 bg-destructive/10 text-destructive"
+      : tone === "ready"
+        ? "border-[oklch(0.72_0.16_65/0.28)] bg-[oklch(0.97_0.03_65)] text-[oklch(0.56_0.13_65)]"
+        : tone === "published"
+          ? "border-primary/25 bg-primary/10 text-primary"
+          : tone === "active"
+            ? "border-[oklch(0.58_0.17_260/0.24)] bg-[oklch(0.95_0.03_260)] text-[oklch(0.52_0.14_260)]"
+            : "border-border bg-background text-muted-foreground";
+
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center border px-2 py-0.5 font-mono text-xs",
+        toneClass,
+      )}
+    >
+      {children}
+    </span>
   );
 }
 

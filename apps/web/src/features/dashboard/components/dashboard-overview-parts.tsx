@@ -9,13 +9,15 @@ export function StatCard({
     value,
     detail,
     icon: Icon,
+    href,
 }: {
     label: string;
     value: number;
     detail: string;
     icon: LucideIcon;
+    href?: string;
 }) {
-    return (
+    const content = (
         <div className="border border-border bg-background/82 p-4 shadow-xs">
             <div className="flex items-start justify-between gap-3">
                 <div className="space-y-2">
@@ -31,6 +33,19 @@ export function StatCard({
             <p className="mt-3 text-sm text-muted-foreground">{detail}</p>
         </div>
     );
+
+    if (!href) {
+        return content;
+    }
+
+    return (
+        <Link
+            href={href}
+            className="group block transition-colors hover:border-primary/35 [&>div]:transition-colors [&>div]:group-hover:border-primary/35 [&>div]:group-hover:bg-secondary/30"
+        >
+            {content}
+        </Link>
+    );
 }
 
 export function PanelCard({
@@ -45,8 +60,8 @@ export function PanelCard({
     children: React.ReactNode;
 }) {
     return (
-        <Card className="border border-border bg-card/92 shadow-sm">
-            <CardHeader className="border-b border-border">
+        <Card className="border border-border/80 bg-card/86 shadow-sm">
+            <CardHeader className="border-b border-border/70">
                 <CardTitle className="text-xl font-semibold text-foreground">
                     {title}
                 </CardTitle>
@@ -54,7 +69,7 @@ export function PanelCard({
             <CardContent>
                 <div className="grid gap-4">{children}</div>
                 {footerHref && footerLabel ? (
-                    <div className="mt-5 border-t border-border pt-4 text-right">
+                    <div className="mt-5 border-t border-border/70 pt-4 text-right">
                         <Link
                             href={footerHref}
                             className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
